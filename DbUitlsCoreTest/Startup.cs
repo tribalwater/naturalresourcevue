@@ -27,6 +27,7 @@ namespace DbUitlsCoreTest
             services.AddSingleton<IDapperHelper, DapperHelper>(ctx =>
                new DapperHelper(Configuration.GetConnectionString("Dev"), "SQLSERVER")
             );
+        
             services.AddSingleton<IItemRepository, ItemSQLRepository>();
         }
 

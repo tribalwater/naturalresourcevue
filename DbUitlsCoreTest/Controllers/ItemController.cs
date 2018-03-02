@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DbUitlsCoreTest.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DbUitlsCoreTest.Controllers
 {
@@ -22,22 +24,14 @@ namespace DbUitlsCoreTest.Controllers
         // GET: api/itemtype/subtype
 
         [HttpGet]
-        public string Get(string itemtype, string subtype)
+        public IActionResult Get(string itemtype, string subtype)
         {
             Console.WriteLine("----- tiem type -----");
             Console.WriteLine(itemtype);
 
-            return itemtype + subtype;
+            return Ok(_respository.GetAllItems(itemtype, subtype));
         }
 
-        [HttpGet]
-        public string GetItemsWithQuery(string itemtype, string subtype, [FromQuery] string query)
-        {
-            Console.WriteLine("----- tiem type -----");
-            Console.WriteLine(itemtype);
-
-            return itemtype + subtype + query;
-        }
 
         // GET: api/itemtype/subtype/5
         [HttpGet("{id}", Name = "Get")]
@@ -47,19 +41,26 @@ namespace DbUitlsCoreTest.Controllers
             Console.WriteLine(itemtype);
             Console.WriteLine(subtype);
             return Ok(_respository.GetItem(itemtype, subtype));
-            //itemtype + " "  + subtype + " " + id;
         }
 
         // POST: api/itemtype/subtype
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post(string itemtype, string subtype, [FromBody]object ItemTypeObj)
         {
+            Console.WriteLine(ItemTypeObj);
+            Console.WriteLine(itemtype);
+            
+            return Ok(_respository.AddItem(ItemTypeObj, itemtype, subtype));
         }
 
         // PUT: api/itemtype/subtype
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Put(string itemtype, string subtype, [FromBody]object ItemTypeObj)
         {
+            Console.WriteLine(ItemTypeObj);
+            Console.WriteLine(itemtype);
+
+            return Ok(_respository.AddItem(ItemTypeObj, itemtype, subtype));
         }
 
         // DELETE: api/itemtype/subtype/5

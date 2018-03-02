@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,36 +15,56 @@ namespace DbUitlsCoreTest.Data
             _dapperHelper = dapperHelper;
         }
 
-        public object AddItem(object item)
+        public object AddItem(object item, string itemtype, string subtype = null)
         {
-            return null;
+            JObject ItemTypeJson = JObject.FromObject(item);
+
+            string[] keys = ItemTypeJson.Properties().Select(p => p.Name.ToString()).ToArray();
+            string[] vals = ItemTypeJson.Properties().Select(p => p.Value.ToString()).ToArray();
+          
+            return _dapperHelper.Insert($"{itemtype}_PROPERTIES", keys, vals);
         }
 
-        public object UpdateItem(object item)
+        public object UpdateItem(string itemtype, string itemsubtype, string id,  object updateObject)
         {
-            return null;
+            JObject ItemTypeJson                  = JObject.FromObject(updateObject);
+            Dictionary<string,string> updateDict  = ItemTypeJson.ToObject<Dictionary<string, string>>();
+            Dictionary<string, string> whereDict  = new Dictionary<string, string>();
+
+            whereDict.Add(itemtype + "type", itemsubtype);
+            whereDict.Add("itemid", id);
+
+           var result = _dapperHelper.Update($"{itemtype}_PROPERTIES", updateDict, whereDict);
+
+            return result;
+           
         }
 
         public object GetItem(string itemtype, string itemsubtype)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
-            whereDict.Add("DOCUMENTNUMBER", "1245-6D");
-
             
-            var res = _dapperHelper.GetList(itemtype + "_properties", null, whereDict).FirstOrDefault();
+            var res = _dapperHelper.Get(itemtype + "_properties", null, whereDict);
             return res;
-
         }
 
-        public object GetAllItems(object item)
+        public object GetAllItems(string itemtype, string itemsubtype)
         {
-            return null;
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
+            whereDict.Add(itemtype + "type", itemsubtype);
+
+            var res = _dapperHelper.GetList(itemtype + "_properties", null, whereDict);
+            return res;
         }
 
-        public object DeleteItem(object item)
+        public int DeleteItem(string itemtype, string itemsubtype, string id)
         {
-            return null;
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
+            whereDict.Add(itemtype + "type", itemsubtype);
+            whereDict.Add("itemid", id);
+
+            return _dapperHelper.Delete(itemtype + "_properties", whereDict);
 
         }
 
@@ -104,5 +125,9 @@ namespace DbUitlsCoreTest.Data
             return res;
         }
 
+        public object GetItemButtons(string itemtype, string subtype)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
