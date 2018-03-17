@@ -19,7 +19,7 @@ namespace DbUitlsCoreTest.Data
         {
             JObject ItemTypeJson = JObject.FromObject(item);
 
-            string[] keys = ItemTypeJson.Properties().Select(p => p.Name.ToString()).ToArray();
+            string[] keys = ItemTypeJson.Properties().Select(p => p.Name.ToString()).ToArray();     
             string[] vals = ItemTypeJson.Properties().Select(p => p.Value.ToString()).ToArray();
           
             return _dapperHelper.Insert($"{itemtype}_PROPERTIES", keys, vals);
@@ -34,16 +34,20 @@ namespace DbUitlsCoreTest.Data
             whereDict.Add(itemtype + "type", itemsubtype);
             whereDict.Add("itemid", id);
 
-           var result = _dapperHelper.Update($"{itemtype}_PROPERTIES", updateDict, whereDict);
+
+
+
+            var result = _dapperHelper.Update($"{itemtype}_PROPERTIES", updateDict, whereDict);
 
             return result;
            
         }
 
-        public object GetItem(string itemtype, string itemsubtype)
+        public object GetItem(string itemtype, string itemsubtype, string id )
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
+            whereDict.Add("itemid", id);
             
             var res = _dapperHelper.Get(itemtype + "_properties", null, whereDict);
             return res;
@@ -63,6 +67,11 @@ namespace DbUitlsCoreTest.Data
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
             whereDict.Add("itemid", id);
+            foreach (var item in whereDict)
+            {
+                Console.WriteLine(item.Key);
+                Console.WriteLine(item.Value);
+            }
 
             return _dapperHelper.Delete(itemtype + "_properties", whereDict);
 

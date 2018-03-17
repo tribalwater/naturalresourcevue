@@ -37,36 +37,39 @@ namespace DbUitlsCoreTest.Controllers
         [HttpGet("{id}", Name = "Get")]
         public IActionResult Get(string itemtype, string subtype, string id)
         {
-            Console.WriteLine("---- types -------------");
-            Console.WriteLine(itemtype);
-            Console.WriteLine(subtype);
-            return Ok(_respository.GetItem(itemtype, subtype));
+            return Ok(_respository.GetItem(itemtype, subtype, id));
         }
 
         // POST: api/itemtype/subtype
         [HttpPost]
         public IActionResult Post(string itemtype, string subtype, [FromBody]object ItemTypeObj)
         {
-            Console.WriteLine(ItemTypeObj);
-            Console.WriteLine(itemtype);
-            
-            return Ok(_respository.AddItem(ItemTypeObj, itemtype, subtype));
+            var result = (IDictionary<string, object>)_respository.AddItem(ItemTypeObj, itemtype, subtype);
+            Console.WriteLine("---- result ----");
+            Console.WriteLine(result.ToString());
+            Console.WriteLine(result["ITEMID"]);
+            ///Console.WriteLine(result.ITEMID);
+
+            return Created($"/api/item/{itemtype}/{subtype}/{result["ITEMID"]}", result["ITEMID"]);
         }
 
         // PUT: api/itemtype/subtype
         [HttpPut("{id}")]
-        public void Put(string itemtype, string subtype, [FromBody]object ItemTypeObj)
+        public IActionResult Put(string itemtype, string subtype, string id,  [FromBody]object ItemTypeObj)
         {
             Console.WriteLine(ItemTypeObj);
             Console.WriteLine(itemtype);
 
-            return Ok(_respository.AddItem(ItemTypeObj, itemtype, subtype));
+            return Ok(_respository.UpdateItem(itemtype, subtype, id, ItemTypeObj));
         }
 
         // DELETE: api/itemtype/subtype/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(string itemtype, string subtype, string id)
         {
+            var resutlts =  _respository.DeleteItem(itemtype, subtype, id);
+            Console.WriteLine(resutlts);
+            return NoContent();
         }
 
         [HttpGet("display")]

@@ -69,7 +69,7 @@ namespace DbUitlsCoreTest.Data
             using (var connection = this.GetSqlServerOpenConnection())
             {
                 var queryTemplate = builder.AddTemplate($"Select /**select**/ from {tableName} /**where**/");
-                IEnumerable<dynamic> result = connection.Query(queryTemplate.RawSql, queryTemplate.Parameters).FirstOrDefault();
+                var  result = connection.Query(queryTemplate.RawSql, queryTemplate.Parameters).FirstOrDefault();
 
                 return result;
             }
@@ -106,7 +106,7 @@ namespace DbUitlsCoreTest.Data
             }
 
             var sb = new StringBuilder();
-            sb.AppendFormat("insert into {0}", tableName);
+            sb.AppendFormat("insert into {0} ", tableName);
             sb.Append(" (");
             foreach (var col in Columns)
             {
@@ -131,9 +131,10 @@ namespace DbUitlsCoreTest.Data
 
             Console.WriteLine("sb builder sql string ======");
             Console.Write(sb.ToString());
+            sb.Append($"select Cast( MAX(ITEMID) as int) as ITEMID from {tableName} ");
             using (var connection = this.GetSqlServerOpenConnection())
             {
-                return connection.Execute(sb.ToString(), ParamExpandoObj);
+                return connection.Query(sb.ToString(), ParamExpandoObj).SingleOrDefault();
             }
         }
 
@@ -146,6 +147,19 @@ namespace DbUitlsCoreTest.Data
             BuildWhere(builder, whereConditions);
             var queryTemplate = builder.AddTemplate($"{sb.ToString()}/**where**/");
 
+            Console.WriteLine("--- update string ----");
+            Console.WriteLine(queryTemplate.RawSql);
+            Console.Write(queryTemplate.Parameters);
+
+            foreach (var item in whereConditions)
+            {
+                Console.WriteLine(item.Key);
+                Console.WriteLine(item.Value);
+
+            }
+
+
+
             using (var connection = this.GetSqlServerOpenConnection())
             {
                 int result = connection.Execute(queryTemplate.RawSql, queryTemplate.Parameters);
@@ -156,7 +170,15 @@ namespace DbUitlsCoreTest.Data
 
         public int Delete(string tableName, Dictionary<string, string> whereConditions)
         {
-            throw new NotImplementedException();
+            var builder = new SqlBuilder();
+            BuildWhere(builder, whereConditions);
+            var queryTemplate = builder.AddTemplate($"Delete  from {tableName} /**where**/");
+
+            using (var connection = this.GetSqlServerOpenConnection())
+            {
+                int result = connection.Execute(queryTemplate.RawSql, queryTemplate.Parameters);
+                return result;
+            }
         }
 
         private static void BuildGet(
@@ -207,13 +229,17 @@ namespace DbUitlsCoreTest.Data
         private static void BuildUpdate(StringBuilder sb,  string tableName, Dictionary<string, string> updateDict )
         {
             sb.AppendFormat("Update {0}", tableName);
-            sb.Append(" SET");
+            sb.Append(" SET ");
 
             foreach(var updatePair in updateDict)
             {
-                sb.Append($"{updatePair.Key} = {updatePair.Value},");
+                sb.Append($"{updatePair.Key} = '{updatePair.Value}', ");
             }
-           
+            Console.WriteLine("fuck");
+
+            sb.Length--;
+            sb.Length--;
+            sb.Append(" ");
         }
 
 
