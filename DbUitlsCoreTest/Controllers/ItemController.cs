@@ -81,6 +81,17 @@ namespace DbUitlsCoreTest.Controllers
             return Ok( _respository.GetItemDispaly(itemtype, subtype));
         }
 
+        [HttpGet("{id}/relation")]
+        public IActionResult GetItemRelation(string itemtype, string subtype, string id)
+        {
+            Console.WriteLine("----- tiem type -----");
+            Console.WriteLine(itemtype);
+            Console.WriteLine(id);
+
+
+            return Ok(_respository.GetAllItemRelations(itemtype, subtype, id));
+        }
+
         // given a query object reuturn resutls 
         [HttpPost("query")]
         public void QueryItemType(string itemtype, string subtype)

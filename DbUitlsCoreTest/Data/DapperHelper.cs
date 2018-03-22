@@ -81,14 +81,20 @@ namespace DbUitlsCoreTest.Data
             Dictionary<string, string>  whereConditions = null
         )
         {
+            foreach(var item in whereConditions)
+            {
+                Console.WriteLine(item.Key);
+                Console.WriteLine(item.Value);
+            }
             var builder = new SqlBuilder();
             BuildGet(builder, selectConditions, whereConditions);
+            Console.WriteLine(builder.ToString());
 
             using (var connection = this.GetSqlServerOpenConnection())
             {
                 var queryTemplate = builder.AddTemplate($"Select /**select**/ from {tableName} /**where**/");
                 IEnumerable<dynamic> result = connection.Query(queryTemplate.RawSql, queryTemplate.Parameters).ToList();
-
+                Console.WriteLine(queryTemplate.RawSql);
                 return result;
             }
 

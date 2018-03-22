@@ -43,11 +43,11 @@ namespace DbUitlsCoreTest.Data
            
         }
 
-        public object GetItem(string itemtype, string itemsubtype, string id )
+        public object GetItem(string itemtype, string itemsubtype, string itemid )
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
-            whereDict.Add("itemid", id);
+            whereDict.Add("itemid", itemid);
             
             var res = _dapperHelper.Get(itemtype + "_properties", null, whereDict);
             return res;
@@ -92,9 +92,15 @@ namespace DbUitlsCoreTest.Data
             return null;
         }
 
-        public object GetAllItemRelations(object item)
+        public object GetAllItemRelations(string itemtype, string itemsubtype, string itemid)
         {
-            return null;
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
+            whereDict.Add("itemtypecd1", itemtype);
+            whereDict.Add("subtype1", itemsubtype);
+            whereDict.Add("itemid1", itemid);
+            Console.WriteLine("--- get item relation ---");
+            var res = _dapperHelper.GetList("itemrelation", null, whereDict);
+            return res;
         }
 
         public object DeleteItemRelation(object item)
