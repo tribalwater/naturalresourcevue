@@ -135,7 +135,7 @@ namespace DbUitlsCoreTest.Data
                 String subSql = "select itemid2 FROM ITEMRELATIONFLAT " +
                                 $"where itemtypecd1 = '{itemtype}' " +
                                 $"and subtype2 = '{RelSubType}' " +
-                                 "and itemid1 = '239106' ";
+                                $"and itemid1 = '{itemid}' ";
 
                 String sql = $"select * from {Reltype}_PROPERTIES " +
                              $" where {Reltype}type = '{RelSubType}' " +
