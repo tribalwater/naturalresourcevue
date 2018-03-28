@@ -57,6 +57,16 @@ namespace DbUitlsCoreTest.Data
             }
         }
 
+        public IDataReader ExecuteReaderFromQuery(string sql)
+        {
+            using (var connection = this.GetSqlServerOpenConnection())
+            {
+                var reader = connection.ExecuteReader(sql);
+                return reader;
+            }
+        }
+
+
         public object Get(
             string tableName, 
             string[] selectConditions = null, 

@@ -1,6 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using FastMember;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +16,19 @@ namespace DbUitlsCoreTest.Data
         public ItemSQLRepository(IDapperHelper dapperHelper)
         {
             _dapperHelper = dapperHelper;
+        }
+
+        private IEnumerable<dynamic> GetItemRelatonTypeAndSubTypes(string itemtype, string itemsubtype, string itemid)
+        {
+            string sql = "select distinct(r.itemtypecd2) + '_' + isNull(r.subtype2, ' ') typesubtype " +
+            " from itemrelationflat r inner join itemsubtypes s on s.itemtypecd = r.itemtypecd2 " +
+            $"  where r.itemtypecd1 = '{itemtype}' " +
+            $" and r.itemid1 = '{itemid}' " +
+            $" and r.subtype1 = '{itemsubtype}' " +
+            " and s.itemrelationflag = 'Y' " +
+            " and(s.subtype = r.subtype2 or s.subtype is null OR r.subtype2 IS NULL) ";
+
+            return _dapperHelper.RawQuery(sql);
         }
 
         public object AddItem(object item, string itemtype, string subtype = null)
@@ -92,15 +108,47 @@ namespace DbUitlsCoreTest.Data
             return null;
         }
 
+
+
         public object GetAllItemRelations(string itemtype, string itemsubtype, string itemid)
         {
-            Dictionary<string, string> whereDict = new Dictionary<string, string>();
-            whereDict.Add("itemtypecd1", itemtype);
-            whereDict.Add("subtype1", itemsubtype);
-            whereDict.Add("itemid1", itemid);
-            Console.WriteLine("--- get item relation ---");
-            var res = _dapperHelper.GetList("itemrelation", null, whereDict);
-            return res;
+            Dictionary<string, List<dynamic>> RelatedItemListDict = new Dictionary<string, List<dynamic>>();
+            var RelatedItemTypes =  this.GetItemRelatonTypeAndSubTypes(itemtype, itemsubtype, itemid).ToList();
+            Console.WriteLine("--- get related itme types -----");
+           
+            foreach (var item in RelatedItemTypes)
+            {
+                string[] TypeSubTypeArr = item.typesubtype.Split("_");
+                String Reltype = TypeSubTypeArr[0];
+                String RelSubType = TypeSubTypeArr[1];
+
+                String RelationItemDispNameSql = "Select displayname From itemdisplay" +
+                                              $" where itemtypecd = '{Reltype}' " +
+                                              $" and subtypecd =  '{RelSubType}' " +
+                                              " and fieldname = 'itemid' ";
+
+                var disname = this._dapperHelper.RawQuery(RelationItemDispNameSql).FirstOrDefault();
+
+                Console.WriteLine("---- dis name -----");
+                Console.WriteLine(disname);
+
+                String subSql = "select itemid2 FROM ITEMRELATIONFLAT " +
+                                $"where itemtypecd1 = '{itemtype}' " +
+                                $"and subtype2 = '{RelSubType}' " +
+                                 "and itemid1 = '239106' ";
+
+                String sql = $"select * from {Reltype}_PROPERTIES " +
+                             $" where {Reltype}type = '{RelSubType}' " +
+                             $" and itemid in ({subSql}) ";
+
+                Console.WriteLine(sql);
+
+                var data= this._dapperHelper.RawQuery(sql).ToList();
+                RelatedItemListDict.Add(disname.displayname, data);
+        
+            }
+
+            return RelatedItemListDict;
         }
 
         public object DeleteItemRelation(object item)
