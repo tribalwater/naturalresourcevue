@@ -192,5 +192,25 @@ namespace DbUitlsCoreTest.Data
         {
             throw new NotImplementedException();
         }
+
+        public object GetItemTabs(string itemtype, string subtype)
+        {
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
+            whereDict.Add("itemtypecd", itemtype);
+
+            if (subtype == null)
+            {
+                whereDict.Add("subtypecd", null);
+            }
+            else
+            {
+                whereDict.Add("subtypecd", subtype);
+            }
+
+            var res = _dapperHelper.GetList("itemtabs", null, whereDict);
+
+            return res;
+
+        }
     }
 }

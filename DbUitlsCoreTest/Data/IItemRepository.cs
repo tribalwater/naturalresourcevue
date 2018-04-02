@@ -14,6 +14,7 @@
         object GetItemDispaly(object item);
         object GetItemDispaly(string itemtype, string subtype);
         object GetItemRelation(object item);
+        object GetItemTabs(string itemtype, string subtype);
         object InsertItemDispaly(object item);
         object UpdateItem(string itemtype, string itemsubtype, string id, object updateObject);
         object UpdateItemDispaly(object item);

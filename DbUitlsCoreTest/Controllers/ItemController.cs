@@ -81,6 +81,15 @@ namespace DbUitlsCoreTest.Controllers
             return Ok( _respository.GetItemDispaly(itemtype, subtype));
         }
 
+        [HttpGet("tabs")]
+        public IActionResult GetItemTypeTabs(string itemtype, string subtype)
+        {
+            Console.WriteLine("----- tiem type -----");
+            Console.WriteLine(itemtype);
+
+            return Ok(_respository.GetItemTabs(itemtype, subtype));
+        }
+
         [HttpGet("{id}/relation")]
         public IActionResult GetItemRelation(string itemtype, string subtype, string id)
         {
