@@ -90,6 +90,15 @@ namespace DbUitlsCoreTest.Controllers
             return Ok(_respository.GetItemTabs(itemtype, subtype));
         }
 
+        [HttpGet("buttons")]
+        public IActionResult GetItemCustomButtons(string itemtype, string subtype)
+        {
+            Console.WriteLine("----- get it -----");
+            Console.WriteLine(itemtype);
+
+            return Ok(_respository.GetItemCustomButtons(itemtype, subtype));
+        }
+
         [HttpGet("{id}/relation")]
         public IActionResult GetItemRelation(string itemtype, string subtype, string id)
         {

@@ -10,7 +10,7 @@
         object GetAllItemRelations(string itemtype, string itemsubtype, string itemid);
         object GetAllItems(string itemtype, string itemsubtype);
         object GetItem(string itemtype, string itemsubtype, string itemid);
-        object GetItemButtons(string itemtype, string subtype);
+        object GetItemCustomButtons(string itemtype, string subtype);
         object GetItemDispaly(object item);
         object GetItemDispaly(string itemtype, string subtype);
         object GetItemRelation(object item);

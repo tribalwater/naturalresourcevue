@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -178,19 +179,47 @@ namespace DbUitlsCoreTest.Data
         {
             return null;
         }
-
+        //TODO:
+            // Need to check if subtype is null
+            // need to handle when fieldlist list is passed as param
+            // need to handle when urlendcoding is set?
+            // need to handle sort order 
         public object GetItemDispaly(string itemtype, string subtype)
+        {
+            string[] selectArr = new string[]
+            {
+                 "fieldname", "itemtypecd", "displayname", "fieldlength", "maxlength", "required", "listeditem",
+                 "fieldtype", "itemvaluegroup", "subtypecd", "parenttable", "parentcolumn", "parentfieldname",
+                 "parentsubtype", "defaultvalue", "linkfield", "linktype", "tooltip", "keyfield",
+                 "sortorder", "ISNULL(sortposition, 0) sortposition", "ISNULL(sortdirection, 'asc') sortdirection",
+                 "childfieldname", "childxmldoc", "customsql", "exportcol", "importcol", "onblur", "onchange"
+            };
+            
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
+            whereDict.Add("itemtypecd", itemtype);
+            whereDict.Add("subtypecd", subtype);
+            var res = _dapperHelper.GetList("itemdisplay", selectArr, whereDict).ToList();
+            Console.WriteLine(res.ToString());
+            foreach (var item in res)
+            {
+
+                Console.WriteLine(item);
+
+            }
+            this.BuildSqlFromItemDisp(res.ToList());
+;            return res;
+        }
+
+        public object GetItemCustomButtons(string itemtype, string subtype)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add("itemtypecd", itemtype);
             whereDict.Add("subtypecd", subtype);
-            var res = _dapperHelper.GetList("itemdisplay", null, whereDict).ToList();
-            return res;
-        }
 
-        public object GetItemButtons(string itemtype, string subtype)
-        {
-            throw new NotImplementedException();
+            var res = _dapperHelper.GetList("itembuttons", null, whereDict);
+
+            return res;
+
         }
 
         public object GetItemTabs(string itemtype, string subtype)
@@ -211,6 +240,101 @@ namespace DbUitlsCoreTest.Data
 
             return res;
 
+        }
+
+        public object BuildSqlFromItemDisp(List<dynamic> itemdisp, string itemtype, string itemtable )
+        {
+            string columns = "";
+            string where = "";
+            string from = "";
+            string linktables = "";
+            string idname= "";
+            int linkedTableCount = 0;
+            //Create hashtable for parent tables and load all parent tables into it
+            Hashtable parentTables = new Hashtable();
+            var fullDisp = itemdisp.Where(item => (item.parenttable != "" && item.fieldtype != "itemid" ));
+            foreach (var item in fullDisp)
+            {
+                string parentTableName = item.parenttable;
+                if (!parentTables.ContainsKey(item.fieldname))
+                {
+                    string linktablelabel = parentTableName + "_" + linkedTableCount.ToString();
+                }
+                
+
+
+            }
+            //i => i.parenttable != '' && i.fieldtype != 'itemid')
+            foreach (var item in itemdisp)
+            {
+                if(item.fieldtype == "label")
+                {
+                    continue;
+                }
+                if (item.fieldtype == "itemid")
+                {
+                    idname = item.fieldname;
+                }
+                if (item.fieldtype == "formattedtext")
+                {
+                    item.parenttable     = item.fieldname;
+                    item.parentcolumn    = "itemid";
+                    item.parentfieldname = "itemid";
+                    item.defaultvalue    = $"select itemid, largeval val from itemlongvalues where itemtypecd = '{itemtype}' " +
+                                           $"and fieldname = '{item.fieldname}' order by sortorder, itemid" ;
+                }
+                if(item.parenttable.Length > 0 && item.parentfieldname != item.parentcolumn)
+                {
+                    if(item.fieldtype.IndexOf("relation search") == 0 )
+                    {
+                        linktables += $@"\r\n left join itemrelation on ((itemrelation.itemid1 = {itemtable} .  {idname} 
+                                      and itemrelation.itemtypecd1 = '{itemtype}') or 
+                                      (itemrelation.itemid2 = {itemtable }.{idname}
+                                      and itemrelation.itemtypecd2 = '{itemtype}'))";
+
+                        columns += item.parenttable + "." + item.parentcolumn;
+
+                        if(linktables.IndexOf(item.parenttable + " " + item.parenttable + " ") < 0)
+                        {
+                            linktables +=   $@"\r\n left join {item.parenttable} ' {item.parenttable} 
+                                             on ((itemrelation.itemid1 ={item.parenttable}
+                                             .itemid and itemrelation.itemtypecd1 = 
+                                             {item.parenttable}.Value +
+                                             .itemtypecd and itemrelation.itemid2 = 
+                                             {itemtable}.itemid and itemrelation.itemtypecd2 = 
+                                             {itemtable}.itemtypecd) or (itemrelation.itemid2 = 
+                                             {item.parenttable}.itemid and itemrelation.itemtypecd2 = 
+                                             {item.parenttable}.itemtypecd and itemrelation.itemid1 = 
+                                             {itemtable}.itemid and itemrelation.itemtypecd1 = 
+                                             {itemtable}.itemtypecd))";
+                        }
+                    }
+                }
+                else
+                {
+                    if (item.parentcolumn.IndexOf(",") > 0)
+                    {
+                        columns += itemtable + "." + item.fieldname + " " + item.fieldname + "_val, ";
+                        string[] pclist = item.parentcolumn.Split(',');
+                        bool pcmore = false;
+                        foreach (string pcol in pclist)
+                        {
+                            if (pcmore)
+                            {
+                                columns += " || ' ' || ";
+                            }
+                            else
+                            {
+                                pcmore = true;
+                            }
+                            columns += parenttables[column.Name].ToString() + "." + pcol;
+                        }
+                    }
+                }
+                Console.WriteLine(item.fieldtype);
+            }
+
+            return new { };
         }
     }
 }
