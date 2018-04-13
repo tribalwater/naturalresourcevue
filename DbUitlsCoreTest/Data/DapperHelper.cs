@@ -40,7 +40,7 @@ namespace DbUitlsCoreTest.Data
                }
         }
 
-        private SqlConnection GetSqlServerOpenConnection()
+        public SqlConnection GetSqlServerOpenConnection()
         {
             SqlConnection connection = new SqlConnection(_connectionString);
 
@@ -65,6 +65,16 @@ namespace DbUitlsCoreTest.Data
                 return reader;
             }
         }
+
+        public object ExecuteScalerFromQuery(string sql)
+        {
+            using (var connection = this.GetSqlServerOpenConnection())
+            {
+                var scaler = connection.ExecuteScalar(sql);
+                return scaler;
+            }
+        }
+
 
 
         public object Get(
