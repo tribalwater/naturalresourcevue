@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using DbUitlsCoreTest.Data;
+using System.Data.SqlClient;
 
 namespace DbUitlsCoreTest.Data
 {
@@ -15,12 +16,17 @@ namespace DbUitlsCoreTest.Data
     {
         private IDapperHelper _dapperHelper;
         private int _dbtype;
+        private bool _DLSOverride;
+        private bool _flattenRecord;
+        private bool _mixedCaseTags;
 
-        public ItemSQLRepository(IDapperHelper dapperHelper, int dbtype = 2)
+        public ItemSQLRepository(IDapperHelper dapperHelper, int dbtype = 2, bool DLSOverride = false)
         {
-            _dapperHelper = dapperHelper;
-            _dbtype       = dbtype;
-   
+            _dapperHelper  = dapperHelper;
+            _dbtype        = dbtype;
+            _DLSOverride   = DLSOverride;
+            _flattenRecord = false;
+            _mixedCaseTags = false;
         }
 
         private IEnumerable<dynamic> GetItemRelatonTypeAndSubTypes(string itemtype, string itemsubtype, string itemid)
@@ -207,6 +213,9 @@ namespace DbUitlsCoreTest.Data
             int rlcount = 0;
             foreach (var item in res)
             {
+
+
+
                 if(item.fieldname == null || item.fieldname.Length == 0)
                 {
                     item.fieldname = "rlc" + rlcount;
@@ -216,8 +225,8 @@ namespace DbUitlsCoreTest.Data
 
             } 
             // need to update this to include actualy id 
-             this.GetItemProperties(res.ToList(), itemtype, subtype, "1401", "");
-;            return res;
+            
+;            return  this.GetItemProperties(res.ToList(), itemtype, subtype, "48924", "");
         }
 
         public object GetItemCustomButtons(string itemtype, string subtype)
@@ -250,17 +259,48 @@ namespace DbUitlsCoreTest.Data
             string relationlink = "";
             string orderbyclause = "";
      
-            
+            //48910
             this.BuildSqlFromItemDisp(
                                       itemdisp, itemtype, subtype, itemtable,
                                       item => (item.fieldtype != "relation search" && item.fieldtype != "label"), 
                                       whereorder, ref whereclause, ref orderbyclause, ref columns, ref linktables,
                                       ref idname,  ref relationlink, ref linktablecount, false
                                      );
-                                        
-                                  
 
-            return new { };
+            string firstcol = columns.Substring(0, columns.IndexOf(","));
+            if (whereclause.IndexOf("where ") >= 0)
+            {
+                whereclause += " and ";
+            }
+            else
+            {
+                whereclause = " where ";
+            }
+
+            //Cannot use distinct on this query since "long" type columns may be included in the results
+            string sql = "select " + columns +
+               " from " + itemtable + relationlink + linktables +
+               " " + whereclause + itemtable + "." + idname + " = " + itemid;
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                
+                sql = DataUtils.sqlConvert(sql);
+            }
+          
+            var res = this._dapperHelper.RawQuery(sql);
+            this.buildItemRecord(itemdisp, sql);
+            Console.WriteLine(" ----- build item props -----");
+            Console.WriteLine(columns);
+            Console.WriteLine(idname);
+            Console.WriteLine(itemtable);
+            Console.WriteLine(linktables);
+            Console.WriteLine(relationlink);
+            Console.WriteLine(orderbyclause);
+            Console.WriteLine(sql);
+
+           
+            return res;
         }
 
         public object GetItemTabs(string itemtype, string subtype)
@@ -282,6 +322,9 @@ namespace DbUitlsCoreTest.Data
             return res;
 
         }
+
+        // TODO :
+        // Need to implent join with item rights
 
         private object BuildSqlFromItemDisp(
                                             List<dynamic> itemdisp, string itemtype, string subtype, string itemtable,
@@ -584,9 +627,10 @@ namespace DbUitlsCoreTest.Data
                             Console.WriteLine(" --- partent field name has dot ---");
                             Console.WriteLine(item);
                             Console.WriteLine(parentTables[item.fieldname]);
+                            Console.WriteLine(columns);
                             columns += itemtable + "." + item.fieldname + " " + item.fieldname + "_val, ";
-                            columns += parentTables[item.fieldname] + "." +
-                                       item.Replace("parent_table_", parentTables[item.fieldname].ToString() + ".").Replace("tblstub.", parentTables[item.fieldname].ToString() + ".") +
+                            columns += parentTables[item.fieldname].ToString() + "." +
+                                       item.parentcolumn.Replace("parent_table_", parentTables[item.fieldname].ToString() + ".").Replace("tblstub.", parentTables[item.fieldname].ToString() + ".") +
                                         " " + item.fieldname;
 
                             linktables += "\r left join " + item.parenttable;
@@ -614,8 +658,7 @@ namespace DbUitlsCoreTest.Data
                                    )
                                 {
                                     newlinktabledata = " on convert(varchar, " + parentTables[item.fieldname].ToString() + "." +
-                                                       item.parentfieldname +
-                                                       ") = convert(varchar, " + itemtable + "." + item.fieldname + ")";
+                                                       item.parentfieldname + ") = convert(varchar, " + itemtable + "." + item.fieldname + ")";
                                 }
                                 else
                                 {
@@ -656,10 +699,10 @@ namespace DbUitlsCoreTest.Data
                             {
                                 linktables += " and " + itemtable + "." + itemtype + "type = '" + subtype + "'";
                             }
-                            if (item.linkfield.Length > 0)
+                            if (item.linkfield != null && !String.IsNullOrEmpty(item.linkfield))
                             {
                                 columns += ", " + parentTables[item.fieldname].ToString() +
-                                               "." + item.linkfield.Value +
+                                               "." + item.linkfield +
                                                " " + item.fieldname + "link";
                             }
                            
@@ -682,12 +725,12 @@ namespace DbUitlsCoreTest.Data
                 }
                 else
                 {
-                    if (item.parenttable.Length > 0)
+                    if ( item.parenttable != null && !String.IsNullOrEmpty(item.parenttable) )
                     {
                         columns += itemtable + "." +  item.fieldname + " " +  item.fieldname + "_val, ";
                     }
                     columns += itemtable + "." +  item.fieldname;
-                    if (item.linkfield.Length > 0)
+                    if ( item.linkfield != null && !String.IsNullOrEmpty(item.linkfield) )
                     {
                         columns += ", " + itemtable +
                                    "." + item.linkfield +
@@ -699,6 +742,115 @@ namespace DbUitlsCoreTest.Data
             return new { };
         }
 
+        public object buildItemRecord(List<dynamic> itemDsip, string sql)
+        {
+            string currentid = "";
+            int currentrec = 0;
+
+            DateTime started = DateTime.Now;
+            Hashtable recordids = new Hashtable();
+
+            var dispDict = itemDsip.ToDictionary(x => x.fieldname, x => x);
+
+          
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                List<Hashtable> records = new List<Hashtable>();
+                
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = sql;
+                var recReader = cmd.ExecuteReader();
+
+                while (recReader.Read())
+                {
+                    Hashtable record = new Hashtable();
+                    for (int i = 0; i < recReader.FieldCount; i++)
+                    {
+                        bool datefield = false;
+                        bool timefield = false;
+                        bool numericfield = false;
+                        bool hiddenfield = false;
+
+                        string fieldType  = recReader.GetFieldType(i).ToString();
+                        string fieldValue = recReader.GetValue(i).ToString();
+
+
+
+                        string recName;
+                        if(recReader.GetName(i) != null)
+                        {
+                           recName = (this._mixedCaseTags) ? recReader.GetName(i) : recReader.GetName(i).ToLower();
+                        }
+                        else
+                        {
+                            recName = "";
+                        }
+                        Console.WriteLine("---- rec name ---");
+                        Console.WriteLine(recName);
+                        record.Add(recName, "");
+
+                        if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))
+                        {
+                            if (dispDict[recName].fieldtype.IndexOf("date") > 0)
+                            {
+                                datefield = true;
+                                if (dispDict[recName].fieldtype.IndexOf("time") >= 0)
+                                {
+                                    timefield = true;
+                                }
+                            }
+                            else if (dispDict[recName].fieldtype == "numeric" || dispDict[recName].fieldtype == "autonumber" || dispDict[recName].fieldtype == "currency")
+                            {
+                                numericfield = true;
+                            }
+                            else if (dispDict[recName].fieldtype == "hidden")
+                            {
+                                hiddenfield = true;
+                            }
+                        }
+                        else if (dispDict.ContainsKey(recName) && String.IsNullOrEmpty(dispDict[recName].fieldname))
+                        {
+                            if (dispDict[recName].EndsWith("_val") || dispDict[recName].EndsWith("link") && !String.IsNullOrEmpty(recName) 
+                                && dispDict[recName].fieldname.Substring(0, dispDict[recName].fieldname.Length - 4) != null
+                                )
+                            {
+                                hiddenfield = true;
+                            }
+                        }
+
+                        record[recName] = (datefield || timefield || (fieldType == "System.DateTime") ?
+                                           DataUtils.formatOraDate(fieldValue) : fieldValue);
+
+                        if (datefield || timefield || numericfield || fieldType == "System.DateTime" || fieldType == "System.Decimal" )  
+                        {
+                            string dtnodeval = recReader.GetValue(i).ToString();
+                            if (fieldType == "System.DateTime" || datefield || timefield)
+                            {
+                                if (recReader.GetValue(i).ToString().Length > 0)
+                                {
+                                    dtnodeval = formatStringDate(recReader.GetValue(i).ToString());
+                                }
+                            }
+                            else if (fieldType == "System.Decimal" || numericfield)
+                            {
+                                dtnodeval = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
+                            }
+                            record[recName + "dt"] = dtnodeval;
+
+                        }
+                        //  Console.WriteLine(recReader.GetFieldType(i).ToString());
+                    }
+                    Console.WriteLine(recReader);
+
+                    records.Add(record);
+                }
+
+                return records;
+            }
+           
+        }
         /// <summary>
         /// Check field type for table and column specified
         /// </summary>
@@ -873,6 +1025,41 @@ namespace DbUitlsCoreTest.Data
 
             return val;
         }
+       
+        /// <summary>
+        /// Format date into yyyymmddhhmmss format for alphabetic sorting
+        /// </summary>
+        /// <param name="xdate">date to be formatted</param>
+        /// <returns>yyyymmddhhmmss formatted date</returns>
+        public string formatStringDate(string xdate)
+        {
+            try
+            {
+                DateTime nxdate = DateTime.Parse(xdate);
+                return formatStringDate(nxdate);
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Format date into yyyymmddhhmmss format for alphabetic sorting
+        /// </summary>
+        /// <param name="xdate">date to be formatted</param>
+        /// <returns>yyyymmddhhmmss formatted date</returns>
+        public string formatStringDate(DateTime xdate)
+        {
+            string sday = xdate.Day.ToString().PadLeft(2, '0');
+            string smonth = xdate.Month.ToString().PadLeft(2, '0');
+            string syear = xdate.Year.ToString().PadLeft(4, '0');
+            string shour = xdate.Hour.ToString().PadLeft(2, '0');
+            string sminute = xdate.Minute.ToString().PadLeft(2, '0');
+            string ssecond = xdate.Second.ToString().PadLeft(2, '0');
+            return syear + smonth + sday + shour + sminute + ssecond;
+        }
+
     }
 
 }

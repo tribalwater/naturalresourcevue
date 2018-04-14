@@ -61,8 +61,10 @@ namespace DbUitlsCoreTest.Data
         {
             using (var connection = this.GetSqlServerOpenConnection())
             {
+        
                 var reader = connection.ExecuteReader(sql);
                 return reader;
+               
             }
         }
 

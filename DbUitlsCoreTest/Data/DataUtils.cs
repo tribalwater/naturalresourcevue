@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DbUitlsCoreTest.Data
@@ -500,6 +501,71 @@ namespace DbUitlsCoreTest.Data
 
             return newOutput;
         }
+        /// <summary>
+        /// Format date for Oracle SQL statement
+        /// </summary>
+        /// <param name="xdate">date to be formatted</param>
+        /// <returns>dd-mmm-yyyy formatted date</returns>
+        public static string formatOraDate(string xdate)
+        {
+            if (xdate == null || xdate.Length == 0)
+            {
+                return xdate;
+            }
+            DateTime ydate = DateTime.Now;
+            try
+            {
+                ydate = Convert.ToDateTime(xdate);
+            }
+            catch (Exception)
+            {
+                return xdate;
+            }
+            string sdate = "";
+            string smonth = "";
+            switch (ydate.Month)
+            {
+                case 1:
+                    smonth = "JAN";
+                    break;
+                case 2:
+                    smonth = "FEB";
+                    break;
+                case 3:
+                    smonth = "MAR";
+                    break;
+                case 4:
+                    smonth = "APR";
+                    break;
+                case 5:
+                    smonth = "MAY";
+                    break;
+                case 6:
+                    smonth = "JUN";
+                    break;
+                case 7:
+                    smonth = "JUL";
+                    break;
+                case 8:
+                    smonth = "AUG";
+                    break;
+                case 9:
+                    smonth = "SEP";
+                    break;
+                case 10:
+                    smonth = "OCT";
+                    break;
+                case 11:
+                    smonth = "NOV";
+                    break;
+                case 12:
+                    smonth = "DEC";
+                    break;
+            }
+            sdate += ydate.Day.ToString().PadLeft(2, '0') + "-"
+               + smonth + "-" + ydate.Year;
+            return sdate;
+        }
 
         /// <summary>
         /// Replace an occurrence of Oracle TO_DATE function with CONVERT function
@@ -924,6 +990,16 @@ namespace DbUitlsCoreTest.Data
                 sql = part1 + part2 + part3;
             }
             return sql;
+        }
+
+        /// <summary>
+        /// Remove non-keyboard characters from specified value
+        /// </summary>
+        /// <param name="input">Value to be parsed for non-keyboard values</param>
+        /// <returns>Input value with any non-keyboard values removed</returns>
+        public static string StripUnicodeCharacters(string input)
+        {
+            return Regex.Replace(input, @"[^\p{IsBasicLatin}]|", String.Empty);
         }
 
 
