@@ -2,7 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -1001,6 +1004,78 @@ namespace DbUitlsCoreTest.Data
         {
             return Regex.Replace(input, @"[^\p{IsBasicLatin}]|", String.Empty);
         }
+
+        /// <summary>
+        /// Decrypt the specified text
+        /// </summary>
+        /// <param name="x">Text to be decrypted</param>
+        /// <returns>Decrypted text</returns>
+        [DebuggerStepThrough]
+        public static string decryptData(string x)
+        {
+            return DataUtils.decryptData(x, "TopVuepw", "TVs@lt");
+        }
+
+        /// <summary>
+        /// Decrypt the specified text
+        /// </summary>
+        /// <param name="x">Text to be decrypted</param>
+        /// <param name="encpwd">Encryption password</param>
+        /// <param name="saltstring">String value for encryption salt</param>
+        /// <returns>Decrypted text</returns>
+        // Convert.FromBase64String will usually throw a exception, which we want to ignore for now.
+        public static string decryptData(string x, string encpwd, string saltstring)
+        {
+            if (string.IsNullOrEmpty(x))
+            {
+                return "";
+            }
+            //Set up hashes and keys for decryption
+            byte[] vecbytes = Encoding.UTF8.GetBytes("Z1X2Y3W4V5U6T7S8");
+            byte[] saltbytes = Encoding.UTF8.GetBytes(saltstring);
+            byte[] encryptedbytes = null;
+            try
+            {
+                if (Regex.IsMatch(x, "(([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?){1}") && x != null && !x.StartsWith("Provider=") && !x.StartsWith("Data Source="))
+                {
+                    encryptedbytes = Convert.FromBase64String(x);
+                }
+                else
+                {
+                    return x;
+                }
+                encryptedbytes = Convert.FromBase64String(x);
+            }
+            catch (Exception)
+            {
+                return x;
+            }
+            //Set password and type of decryption
+            PasswordDeriveBytes password = new PasswordDeriveBytes(encpwd, saltbytes, "MD5", 1);
+            byte[] keybytes = password.GetBytes(16);
+            RijndaelManaged symkey = new RijndaelManaged();
+            symkey.Mode = CipherMode.CBC;
+            //symkey.Padding = PaddingMode.None; - caused junk to be added to end of decoded string
+            //Create and initialize decryptor
+            ICryptoTransform decryptor = symkey.CreateDecryptor(keybytes, vecbytes);
+            using (MemoryStream ms = new MemoryStream(encryptedbytes))
+            {
+                //Specify data to be decrypted
+                using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                {
+                    byte[] textbytes = new byte[encryptedbytes.Length];
+                    //Read data into byte array
+                    int bc = cs.Read(textbytes, 0, textbytes.Length);
+                    //Close memory objects
+                    ms.Close();
+                    cs.Close();
+                    //Convert byte array into UTF8 string and return
+                    string decoded = Encoding.UTF8.GetString(textbytes, 0, bc);
+                    return decoded;
+                }
+            }
+        }
+
 
 
     }

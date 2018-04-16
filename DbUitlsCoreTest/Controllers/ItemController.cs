@@ -78,7 +78,16 @@ namespace DbUitlsCoreTest.Controllers
             Console.WriteLine("----- tiem type -----");
             Console.WriteLine(itemtype);
 
-            return Ok( _respository.GetItemDispaly(itemtype, subtype));
+            return Ok( _respository.GetItemDisplay(itemtype, subtype, ""));
+        }
+
+        [HttpGet("properties/{id}")]
+        public IActionResult GetItemTypeProperties(string itemtype, string subtype, string id)
+        {
+            Console.WriteLine("----- get item props -----");
+            Console.WriteLine(itemtype);
+
+            return Ok(_respository.GetItemProperties(itemtype, subtype, id));
         }
 
         [HttpGet("tabs")]
@@ -99,7 +108,7 @@ namespace DbUitlsCoreTest.Controllers
             return Ok(_respository.GetItemCustomButtons(itemtype, subtype));
         }
 
-        [HttpGet("{id}/relation")]
+        [HttpGet("relations/{id}")]
         public IActionResult GetItemRelation(string itemtype, string subtype, string id)
         {
             Console.WriteLine("----- tiem type -----");

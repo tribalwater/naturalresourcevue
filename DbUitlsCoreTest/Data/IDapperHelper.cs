@@ -9,6 +9,7 @@ namespace DbUitlsCoreTest.Data
         int Delete(string tableName, Dictionary<string, string> whereConditions);
         IDataReader ExecuteReaderFromQuery(string sql);
         object ExecuteScalerFromQuery(string sql);
+        string getConnectionString();
         object Get(string tableName, string[] selectConditions = null, Dictionary<string, string> whereConditions = null);
         IEnumerable<dynamic> GetList(string tableName, string[] selectConditions = null, Dictionary<string, string> whereConditions = null);
         SqlConnection GetSqlServerOpenConnection();

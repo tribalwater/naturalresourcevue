@@ -29,6 +29,10 @@ namespace DbUitlsCoreTest.Data
             _databaseType = databaseType;
         }
 
+        public string getConnectionString()
+        {
+            return this._connectionString;
+        }
 
         private IDbConnection GetConnection()
         {
