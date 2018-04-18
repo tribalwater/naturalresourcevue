@@ -81,6 +81,16 @@ namespace DbUitlsCoreTest.Controllers
             return Ok( _respository.GetItemDisplay(itemtype, subtype, ""));
         }
 
+        [HttpGet("list")]
+        public IActionResult GetItemTypeList(string itemtype, string subtype)
+        {
+            Console.WriteLine("----- get list -----");
+            Console.WriteLine(itemtype);
+
+            return Ok(_respository.GetItemList(itemtype, subtype));
+        }
+
+
         [HttpGet("properties/{id}")]
         public IActionResult GetItemTypeProperties(string itemtype, string subtype, string id)
         {

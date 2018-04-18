@@ -1076,6 +1076,31 @@ namespace DbUitlsCoreTest.Data
             }
         }
 
+        /// <summary>
+        /// Checks string value to see if it contains a valid date and specifies a time other than midnight
+        /// </summary>
+        /// <param name="xdate">value to compare</param>
+        /// <returns>true if value passed is a date and contains a time other than midnight, otherwise false</returns>
+        public static bool hasTime(string xdate)
+        {
+            bool valid = true;
+            try
+            {
+                DateTime tdate = Convert.ToDateTime(xdate);
+                if (tdate.Hour == 0 && tdate.Minute == 0)
+                {
+                    valid = false;
+                }
+            }
+            catch (Exception)
+            {
+                //not a valid date
+                valid = false;
+            }
+            return valid;
+        }
+
+
 
 
     }

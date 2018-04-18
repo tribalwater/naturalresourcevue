@@ -19,9 +19,25 @@ namespace DbUitlsCoreTest.Data
         private bool _DLSOverride;
         private bool _flattenRecord;
         private bool _mixedCaseTags;
+        private string userId;
         private readonly string STR_NA = "-N/A-";
 
         public Predicate<dynamic> nodeFilterOverride { get; set; }
+
+        /// <summary>
+        /// Stores the ID for the current user
+        /// </summary>
+        public string UserId
+        {
+            get
+            {
+                return this.userId;
+            }
+            set
+            {
+                this.userId = value;
+            }
+        }
 
         public ItemSQLRepository(IDapperHelper dapperHelper, int dbtype = 2, bool DLSOverride = false)
         {
@@ -30,7 +46,8 @@ namespace DbUitlsCoreTest.Data
             _DLSOverride        = DLSOverride;
             _flattenRecord      = false;
             _mixedCaseTags      = false;
-           
+
+            userId              = "5327";
         }
 
         private IEnumerable<dynamic> GetItemRelatonTypeAndSubTypes(string itemtype, string itemsubtype, string itemid)
@@ -90,11 +107,7 @@ namespace DbUitlsCoreTest.Data
             return res;
         }
 
-        public List<dynamic> GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "")
-        {
-            return new List<dynamic>();
-        }
-
+      
 
         public int DeleteItem(string itemtype, string itemsubtype, string id)
         {
@@ -197,10 +210,12 @@ namespace DbUitlsCoreTest.Data
             return null;
         }
         //TODO:
-            // Need to check if subtype is null
-            // need to handle when fieldlist list is passed as param
-            // need to handle when urlendcoding is set?
-            // need to handle sort order 
+        // Need to check if subtype is null
+        // need to handle when fieldlist list is passed as param
+        // need to handle when urlendcoding is set?
+        // need to handle sort order 
+       
+
         public List<dynamic> GetItemDisplay(string itemtype, string subtype, string fieldlist = "")
         {
             string[] selectArr = new string[]
@@ -294,6 +309,18 @@ namespace DbUitlsCoreTest.Data
             return res;
 
         }
+        public object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "")
+        {
+            Console.WriteLine("get list ------*******_--");
+            var itemDisp = this.GetItemDisplay(itemtype, subtype);
+            var itemRecs = this.BuildItemList(itemDisp, itemtype, subtype, "", "");
+            Hashtable recordset = new Hashtable();
+            recordset.Add("display", itemDisp);
+            recordset.Add("records", itemRecs);
+
+            return recordset;
+        }
+
         public object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder = "")
         {
             Console.WriteLine("---- itemid for props ----");
@@ -353,18 +380,9 @@ namespace DbUitlsCoreTest.Data
             {
                 sql = DataUtils.sqlConvert(sql);
             }
-          
-            var  recs =  this.buildItemRecord(itemdisp, sql);
-            //Console.WriteLine(" ----- build item props -----");
-            //Console.WriteLine(columns);
-            //Console.WriteLine(idname);
-            //Console.WriteLine(itemtable);
-            //Console.WriteLine(linktables);
-            //Console.WriteLine(relationlink);
-            //Console.WriteLine(orderbyclause);
-            //Console.WriteLine(sql);
 
-           
+            var recs = this.buildItemRecord(itemdisp, sql);
+
             return recs;
         }
 
@@ -388,8 +406,9 @@ namespace DbUitlsCoreTest.Data
 
         }
 
-        private  List<dynamic> GetItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
+        private  List<dynamic> BuildItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
         {
+            Console.WriteLine("get item list -----");
             string columns = "";
             string idname = "itemid";
             // TODO: need to inplment getTopVueParameter
@@ -427,6 +446,7 @@ namespace DbUitlsCoreTest.Data
             {
                 whereorder = newTimeAdjust(whereorder);
             }
+            
 
 
             //Build clauses for SQL statement
@@ -437,6 +457,8 @@ namespace DbUitlsCoreTest.Data
 
             string firstcol = columns.Substring(0, columns.IndexOf(","));
             string sql = "";
+
+           
 
             //If searching by related file, add display node to indicate hits
             if (whereorder.IndexOf("artifact.filename") >= 0 && columns.IndexOf("fbartifact") >= 0)
@@ -454,7 +476,6 @@ namespace DbUitlsCoreTest.Data
             //Get count of total records matching criteria
             Hashtable xAttr = new Hashtable();
             xAttr.Add("fieldname", "totalrecs");
-              
 
             //Create alltables variable to support SQL Server conversion if needed
             string alltables = itemtable + relationlink + linktables;
@@ -470,7 +491,7 @@ namespace DbUitlsCoreTest.Data
             {
                 hassubtype = true;
             }
-
+          
             //If no criteria was specified, just get simple count from properties
             if (whereorder.Length == 0)
             {
@@ -485,7 +506,13 @@ namespace DbUitlsCoreTest.Data
                     sql += "case when itemrights.itemid is null then 'N' else 'Y' end xcontrolled, " +
                     "case when itemrights2.itemid is null then 'N' else 'Y' end xallowed ";
                 }
+                Console.WriteLine("--- building item list 0-----");
+                Console.WriteLine(sql);
+                Console.WriteLine(linktables);
+                Console.WriteLine(itemtable);
+                Console.WriteLine(ir2pos.ToString());
                 sql += " from " + itemtable + linktables.Substring(0, ir2pos + 28 + itemtable.Length);
+               
                 //Determine how to filter by subtype
                 if (itemtable == "user_properties" && subtype == "contact")
                 {
@@ -549,6 +576,7 @@ namespace DbUitlsCoreTest.Data
                         }
                     }
                 }
+              
                 sql += ") tvtmptble ";
                 if (getTopVueParameter("ShowLockedRecords") != "true")
                 {
@@ -575,6 +603,8 @@ namespace DbUitlsCoreTest.Data
                 }
 
             }
+
+     
             else
             {
                 //If a whereorder was specified, build the full query
@@ -675,6 +705,8 @@ namespace DbUitlsCoreTest.Data
             {
                 sql = DataUtils.sqlConvert(sql);
             }
+            Console.WriteLine("--- building item list  1-----");
+            Console.WriteLine(sql);
             var res = this._dapperHelper.RawQuery(sql);
             if(res != null)
             {
@@ -690,7 +722,187 @@ namespace DbUitlsCoreTest.Data
                 xAttr.Add("totalrecs", "unknown");
 
             }
-            return new List<dynamic>();
+         
+
+            //Get recordset to return to user, attempt to use distinct keyword initially
+            //(Use funky case to more easily keep track of it) - cannot use distinct keyword if any long type fields are being returned - track DiStIncT keyword so it can be removed if the query fails when DiStIncT is included
+            sql = string.Format("select {0} {1} from {2} {3}", (alltables.IndexOf("itemlongvalues") > -1) ? "" : "DiStIncT", columns, alltables, whereclause);
+
+            //Determine how to filter by subtype
+            if (itemtable == "user_properties" && subtype == "contact")
+            {
+                //For item display lists of contacts, show all users (both users and contacts)
+                if (whereclause.IndexOf(" where ") < 0)
+                {
+                    sql += " where ";
+                }
+                else
+                {
+                    sql += " and ";
+                }
+                sql += " user_properties.itemid > 0 ";
+            }
+            else if (subtype != null && subtype.Length > 0)
+            {
+                if (whereclause.IndexOf("where") < 0)
+                {
+                    sql += " where ";
+                }
+                else
+                {
+                    sql += " and ";
+                }
+                sql += itemtable + "." + itemtype +
+                   "type = '" + subtype + "'";
+            }
+            else
+            {
+                if (hassubtype)
+                {
+                    if (whereclause.IndexOf(" where ") < 0)
+                    {
+                        sql += " where ";
+                    }
+                    else
+                    {
+                        sql += " and ";
+                    }
+                    sql += itemtable + "." + itemtype+
+                       "type is null";
+                    hassubtype = true;
+                }
+            }
+            if (relationlink.Length > 0)
+            {
+                string sql2 = sql.Replace("itemid1", "itemid0");
+                sql2 = sql2.Replace("itemid2", "itemid1");
+                sql2 = sql2.Replace("itemid0", "itemid2");
+                sql2 = sql2.Replace("itemtypecd1", "itemtypecd0");
+                sql2 = sql2.Replace("itemtypecd2", "itemtypecd1");
+                sql2 = sql2.Replace("itemtypecd0", "itemtypecd2");
+                sql += " union " + sql2;
+            }
+            sql += " " + orderbyclause;
+            sql = "select * from (" + sql +
+               ") tvtmptble ";
+            if (getTopVueParameter("ShowLockedRecords") != "true")
+            {
+                sql += "where xcontrolled = 'N' or xallowed = 'Y'";
+            }
+            else
+            {
+                if (ShowLockedRecordsExceptions != "null" && ShowLockedRecordsExceptions != "-N/A-" && ShowLockedRecordsExceptions != "")
+                {
+                    foreach (string objecttype in ShowLockedRecordsExceptions.Split(','))
+                    {
+                        objitemtype = objecttype.Substring(0, objecttype.IndexOf("_"));
+                        objsubtype = objecttype.Substring(objecttype.IndexOf("_")).Replace("_", "");
+                        if (objsubtype.Equals("null") || objsubtype.Equals(""))
+                        {
+                            objsubtype = null;
+                        }
+                        if (objitemtype == itemtype && subtype == objsubtype)
+                        {
+                            sql += "where xcontrolled = 'N' or xallowed = 'Y'";
+                        }
+                    }
+                }
+
+            }
+            //Append order by clause to outer query if applicable
+            if (orderbyclause != null && orderbyclause.Length > 0)
+            {
+                if (orderbyclause.IndexOf(".") >= 0)
+                {
+                    //Loop through fields in order by clause and replace any child fields with label names
+                    foreach (string obf in orderbyclause.Split(','))
+                    {
+                        string obfieldname = obf.Replace("asc", "").Replace("desc", "").Replace("order by", "").Trim();
+                        if (obfieldname.IndexOf(".") > 0 && obfieldname.IndexOf(itemtable + ".") < 0)
+                        {
+                            string[] obfdetails = obfieldname.Split('.');
+                            //Removed link count if needed
+                            if (obfdetails[0].LastIndexOf("_") > obfdetails[0].IndexOf("_"))
+                            {
+                                obfdetails[0] = obfdetails[0].Substring(0, obfdetails[0].LastIndexOf("_"));
+                            }
+
+                            var colItem = itemDisp.Where(item => item.parenttable == obfdetails[0] && item.parentcolumn == obfdetails[1]).First();
+                          
+                            if (colItem != null)
+                            {
+                                orderbyclause = orderbyclause.Replace(obfieldname, colItem.fieldname);
+                            }
+                        }
+                    }
+                    //Remove any table name references
+                    string tablelist = itemtable + linktables;
+                    foreach (string table in tablelist.Split('\r'))
+                    {
+                        string tblname = table.Trim();
+                        if (tblname.IndexOf(" on ") > 0)
+                        {
+                            tblname = tblname.Substring(0, tblname.LastIndexOf(" on "));
+                        }
+                        if (tblname.Trim().IndexOf(" ") > 0)
+                        {
+                            tblname = tblname.Trim().Substring(tblname.Trim().LastIndexOf(" ")).Trim();
+                        }
+                        if (tblname == null || tblname.Length == 0)
+                        {
+                            continue;
+                        }
+                        orderbyclause = orderbyclause.Replace(tblname + ".", "");
+                    }
+                }
+                sql += " " + orderbyclause;
+            }
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                sql = sql.Replace("select * from (select", "select * from (select top 100 percent").Replace("top 100 percent DISTINCT", "DISTINCT top 100 percent");
+                sql = DataUtils.sqlConvert(sql);
+            }
+
+
+            IEnumerable<dynamic> listRes;
+
+            try
+            {
+                listRes = this._dapperHelper.GetList(sql);
+            }
+            catch (Exception)
+            {
+                //If query fails, attempt to remove distinct keyword and try again
+                sql = sql.Replace("select DiStIncT", "select ");
+                sql = sql.Replace("select top 100 percent DiStIncT", "select top 100 percent ");
+
+                listRes = this._dapperHelper.RawQuery(sql);
+
+            }
+
+            //If paging through records, update record paging attributes
+            Hashtable recids = new Hashtable();
+
+            foreach (var item in listRes)
+            {
+                string cid = item.itemid.ToString();
+                if (!recids.ContainsKey(cid))
+                {
+                    recids.Add(cid, null);
+                }
+            }
+
+
+           var recs = this.buildItemRecord(itemDisp, sql, true);
+            foreach (var rec in recs)
+            {
+                Console.WriteLine(rec);
+            }
+
+            return recs;
+
+
         }
         // TODO :
         // Need to implent join with item rights
@@ -748,9 +960,16 @@ namespace DbUitlsCoreTest.Data
 
 
             }
-           
+
             //i => i.parenttable != '' && i.fieldtype != 'itemid')
-            var filteredDispNodes = itemdisp.Where(item => filterfunc(item));
+            IEnumerable<dynamic> filteredDispNodes;
+            if (filterfunc != null) {
+                 filteredDispNodes = itemdisp.Where(item => filterfunc(item));
+            }
+            else
+            {
+                filteredDispNodes = itemdisp;
+            }            
             foreach (var item in filteredDispNodes)
             {
                 item.l = "rarar";
@@ -1099,11 +1318,160 @@ namespace DbUitlsCoreTest.Data
                     }
                 }
             }
+            //Add columns for join to itemrights
+            if (this._DLSOverride)
+            {
+                if (columns.Length > 0)
+                {
+                    columns += ", 'N' xcontrolled, 'Y' xallowed";
+                }
+                else
+                {
+                    columns = "'N' xcontrolled, 'Y' xallowed";
+                }
+            }
+            else
+            {
+                if (columns.Length > 0)
+                {
+                    columns += ", case when itemrights.itemid is null then 'N' else 'Y' end xcontrolled, " +
+                       "case when itemrights2.itemid is null then 'N' else 'Y' end xallowed";
+                }
+                else
+                {
+                    columns = "case when itemrights.itemid is null then 'N' else 'Y' end xcontrolled, " +
+                       "case when itemrights2.itemid is null then 'N' else 'Y' end xallowed";
+                }
+            }
+
+            //Add tables for join to itemrights
+            if (!this._DLSOverride)
+            {
+                linktables = "\r left join (select distinct itemid from itemrights where itemtypecd = '" +
+                   itemtype + "') itemrights on itemrights.itemid = " + itemtable + "." + idname +
+                   "\r left join (select ir.itemid " +
+                   "from itemrights ir " +
+                   "where ir.userid = " + this.userId +
+                   " and ir.itemtypecd = '" + itemtype + "' " +
+                   " union " +
+                   "select ir.itemid " +
+                   "from itemrights ir, roleusers ru " +
+                   "where ir.roleid = ru.roleid " +
+                   "and ir.itemtypecd = '" + itemtype + "' " +
+                   "and ru.userid = " + this.userId +
+                   " union " +
+                   "select ir.itemid " +
+                   "from itemrights ir, groupmembership gu " +
+                   "where ir.groupid = gu.groupid " +
+                   "and ir.itemtypecd = '" + itemtype + "' " +
+                   "and gu.userid = " + this.userId +
+                   ") itemrights2 on itemrights2.itemid = " + itemtable + "." + idname + " " + linktables;
+            }
+
+            //Make sure where keyword exists in proper location
+            if (whereclause.Length > 5 && whereclause.ToLower().IndexOf(" where ") < 0)
+            {
+                //make sure we don't have "where and" in the criteria
+                if (!string.IsNullOrEmpty(whereclause) && whereclause.ToLower().Trim().StartsWith("and "))
+                {
+                    whereclause = whereclause.Substring(whereclause.ToLower().IndexOf("and") + 3);
+                }
+                whereclause = " where " + whereclause;
+            }
+
+            //If artifact and itemartifact tables were included, add them to linktables and found column
+            if (whereclause.IndexOf("artifact.") >= 0 && linktables.IndexOf("artifact,") < 0)
+            {
+
+                linktables += "\r left join itemartifact on itemartifact.itemtypecd = '" + itemtype + "' " +
+                   "and itemartifact.itemid = " + itemtable + "." + idname +
+                   "\r left join artifact on artifact.artifactid = itemartifact.artifactid ";
+
+                if (columns.Length > 0)
+                {
+                    columns += ", ";
+                }
+                columns += "case when artifact.filename is null then 'No' else 'Yes' end fbartifact";
+
+                //Add logic to search indexes if specified
+                if (whereclause.IndexOf("/* FileSearchStart */") >= 0)
+                {
+                    string artindexquery = "select a.artifactid, count(ad.keyword) score " +
+                       "from artifact a left join itemartifact ia on ia.artifactid = a.artifactid " +
+                       "left join artifactindexdata ad on ad.artifactid = a.artifactid " +
+                       "where 1 < 2 and (**FileCriteria**) " +
+                       "group by a.artifactid ";
+                    string filecriteria = whereclause.Substring(whereclause.IndexOf("/* FileSearchStart */") + 21);
+                    filecriteria = filecriteria.Substring(0, filecriteria.IndexOf("/* FileSearchEnd */"));
+                    string orifiltercrit = filecriteria;
+                    whereclause = whereclause.Replace(orifiltercrit, orifiltercrit + " or (artflindx.artifactid is not null) ");
+                    filecriteria = filecriteria.Replace("artifact.filename", "ad.keyword");
+
+                    //Figure out if "contains all" logic was selected and count number of keywords
+                    int kwcount = 0;
+                    if (filecriteria.IndexOf(" and ") >= 0)
+                    {
+                        kwcount = filecriteria.Replace("~", "").Replace(" and ", "~").Split('~').Length;
+                    }
+
+                    //update artifact index criteria to always use "or" and "equals"
+                    filecriteria = filecriteria.Replace("ad.keyword) like", "ad.keyword) =").Replace("'%", "'").Replace("%'", "'").Replace(" and ", " or ");
+
+                    artindexquery = artindexquery.Replace("**FileCriteria**", filecriteria);
+
+                    linktables += "\r left join (" + artindexquery +
+                       ") artflindx on artifact.artifactid = artflindx.artifactid";
+
+                    //If using "contains all" type compare and more than one word was used, filter based on score
+                    if (kwcount > 1)
+                    {
+                        linktables += " and artflindx.score >= " + kwcount;
+                    }
+
+                    columns = columns.Replace("decode(artifact.filename, null, 'No', 'Yes') fbartifact", "decode(artflindx.artifactid, null, 'No', 'Yes') fbartifact");
+                }
+
+            }
+            if (whereclause.IndexOf("itemartifact.") >= 0 && linktables.IndexOf("itemartifact ") < 0)
+            {
+                linktables += "\r left join itemartifact on itemartifact.itemtypecd = '" + itemtype + "' " +
+                           "and itemartifact.itemid = " + itemtable + "." + idname +
+                           " left join artifact on artifact.artifactid = itemartifact.artifactid ";
+            }
+            //Remove old style join syntax from whereclause if applicable
+            if (whereclause.IndexOf("itemartifact.itemid(+)") >= 0)
+            {
+                whereclause = whereclause.Replace("(itemartifact.itemid(+) = " + itemtype +
+                   "_properties.itemid and (itemartifact.itemtypecd(+) = " +
+                   itemtype + "_properties.itemtypecd) " +
+                   "and (itemartifact.artifactid = artifact.artifactid(+))) and", "");
+            }
+
+            //GCSS keeps getting a problem in the generated SQL that we cannot reproduce, trying to prevent that with the statement below
+            if (whereclause.IndexOf("where  and (") >= 0)
+            {
+                whereclause = whereclause.Replace("where  and (", "where (");
+            }
+
+            //Build order by clause
+            orderinfo.Sort();
+            foreach (string sort in orderinfo)
+            {
+                if (orderbyclause.Length == 0)
+                {
+                    orderbyclause = "order by ";
+                }
+                else
+                {
+                    orderbyclause += ", ";
+                }
+                orderbyclause += sort.Substring(sort.IndexOf("-") + 1);
+            }
 
             return new { };
         }
 
-        public object buildItemRecord(List<dynamic> itemDsip, string sql)
+        public List<dynamic> buildItemRecord(List<dynamic> itemDsip, string sql, bool isList = false)
         {
             string currentid = "";
             int currentrec = 0;
@@ -1111,17 +1479,26 @@ namespace DbUitlsCoreTest.Data
             DateTime started = DateTime.Now;
             Hashtable recordids = new Hashtable();
 
+            //Grab parameter once for TBD meeting times
+            bool tbdmeetingtimes = false;
+            if (getTopVueParameter("TBDMeetingTimes") == "true")
+            {
+                tbdmeetingtimes = true;
+            }
             var dispDict = itemDsip.ToDictionary(x => x.fieldname, x => x);
 
           
 
             using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
             {
-                List<Hashtable> records = new List<Hashtable>();
+                List<dynamic> records = new List<dynamic>();
                 
 
                 SqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
+
+                Console.WriteLine("build recs ----- sql");
+                Console.WriteLine(sql);
                 var recReader = cmd.ExecuteReader();
 
                 while (recReader.Read())
@@ -1136,19 +1513,21 @@ namespace DbUitlsCoreTest.Data
 
                         string fieldType  = recReader.GetFieldType(i).ToString();
                         string fieldValue = recReader.GetValue(i).ToString();
+                        string fieldName  = recReader.GetName(i).ToLower();
+                        Hashtable recordProps = new Hashtable();
 
 
 
                         string recName;
-                        if(recReader.GetName(i) != null)
+                        if (recReader.GetName(i) != null)
                         {
-                           recName = (this._mixedCaseTags) ? recReader.GetName(i) : recReader.GetName(i).ToLower();
+                            recName = (this._mixedCaseTags) ? recReader.GetName(i) : recReader.GetName(i).ToLower();
                         }
                         else
                         {
                             recName = "";
                         }
-                    
+
                         record.Add(recName, "");
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))
@@ -1172,42 +1551,143 @@ namespace DbUitlsCoreTest.Data
                         }
                         else if (dispDict.ContainsKey(recName) && String.IsNullOrEmpty(dispDict[recName].fieldname))
                         {
-                            if (dispDict[recName].EndsWith("_val") || dispDict[recName].EndsWith("link") && !String.IsNullOrEmpty(recName) 
+                            if (dispDict[recName].EndsWith("_val") || dispDict[recName].EndsWith("link") && !String.IsNullOrEmpty(recName)
                                 && dispDict[recName].fieldname.Substring(0, dispDict[recName].fieldname.Length - 4) != null
                                 )
                             {
                                 hiddenfield = true;
                             }
                         }
-
-                        record[recName] = (datefield || timefield || (fieldType == "System.DateTime") ?
-                                           DataUtils.formatOraDate(fieldValue) : fieldValue);
-
-                        if (datefield || timefield || numericfield || fieldType == "System.DateTime" || fieldType == "System.Decimal" )  
+                        if (isList)
                         {
-                           
-                            string dtnodeval = recReader.GetValue(i).ToString();
-                            if (String.IsNullOrEmpty(dtnodeval)) dtnodeval = " ";
-                            Console.WriteLine(fieldValue);
-                            if (fieldType == "System.DateTime" || datefield || timefield)
+
+                            if (true)
                             {
-                                if (recReader.GetValue(i).ToString().Length > 0)
-                                {
-                                    dtnodeval = formatStringDate(recReader.GetValue(i).ToString());
-                                }
+
                             }
-                            else if (fieldType == "System.Decimal" || numericfield)
+
+                            if (fieldName == "xcontrolled")
                             {
-                                dtnodeval = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
+                                recordProps["fieldvalue"] = fieldValue;
+                                record["controlled"] = recordProps;
+
                             }
-                           
-                            string dtName = recName + "dt";
-                            record[dtName] = dtnodeval;
-                         
+                            else if (fieldName == "xallowed" )
+                            {
+                                recordProps["fieldvalue"] = fieldValue;
+                                record["allowed"] = recordProps;
+                            }
+                            else if (fieldName == "System.DateTime" || (datefield))
+                            {
+
+                                Hashtable dtProps = new Hashtable();
+                                recordProps["hide"] = "";
+                                string dtName= fieldName + "dt";
+                                
                             
+                                if (fieldValue.Length > 0 && !DataUtils.hasTime(fieldValue) && fieldName.IndexOf("formatted") < 0)
+                                {
+                                    recordProps["fieldvalue"] = DataUtils.formatOraDate(fieldValue);
+                                    dtProps["fieldvalue"] = formatStringDate(fieldValue);
+                                    if (timefield && tbdmeetingtimes)
+                                    {
+                                        recordProps["fieldvalue"] += " TBD";
+                                        dtProps["fieldvalue"] += "000";
+                                    }
+                                }
+                                else if (datefield && !timefield && fieldValue.Length > 0)
+                                {
+                                    recordProps["fieldvalue"] = DataUtils.formatOraDate(fieldValue);
+                                    dtProps["fieldvalue"] = formatStringDate(fieldValue);
+                                }
+                                else if (fieldValue.Length > 0)
+                                {
+                                    try
+                                    {
+                                        //oItemNode.InnerText = clientTimeAdjust(idbReader.GetDateTime(i).ToString("G"));
+                                        recordProps["fieldvalue"] = recReader.GetDateTime(i).ToString();
+                                        dtProps["fieldvalue"] = formatStringDate(recReader.GetDateTime(i));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        DateTime tmpdate = DateTime.Parse(fieldValue);
+                                        //oItemNode.InnerText = clientTimeAdjust(tmpdate.ToString("G"));
+                                        recordProps["fieldvalue"] = tmpdate.ToString();
+                                        dtProps["fieldvalue"] = formatStringDate(tmpdate);
+                                    }
+                                }
+                                else
+                                {
+                                    recordProps["fieldvalue"] = "";
+                                    dtProps["fieldvalue"] = "";
+                                }
+                                record.Add(dtName, dtProps);
+                            }
 
                         }
-                        
+                        else if (fieldType == "System.Decimal" || (numericfield))
+                        {
+                            string testing = fieldType;
+                            Hashtable dtProps = new Hashtable();
+                            recordProps["hide"] = "";
+                            string dtName = fieldName + "dt";
+
+                            dtProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
+                            record[dtName] = dtProps;
+                            string tempval =fieldValue;
+
+                            try
+                            {
+                                if (!String.IsNullOrEmpty(tempval))
+                                {
+                                    //Strip decimals if they are just zeros
+                                    int tempnumval = (int)Math.Round(double.Parse(tempval));
+                                    if (tempnumval == double.Parse(tempval))
+                                    {
+                                        tempval = tempnumval.ToString();
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //Keep original value if can't get decimal data
+                            }
+                           recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(tempval);
+                        }
+
+                        else
+                        {   
+                            recordProps["fieldvalue"] = (datefield || timefield || (fieldType == "System.DateTime") ?
+                                         DataUtils.formatOraDate(fieldValue) : fieldValue);
+                            record[recName] = recordProps;
+
+                            if (datefield || timefield || numericfield || fieldType == "System.DateTime" || fieldType == "System.Decimal")
+                            {
+                                Hashtable dtProps = new Hashtable();
+                                string dtnodeval = recReader.GetValue(i).ToString();
+                                if (String.IsNullOrEmpty(dtnodeval)) dtnodeval = " ";
+                                Console.WriteLine(fieldValue);
+                                if (fieldType == "System.DateTime" || datefield || timefield)
+                                {
+                                    if (recReader.GetValue(i).ToString().Length > 0)
+                                    {
+                                        dtnodeval = formatStringDate(recReader.GetValue(i).ToString());
+                                    }
+                                }
+                                else if (fieldType == "System.Decimal" || numericfield)
+                                {
+                                    dtnodeval = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
+                                }
+
+                                string dtName = recName + "dt";
+                                dtProps["fieldvalue"] = dtnodeval;
+                                record[dtName] = dtProps;
+
+                            }
+
+                        }
+
+
                     }
                   
                     records.Add(record);
@@ -1263,7 +1743,7 @@ namespace DbUitlsCoreTest.Data
         {
             string tvparam =STR_NA;
             bool resethashtable = false;
-            Hashtable TVParams = null;
+            Hashtable TVParams = new Hashtable();
             //if (HttpContext.Current != null)
             //{
             //    if (HttpContext.Current.Application["TVparams"] != null)
@@ -1287,13 +1767,13 @@ namespace DbUitlsCoreTest.Data
                 string[] selectArr = { "value", "encrypted" };
                 Dictionary<string, string> whereDict = new Dictionary<string, string>();
                 whereDict.Add("valuename", $"'{param}'");
-                var res = this._dapperHelper.Get("topvueparameters", selectArr, whereDict);
-               
-                if (res.Equals("Y"))
+                var paramres = this._dapperHelper.Get("topvueparameters", selectArr, whereDict);
+
+                if (paramres != null && paramres == "y")
                 {
-                        tvparam = DataUtils.decryptData(tvparam);
+                    tvparam = DataUtils.decryptData(tvparam);
                 }
-        
+
                 //Never cache currentseq type params
                 if (TVParams != null && !TVParams.ContainsKey(param) && !param.EndsWith("currentseq"))
                 {
@@ -1747,14 +2227,15 @@ namespace DbUitlsCoreTest.Data
 
                 string idlist = "";
 
-                do
-                {
+                while (recReader.Read()){
+
                     if (idlist.Length > 0)
                     {
                         idlist += ",";
                     }
                     idlist += recReader.GetValue(0);
-                } while (recReader.Read());
+
+                }
 
                 if (idlist.Length == 0)
                 {
