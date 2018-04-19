@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DbUitlsCoreTest.Data;
 using System.Data.SqlClient;
+using System.Web;
 
 namespace DbUitlsCoreTest.Data
 {
@@ -313,9 +314,19 @@ namespace DbUitlsCoreTest.Data
         {
             Console.WriteLine("get list ------*******_--");
             var itemDisp = this.GetItemDisplay(itemtype, subtype);
+            var itemDict = itemDisp.ToDictionary(x => x.fieldname, x => x);
             var itemRecs = this.BuildItemList(itemDisp, itemtype, subtype, "", "");
+            foreach (var hsm in itemRecs)
+            {
+               
+                foreach (var item in hsm)
+                {
+                    Console.WriteLine(item);
+                    //item.Value["displayname"] = "fuck";
+                }
+            }
             Hashtable recordset = new Hashtable();
-            recordset.Add("display", itemDisp);
+            recordset.Add("display", itemDict);
             recordset.Add("records", itemRecs);
 
             return recordset;
@@ -1491,9 +1502,9 @@ namespace DbUitlsCoreTest.Data
 
             using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
             {
+
                 List<dynamic> records = new List<dynamic>();
                 
-
                 SqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
 
@@ -1514,10 +1525,9 @@ namespace DbUitlsCoreTest.Data
                         string fieldType  = recReader.GetFieldType(i).ToString();
                         string fieldValue = recReader.GetValue(i).ToString();
                         string fieldName  = recReader.GetName(i).ToLower();
+
+
                         Hashtable recordProps = new Hashtable();
-
-
-
                         string recName;
                         if (recReader.GetName(i) != null)
                         {
@@ -1527,11 +1537,16 @@ namespace DbUitlsCoreTest.Data
                         {
                             recName = "";
                         }
-
                         record.Add(recName, "");
+
+                        if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].displayname))
+                        {
+                            recordProps["displayname"] = dispDict[recName].displayname;
+                        }
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))
                         {
+                            recordProps["fieldname"] = dispDict[recName].fieldname;
                             if (dispDict[recName].fieldtype.IndexOf("date") > 0)
                             {
                                 datefield = true;
@@ -1561,11 +1576,10 @@ namespace DbUitlsCoreTest.Data
                         if (isList)
                         {
 
-                            if (true)
+                            if (fieldName == "itemid")
                             {
-
+                                currentid = fieldValue;
                             }
-
                             if (fieldName == "xcontrolled")
                             {
                                 recordProps["fieldvalue"] = fieldValue;
@@ -1583,8 +1597,7 @@ namespace DbUitlsCoreTest.Data
                                 Hashtable dtProps = new Hashtable();
                                 recordProps["hide"] = "";
                                 string dtName= fieldName + "dt";
-                                
-                            
+                                                            
                                 if (fieldValue.Length > 0 && !DataUtils.hasTime(fieldValue) && fieldName.IndexOf("formatted") < 0)
                                 {
                                     recordProps["fieldvalue"] = DataUtils.formatOraDate(fieldValue);
@@ -1623,36 +1636,133 @@ namespace DbUitlsCoreTest.Data
                                 }
                                 record.Add(dtName, dtProps);
                             }
-
-                        }
-                        else if (fieldType == "System.Decimal" || (numericfield))
-                        {
-                            string testing = fieldType;
-                            Hashtable dtProps = new Hashtable();
-                            recordProps["hide"] = "";
-                            string dtName = fieldName + "dt";
-
-                            dtProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
-                            record[dtName] = dtProps;
-                            string tempval =fieldValue;
-
-                            try
+                            else if (fieldType == "System.Decimal" || (numericfield))
                             {
-                                if (!String.IsNullOrEmpty(tempval))
+                                string testing = fieldType;
+                                Hashtable dtProps = new Hashtable();
+                                recordProps["hide"] = "";
+                                string dtName = fieldName + "dt";
+
+                                dtProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(fieldValue.PadLeft(9, '0'));
+                                record[dtName] = dtProps;
+
+                                string tempval = fieldValue;
+
+                                try
                                 {
-                                    //Strip decimals if they are just zeros
-                                    int tempnumval = (int)Math.Round(double.Parse(tempval));
-                                    if (tempnumval == double.Parse(tempval))
+                                    if (!String.IsNullOrEmpty(tempval))
                                     {
-                                        tempval = tempnumval.ToString();
+                                        //Strip decimals if they are just zeros
+                                        int tempnumval = (int)Math.Round(double.Parse(tempval));
+                                        if (tempnumval == double.Parse(tempval))
+                                        {
+                                            tempval = tempnumval.ToString();
+                                        }
                                     }
                                 }
+                                catch (Exception)
+                                {
+                                    //Keep original value if can't get decimal data
+                                }
+                                recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(tempval);
+                               // record.Add(dtName, dtProps);
                             }
-                            catch (Exception)
+                            else if (dispDict.ContainsKey(recName) && dispDict[recName].fieldtype  == "password")
                             {
-                                //Keep original value if can't get decimal data
+                                recordProps["fieldvalue"] = "- Not Displayed -";
                             }
-                           recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(tempval);
+                            else
+                            {
+                               if(  dispDict.ContainsKey(recName) && dispDict[recName].encode != null 
+                                    && dispDict[recName].encode == "true"
+                                   // || this.getTopVueParameter("HandleUnicodeInXML") == "true"
+                                 )
+                                {
+                                    bool isnvarcharfield = false;
+                                    if (this._dbtype == 1)
+                                    {
+                                        // need to account for this if ever we switch to oracle
+                                        //OleDbDataReader oledr = (OleDbDataReader)idbReader;
+                                        //isnvarcharfield = oledr.GetDataTypeName(i).ToLower() == "nvarchar";
+                                    }
+                                    else if (this._dbtype == 2)
+                                    {
+                                        SqlDataReader sqldr = (SqlDataReader)recReader;
+                                        isnvarcharfield = recReader.GetDataTypeName(i).ToLower() == "nvarchar";
+                                    }
+
+                                    if (isnvarcharfield)
+                                    {
+                                        recordProps["fieldvalue"] = HttpUtility.HtmlEncode(fieldValue);
+                                    }
+                                    else
+                                    {
+
+                                        try
+                                        {
+                                            recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(fieldValue);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            string badval = fieldValue;
+                                            char[] carray = badval.ToCharArray();
+                                            foreach (char chr in carray)
+                                            {
+                                                try
+                                                {
+                                                    recordProps["fieldvalue"] += chr.ToString();
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    //ignore invalid characters
+                                                    // need to enfoce logging here
+                                                    //TVUtils.LogWarning("Unable to add character to XML: " + chr.ToString() + " - code: " + ((int)chr) + "\r\n" + e.ToString());
+                                                }
+                                            }
+                                            
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(fieldValue);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        string badval = fieldValue;
+                                        char[] carray = badval.ToCharArray();
+                                        foreach (char chr in carray)
+                                        {
+                                            try
+                                            {
+                                                recordProps["fieldvalue"] += chr.ToString();
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                //ignore invalid characters
+                                                // need to fix loging 
+                                                //TVUtils.LogWarning("Unable to add character to XML: " + chr.ToString() + " - code: " + ((int)chr) + "\r\n" + e.ToString());
+                                            }
+                                        }
+                                    }
+                                }  
+
+                            }
+
+                            if (recName != "xcontrolled" && recName != "xallowed")
+                            {
+                                if ( dispDict.ContainsKey(recName) &&  ( dispDict[recName].fieldname == recName || dispDict[recName].parentcolumn == recName) == null)
+                                {
+                                     recordProps.Add("hide", "");
+                                }
+                                if (hiddenfield && recordProps["hide"] == null)
+                                {
+                                    recordProps.Add("hide", "");
+                                }
+                                record[recName] = recordProps;
+                            }
                         }
 
                         else
@@ -1692,6 +1802,8 @@ namespace DbUitlsCoreTest.Data
                   
                     records.Add(record);
                 }
+
+                Console.WriteLine(" ------ end records build ------");
 
                 return records;
             }
