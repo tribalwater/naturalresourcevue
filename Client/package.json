@@ -1,0 +1,22 @@
+{
+  "name": "react-table-simple-table",
+  "description": null,
+  "version": "0.0.0",
+  "dependencies": {
+    "namor": "1.0.1",
+    "react": "15.5.3",
+    "react-dom": "15.5.3",
+    "react-table": "6.7.0-alpha-0",
+    "semantic-ui-css": "^2.3.1",
+    "semantic-ui-react": "^0.79.1"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

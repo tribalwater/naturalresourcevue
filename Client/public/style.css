@@ -1,0 +1,149 @@
+html,body{
+    height: 100%;
+    width: 100%;
+    background-color: slategrey ;
+}
+
+.full-height{
+    height: 96% !important;
+}
+
+.page-container{
+	overflow-y: scroll;
+	height: 90%;
+}
+.app-wrapper{
+	height: 100%;
+}
+
+.top-menu{
+	height: 7% !important;
+}
+
+.tabs-hr-menu-wrapper {
+	position: relative;
+	padding: 0 11px;
+	width: 100%;
+	position: fixed;
+    bottom: 0;
+	right: 0;
+	background-color: black;
+	height: 5%;
+	margin: 0;
+	text-align: center;
+}
+.pn-ProductNav_Wrapper {
+	position: relative;
+	padding: 0 11px;
+	width: 200px;
+  }
+  
+  .pn-ProductNav {
+	/* Make this scrollable when needed */
+	overflow-x: auto;
+	/* We don't want vertical scrolling */
+	overflow-y: hidden;
+	/* For WebKit implementations, provide inertia scrolling */
+	-webkit-overflow-scrolling: touch;
+	/* We don't want internal inline elements to wrap */
+	white-space: nowrap;
+	/* If JS present, let's hide the default scrollbar */
+	/* positioning context for advancers */
+	position: relative;
+  }
+  .js .pn-ProductNav {
+	/* Make an auto-hiding scroller for the 3 people using a IE */
+	-ms-overflow-style: -ms-autohiding-scrollbar;
+	/* Remove the default scrollbar for WebKit implementations */
+  }
+  .js .pn-ProductNav::-webkit-scrollbar {
+	display: none;
+  }
+  
+  .pn-ProductNav_Contents {
+	float: left;
+	transition: -webkit-transform .2s ease-in-out;
+	transition: transform .2s ease-in-out;
+	transition: transform .2s ease-in-out, -webkit-transform .2s ease-in-out;
+  }
+  
+  .pn-ProductNav_Contents-no-transition {
+	transition: none;
+  }
+  
+  .pn-ProductNav_Link {
+	text-decoration: none;
+	color: #888;
+	font-size: 1em;
+	font-family: -apple-system, sans-serif;
+	display: inline-flex;
+	align-items: center;
+	min-height: 25px;
+	
+	
+  }
+  .pn-ProductNav_Link + .pn-ProductNav_Link {
+	margin-left: 5px;
+	margin-right: 5px;
+	padding-left: 11px;
+	border-left: 1px solid #eee;
+  }
+  .pn-ProductNav_Link[aria-selected="true"] {
+	color: #111;
+  }
+  
+  .pn-Advancer {
+	/* Reset the button */
+	-webkit-appearance: none;
+	   -moz-appearance: none;
+			appearance: none;
+	background: transparent;
+	padding: 0;
+	border: 0;
+	/* Now style it as needed */
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	/* Set the buttons invisible by default */
+	opacity: 0;
+	transition: opacity .3s;
+  }
+  .pn-Advancer:focus {
+	outline: 0;
+  }
+  .pn-Advancer:hover {
+	cursor: pointer;
+  }
+  
+  .pn-Advancer_Left {
+	left: 0;
+	opacity: 1;
+  }
+  [data-overflowing="both"] ~ .pn-Advancer_Left, [data-overflowing="left"] ~ .pn-Advancer_Left {
+	opacity: 1;
+  }
+  
+  .pn-Advancer_Right {
+	right: 0;
+	opacity: 1;
+  }
+  [data-overflowing="both"] ~ .pn-Advancer_Right, [data-overflowing="right"] ~ .pn-Advancer_Right {
+	opacity: 1;
+  }
+  
+  .pn-Advancer_Icon {
+	width: 25px;
+	height: 25px;
+	fill: #bbb;
+	
+  }
+  
+  .pn-ProductNav_Indicator {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 4px;
+	width: 100px;
+	background-color: #f90;
+  }
+  
