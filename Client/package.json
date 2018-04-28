@@ -6,6 +6,7 @@
     "namor": "1.0.1",
     "react": "15.5.3",
     "react-dom": "15.5.3",
+    "react-router-dom": "^4.2.2",
     "react-table": "6.7.0-alpha-0",
     "semantic-ui-css": "^2.3.1",
     "semantic-ui-react": "^0.79.1"

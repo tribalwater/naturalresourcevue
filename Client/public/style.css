@@ -3,7 +3,9 @@ html,body{
     width: 100%;
     background-color: slategrey ;
 }
+.border-less{
 
+}
 .full-height{
     height: 96% !important;
 }
@@ -11,9 +13,12 @@ html,body{
 .page-container{
 	overflow-y: scroll;
 	height: 90%;
+	border:none !important;
+	padding: 0 !important;
 }
 .app-wrapper{
 	height: 100%;
+	padding: 1em 1em;
 }
 
 .top-menu{
@@ -21,12 +26,12 @@ html,body{
 }
 
 .tabs-hr-menu-wrapper {
-	position: relative;
+
 	padding: 0 11px;
 	width: 100%;
 	position: fixed;
     bottom: 0;
-	right: 0;
+	left: 0;
 	background-color: black;
 	height: 5%;
 	margin: 0;

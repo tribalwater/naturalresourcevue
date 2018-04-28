@@ -4,14 +4,14 @@ import { Table } from 'semantic-ui-react'
 const ItemPropertiesTable = ({fields}) => {
     fields = fields ? fields : [];
     return (
-        <Table celled striped>
+        <Table celled striped inverted>
             <Table.Body>
             {  
 
                 fields.map( field => {
                     return <Table.Row> 
-                                <Table.Cell >{field.displayname}</Table.Cell>
-                                <Table.Cell>{field.fieldvalue}</Table.Cell>     
+                                <Table.Cell  width={3}>{field.displayname}</Table.Cell>
+                                <Table.Cell width={13}>{field.fieldvalue}</Table.Cell>     
                            </Table.Row>
                 })
             }

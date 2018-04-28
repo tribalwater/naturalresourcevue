@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "react-dom";
-import { Button, Container, Divider, Dropdown, Header, Message, Segment, Menu, Icon, Image,  Sidebar, Grid, Label, Input} from "semantic-ui-react";
+import { Button, Container, Divider, Dropdown, Header, Message, Segment, Menu, Icon, Image,  Sidebar, Grid, Label, Input, Select} from "semantic-ui-react";
 
 import HorizontalSlideMenu from "./common/HorizontalSlidMenu"
 import {getData, getDisp} from "./FakeData";
@@ -50,6 +50,28 @@ const DropdownExampleFloating = () => (
     </Menu.Menu>
 
 )
+const ButtonExampleGroup = () => (
+  <Button.Group size="small" floated="right">
+    <Button>view gis</Button>
+    <Button>NRCE</Button>
+    <Button>Email</Button>
+    <Button>Audit Trail</Button>
+    <Button>New Well site Report</Button>
+    <Button>Three</Button>
+  </Button.Group>
+)
+const QuickNavButtonGroup = () => (
+  <Button.Group size="small" floated="right">
+    <Button primary>Program Folders</Button>
+    <Button primary>Calender</Button>
+    <Button primary>Reports</Button>
+  
+  </Button.Group>
+)
+
+const SelectExample = () => (
+  <Select  fluid placeholder='Select your country' options={options} />
+)
 
 class App extends React.Component {
   constructor() {
@@ -75,7 +97,7 @@ class App extends React.Component {
         </Menu.Item>  
         <Menu.Item position="right">
           <HorizontalSlideMenu /> 
-          <DropdownExampleFloating></DropdownExampleFloating>
+          {/* <DropdownExampleFloating></DropdownExampleFloating> */}
         </Menu.Item>   
                 
       </Menu>
@@ -86,21 +108,33 @@ class App extends React.Component {
         <Menu.Item><Icon name="smile" />Friends</Menu.Item>
         <Menu.Item><Icon name="calendar" />History</Menu.Item>    
       </Sidebar>
-       <Sidebar.Pusher dimmed={this.state.menuVisible} className="full-height" >
-       <Grid Stackable>
-          <Grid.Column computer={8} mobile={16}  textAlign="center" color="black"> Button Group one </Grid.Column>
-          <Grid.Column computer={8} mobile={16}  textAlign="center" color="black"> Button Group two</Grid.Column>
-       </Grid>
-       <Segment  textAlign = "center" className="page-container"> 
+    
+       <Sidebar.Pusher dimmed={this.state.menuVisible} className="app-wrapper" >
+      
+        <Grid Stackable  padded>
+            
+            <Grid.Column computer={8} mobile={16}  textAlign="left"   >
+              <Header as="h3">Tribal Ground Water Use Permit Application Properties</Header> 
+            </Grid.Column>
+            <Grid.Column computer={8} mobile={16}  textAlign="left"  >
+            <ButtonExampleGroup></ButtonExampleGroup> 
+            {/* <QuickNavButtonGroup></QuickNavButtonGroup> */}
+            </Grid.Column>
+            {/* <SelectExample></SelectExample> */}
+            <MenuExampleBasic ></MenuExampleBasic>
+        </Grid>
        
-              <Header as="h3">Tribal Ground Water Use Permit Application Properties</Header>
-              <MenuExampleBasic></MenuExampleBasic>
+      
+       <Segment  className="page-container" inverted> 
+       
+              
+             
               <ItemPropertiesTable fields = {firstFields} ></ItemPropertiesTable>
         </Segment>
       
        </Sidebar.Pusher>
     </Sidebar.Pushable>
-    <HorizontalSlideMenu wrapperClassName="tabs-hr-menu-wrapper" /> 
+    {/* <HorizontalSlideMenu wrapperClassName="tabs-hr-menu-wrapper" />  */}
     </div>
     );
   }
@@ -120,7 +154,7 @@ class MenuExampleBasic extends React.Component {
     const { activeItem } = this.state
 
     return (
-      <Menu  compact>
+      <Menu    pointing  borderless className="border-less"  fluid>
         <Menu.Item
           name='editorials'
           active={activeItem === 'editorials'}
@@ -188,7 +222,7 @@ class MenuExampleBasic extends React.Component {
           active={activeItem === 'upcomingEvents'}
           onClick={this.handleItemClick}
         >
-          Upcoming Events
+        
         </Menu.Item>
       </Menu>
     )
