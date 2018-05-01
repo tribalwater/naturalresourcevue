@@ -338,15 +338,255 @@ namespace DbUitlsCoreTest.Data
             Console.WriteLine(itemid);
             var itemDisp = this.GetItemDisplay(itemtype, subtype);
             var itemRecs = this.BuildItemProperties(itemDisp, itemtype, subtype, itemid, whereorder);
-
+            var itemProps = this.FormatItemProperties(itemRecs, itemDisp);
+            var itemDispDict = itemDisp.ToDictionary(i => i.fieldname, i => i);
             Hashtable recordset = new Hashtable();
-            recordset.Add("display", itemDisp);
-            recordset.Add("records", itemRecs);
+            recordset.Add("display", itemDispDict);
+            recordset.Add("records", itemProps);
            
             return recordset;
         }
 
-        public object BuildItemProperties(List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder)
+        public object FormatItemProperties(List<dynamic> itemprops, List<dynamic> itemdisp)
+        {
+            if(itemprops.Count < 1 || itemdisp.Count < 1)
+            {
+                return new { };
+            }
+            var dispDict = itemdisp.ToDictionary(x => x.fieldname, x => x);
+            var propDict = itemprops[0];
+            List<dynamic> fieldList = new List<dynamic>();
+
+            foreach (var item in propDict.Values)
+            {
+                if (item.ContainsKey("fieldname") == true) {
+                    Console.WriteLine("contains field name ");
+                    fieldList.Add(item);  
+                }
+
+               // Console.WriteLine("---- item ------");
+               Console.WriteLine(item.ContainsKey("fieldname").ToString());
+            }
+
+
+            foreach (var item in itemdisp)
+            {
+                if (item.parenttable != null)
+                {
+                    Console.WriteLine(item.parenttable.ToString());
+
+                }
+                else {
+                    Console.WriteLine(" no parent table --------");
+                }
+            }
+
+
+            Console.WriteLine("--- item props ------------------------");
+
+            foreach (var field in fieldList) 
+            {
+                string fieldName  = field["fieldname"];
+                string fieldValue = field["fieldvalue"];
+                string fieldType  = field["fieldtype"];
+
+                string dispLinkType      = dispDict[fieldName].linktype;
+                string dispParentTable   = dispDict[fieldName].parenttable;
+                string dispParentSubtype = dispDict[fieldName].parentsubtype;
+
+                if (dispDict[fieldName].tooltip != null) field["tooltip"] = dispDict[fieldName].tooltip;
+           
+                bool isUrl = fieldType == "url" && ( fieldValue.ToLower().StartsWith("http") || fieldValue.ToLower().IndexOf("a") > 0 );
+                bool islinked = ( dispDict[fieldName].linkfield != null && propDict[fieldName + "link"] != null && propDict[fieldName + "link"]["fieldvalue"].Length > 0) ;
+
+                if (isUrl || islinked)
+                {
+                   // field.Add("linkTo", "");
+                   // field.Add("linkToType", "");
+
+                    switch (dispLinkType)
+                    {
+                        case "email":
+                            //TODO: need to implement emailing in system 
+                            break;
+                        case "drilldown":
+                            if (dispParentTable.IndexOf("rmrtemplate") >= 0)
+                            {
+                                //TODO: needt to handle routing tempaltes ??? 
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("--- drill down error ");
+                                Console.WriteLine(dispDict[fieldName]);
+                                Hashtable linkToParams = new Hashtable();
+                                linkToParams.Add("ltype", dispParentTable.Substring( 0, dispParentTable.IndexOf("_") ) );
+                                linkToParams.Add("lsubtype", dispParentSubtype);
+                                linkToParams.Add("link", propDict[fieldName + "link"]);
+                                
+                                field["linkTo"]     = linkToParams;
+                                field["linkToType"] = "tabNavigate";
+                                field.Add("isLinkType", true);
+
+                            }
+                            break;
+                        case "newtab":
+                            if (!String.IsNullOrEmpty(dispParentTable))
+                            {
+                                Hashtable linkToParams = new Hashtable();
+                                linkToParams.Add("ltype", dispParentTable.Substring(0, dispParentTable.IndexOf("_")));
+                                linkToParams.Add("lsubtype", dispParentSubtype);
+                                linkToParams.Add("link", propDict[fieldName + "link"]);
+
+                                field["linkTo"] = linkToParams;
+                                field["linkToType"] = "tabAddNew";
+                                field.Add("isLinkType", true);
+
+                            }
+                            else
+                            {
+                                Hashtable linkToParams = new Hashtable();
+
+                                linkToParams.Add("link", propDict[fieldName + "link"]);
+                                field["linkTo"] = linkToParams;
+                                field["linkToType"] = "tabAddMisc";
+                                field.Add("isLinkType", true);
+
+
+                            }
+                            break;
+                        case "popup":
+                            if (dispParentTable.IndexOf("rmrtemplate") >= 0)
+                            {
+                                //TODO: needt to handle routing tempaltes ??? 
+                            }
+                            else if(!String.IsNullOrEmpty(dispParentTable))
+                            {
+                                Hashtable linkToParams = new Hashtable();
+                                linkToParams.Add("ltype", dispParentTable.Substring(0, dispParentTable.IndexOf("_")));
+                                linkToParams.Add("lsubtype", dispParentSubtype);
+                                linkToParams.Add("link", propDict[fieldName + "link"]);
+
+                                field["linkTo"] = linkToParams;
+                                field["linkToType"] = "propPopup";
+
+                            }
+                            else
+                            {
+                                Hashtable linkToParams = new Hashtable();
+                                linkToParams.Add("link", propDict[fieldName + "link"]);
+
+                                field["linkTo"] = linkToParams;
+                                field["linkToType"]= "genericPopup";
+                                field.Add("isLinkType", true);
+
+                            }
+
+                            break;
+                        case "validation":
+                            Hashtable linkTo = new Hashtable();
+                            linkTo.Add("link", dispParentSubtype);
+
+                            field["linkTo"] = linkTo;
+                            field["linkToType"] = "genericPopup";
+                            field.Add("isLinkType", true);
+
+                            break;
+                        default:
+                            if(fieldType == "url")
+                            {
+                                if (fieldName.IndexOf("@") > 0)
+                                {
+                                    Hashtable linkToUrl = new Hashtable();
+                                    linkToUrl.Add("link", fieldValue);
+                                    field["linkTo"] = linkToUrl;
+                                    field["linkToType"] = "mailTo";
+
+                                }
+                                else
+                                {
+                                    Hashtable linkToUrl = new Hashtable();
+                                    linkToUrl.Add("link", fieldValue +  "," + fieldName );
+                                    field["linkTo"] = linkToUrl;
+                                    field["linkToType"] = "newWindow";
+
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("--- default ----");
+                                Console.WriteLine(dispDict[fieldName]);
+                                Hashtable linkSimple = new Hashtable();
+                                linkSimple.Add("link", fieldValue);
+                                field["linkTo"] = linkSimple;
+                                field["linkToType"] = "simple";
+                            }
+                            break;
+                    }
+
+                }
+                else
+                {
+                    switch (fieldType)
+                    {
+                        case "formattedtext":
+                            // need to handle formated text on the client 
+                           // output += "<span style=\"margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;\">" + fielddata + "</span>";
+                            break;
+                        case "readonlycurrency":
+                            goto case "currency";
+                        case "currency":
+                            string formattedVal=  DataUtils.formatCurrency(fieldValue)
+                                                    .Replace("\r\n", "\r")
+                                                    .Replace("\r", "<br />")
+                                                    .Replace("\n", "<br />");
+
+                            field["fieldvalue"] = formattedVal;
+                           
+                            break;
+                        case "grid":
+                            // need to figure how to handle this if needed on the client 
+                            //Hashtable gridParams = new Hashtable();
+
+                            //gridParams.Add("isGrid", true);
+                            //gridParams.Add("itemtypecd", dispDict[fieldName].);
+                            //gridParams.Add("isGrid", true);
+                            //gridParams.Add("isGrid", true);
+                            //gridParams.Add("isGrid", true);
+                            //gridParams.Add("isGrid", true);
+                            //gridParams.Add("isGrid", true);
+
+
+                            field["isGrid"] = true;
+                            
+                               //string.Format(
+                               //    "<iframe src=\"tvgridview.aspx?view=readonly&itemtypecd={0}&subtype={1}&relitemtypecd={2}&relsubtype={3}&relcolumn={4}&maxlength={5}&parentfield={9}&fieldlist={6}&itemid={8}{7}\" height=\"200\" width=\"100%\"></iframe>",
+                               //    column.Attributes["itemtypecd"].Value,
+                               //    column.Attributes["subtypecd"].Value,
+                               //    column.Attributes["parenttable"].Value,
+                               //    column.Attributes["parentsubtype"].Value,
+                               //    column.Attributes["parentcolumn"].Value,
+                               //    column.Attributes["maxlength"].Value,
+                               //    column.Attributes["defaultvalue"].Value,
+                               //    column.Attributes["customsql"].Value,
+                               //    itemidString,
+                               //    column.Attributes["parentfieldname"].Value
+                               //);
+                            break;
+                        default:
+                           field["fieldvalue"] = fieldValue.Replace("\r\n", "\r").Replace("\r", "<br />").Replace("\n", "<br />");
+                            break;
+                    }
+
+
+                }
+                propDict[fieldName] = field;
+            }
+
+            itemprops[0] = propDict;
+            return itemprops;
+        }
+        public List<dynamic> BuildItemProperties(List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder)
         {
             string columns = "";
             string idname = "itemid";
@@ -517,11 +757,7 @@ namespace DbUitlsCoreTest.Data
                     sql += "case when itemrights.itemid is null then 'N' else 'Y' end xcontrolled, " +
                     "case when itemrights2.itemid is null then 'N' else 'Y' end xallowed ";
                 }
-                Console.WriteLine("--- building item list 0-----");
-                Console.WriteLine(sql);
-                Console.WriteLine(linktables);
-                Console.WriteLine(itemtable);
-                Console.WriteLine(ir2pos.ToString());
+              
                 sql += " from " + itemtable + linktables.Substring(0, ir2pos + 28 + itemtable.Length);
                
                 //Determine how to filter by subtype
@@ -1542,6 +1778,11 @@ namespace DbUitlsCoreTest.Data
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].displayname))
                         {
                             recordProps["displayname"] = dispDict[recName].displayname;
+                            recordProps["fieldtype"] = dispDict[recName].fieldtype;
+                            recordProps["sortposition"] = dispDict[recName].sortposition;
+                            recordProps["sortorder"] = dispDict[recName].sortorder;
+
+
                         }
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))
@@ -2372,7 +2613,7 @@ namespace DbUitlsCoreTest.Data
             }
         }
 
-
+       
     }
 
 }

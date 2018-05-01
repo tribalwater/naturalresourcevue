@@ -1100,9 +1100,108 @@ namespace DbUitlsCoreTest.Data
             return valid;
         }
 
+        /// <summary>
+        /// Return the number of months between two dates
+        /// </summary>
+        /// <param name="date1">First date</param>
+        /// <param name="date2">Second date</param>
+        /// <returns>Number of months between the two dates</returns>
+        public static int monthDiff(DateTime date1, DateTime date2)
+        {
+            int months = 12 * (date1.Year - date2.Year) + date1.Month - date2.Month;
+            return Math.Abs(months);
+        }
+
+        /// <summary>
+        /// Format value as currency
+        /// </summary>
+        /// <param name="val">value to be formatted</param>
+        /// <returns>Currency formatted value</returns>
+        public static string formatCurrency(int val)
+        {
+            return formatCurrency(val.ToString());
+        }
+
+        /// <summary>
+        /// Format value as currency
+        /// </summary>
+        /// <param name="val">value to be formatted</param>
+        /// <returns>Currency formatted value</returns>
+        public static string formatCurrency(double val)
+        {
+            return formatCurrency(val.ToString());
+        }
+
+        /// <summary>
+        /// Format value as currency
+        /// </summary>
+        /// <param name="val">value to be formatted</param>
+        /// <returns>Currency formatted value</returns>
+        public static string formatCurrency(string val)
+        {
+            string x = val;
+            //Remove dollar sign and comma's if present
+            x = x.Replace("$", "").Replace(",", "");
+            //If the string is not a valid number, return the string unmodified
+            try
+            {
+                Convert.ToDouble(x);
+            }
+            catch (Exception)
+            {
+                return val;
+            }
+            string dollars = "0";
+            string cents = "00";
+            string minus = "";
+            if (val.IndexOf("-") >= 0)
+            {
+                x = x.Replace("-", "");
+                minus = "-";
+            }
+            //Determine dollars and sents
+            if (x.IndexOf(".") >= 0)
+            {
+                dollars = x.Substring(0, x.IndexOf("."));
+                cents = x.Substring(x.IndexOf(".") + 1, x.Length - (x.IndexOf(".") + 1));
+            }
+            else
+            {
+                dollars = x;
+            }
+            if (dollars.Length == 0)
+            {
+                dollars = "0";
+            }
+            string currency = "";
+            for (int i = dollars.Length; i > 0; i--)
+            {
+                int tc = currency.Replace(",", "").Length;
+                //Add comma's as needed
+                if (tc > 0 && tc % 3 == 0)
+                {
+                    currency = "," + currency;
+                }
+                currency = dollars.Substring(i - 1, 1) + currency;
+            }
+            if (cents.Length > 2)
+            {
+                double tmpcents = double.Parse("." + cents);
+                tmpcents = Math.Round(tmpcents, 2);
+                cents = tmpcents.ToString().Substring(tmpcents.ToString().IndexOf(".") + 1);
+            }
+            if (cents.Length == 1)
+            {
+                cents += "0";
+            }
+            currency = "$" + minus + currency + "." + cents;
+            return currency;
+        }
 
 
 
     }
+
+
 
 }

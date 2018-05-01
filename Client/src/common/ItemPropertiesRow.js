@@ -95,7 +95,7 @@ const styles = {
   textAlign: "center"
 };
 
-class ParentComponent extends React.Component {
+class App extends React.Component {
   constructor() {
     super();
 
@@ -149,9 +149,9 @@ class ParentComponent extends React.Component {
       ],
       expandedRows: [],
       isVisible: false,
-      sections:{
-        section1:{
-          startIndex: 3,
+      sections: {
+        section1: {
+          startIndex: 2,
           endIndex: 5
         }
       }
@@ -164,20 +164,20 @@ class ParentComponent extends React.Component {
     console.log("--- will mount ----");
     let dataCopy = this.state.data.slice();
     // label index + 1
-    let newExpanded = dataCopy.splice(3, 2);
+    let newExpanded = dataCopy.splice(2, 3);
     this.setState({ expandedRows: dataCopy });
   }
 
   toggleSection(sectionId) {
-    let {startIndex, endIndex, isVisible} = 
-        this.state.sections[sectionId];
+    let { startIndex, endIndex, isVisible } =
+      this.state.sections[sectionId];
     //  alert(this.state.data[3].name)
     let newExpanded = this.state.expandedRows.slice();
     if (isVisible) {
-      newExpanded.splice(3);
+      newExpanded.splice(startIndex);
     } else {
       let toAdd = this.state.data.slice(startIndex, endIndex);
-      newExpanded.splice(3, 0, ...toAdd);
+      newExpanded.splice(startIndex, 0, ...toAdd);
     }
     let sectionsCopy = Object.assign({}, this.state.sections);
     sectionsCopy[sectionId].isVisible = !sectionsCopy[sectionId].isVisible;
@@ -197,8 +197,8 @@ class ParentComponent extends React.Component {
     return (
       <table>
         <button
-         onClick={() => this.toggleSection("section1")}>
-           toggle
+          onClick={() => this.toggleSection("section1")}>
+          toggle
         </button>
         <tr> lol </tr>
         <tr visibility="hidden"> lol </tr>
@@ -206,6 +206,8 @@ class ParentComponent extends React.Component {
       </table>
     );
   }
+
 }
+
 
 render(<ParentComponent />, document.getElementById("root"));

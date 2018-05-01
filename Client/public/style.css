@@ -1,25 +1,38 @@
 html,body{
-    height: 100%;
-    width: 100%;
-    background-color: slategrey ;
+  
+		min-height: 100vh;
+		overflow: hidden;
+		margin:0; 
+		padding:0;
 }
-.border-less{
-
+.top-header{
+ border: none !important;
+ padding: 1em 1em;
+ 
 }
 .full-height{
-    height: 96% !important;
+    height: 97% !important;
+}
+
+.fixed-top{
+	position: fixed;
+    top: 0;
+	left: 0;
 }
 
 .page-container{
-	overflow-y: scroll;
-	height: 90%;
+	overflow-y:scroll;
+
 	border:none !important;
-	padding: 0 !important;
+	margin: 0 !important;
 }
+
 .app-wrapper{
-	height: 100%;
-	padding: 1em 1em;
+	height:100%;
+	position: absolute;
+	
 }
+
 
 .top-menu{
 	height: 7% !important;

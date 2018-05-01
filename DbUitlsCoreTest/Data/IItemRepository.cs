@@ -18,7 +18,8 @@ namespace DbUitlsCoreTest.Data
         List<dynamic> GetItemDisplay(string itemtype, string subtype, string fieldlist);
         object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "");
         object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder= "");
-        object BuildItemProperties(List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder);
+        object FormatItemProperties(List<dynamic> itemprops, List<dynamic> itemdisp);
+        List<dynamic> BuildItemProperties(List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder);
         object GetItemRelation(object item);
         object GetItemTabs(string itemtype, string subtype);
         string getValueFromSQL(string sql);
