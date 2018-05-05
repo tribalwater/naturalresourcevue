@@ -357,32 +357,16 @@ namespace DbUitlsCoreTest.Data
             var propDict = itemprops[0];
             List<dynamic> fieldList = new List<dynamic>();
 
+            // add field to field list only 
+            // if it has a fieldname
             foreach (var item in propDict.Values)
             {
                 if (item.ContainsKey("fieldname") == true) {
-                    Console.WriteLine("contains field name ");
                     fieldList.Add(item);  
                 }
-
-               // Console.WriteLine("---- item ------");
-               Console.WriteLine(item.ContainsKey("fieldname").ToString());
             }
 
 
-            foreach (var item in itemdisp)
-            {
-                if (item.parenttable != null)
-                {
-                    Console.WriteLine(item.parenttable.ToString());
-
-                }
-                else {
-                    Console.WriteLine(" no parent table --------");
-                }
-            }
-
-
-            Console.WriteLine("--- item props ------------------------");
 
             foreach (var field in fieldList) 
             {
@@ -399,6 +383,10 @@ namespace DbUitlsCoreTest.Data
                 bool isUrl = fieldType == "url" && ( fieldValue.ToLower().StartsWith("http") || fieldValue.ToLower().IndexOf("a") > 0 );
                 bool islinked = ( dispDict[fieldName].linkfield != null && propDict[fieldName + "link"] != null && propDict[fieldName + "link"]["fieldvalue"].Length > 0) ;
 
+                if (fieldType == "approval")
+                {
+                    // TODO : need to handle approval field types ?
+                }
                 if (isUrl || islinked)
                 {
                    // field.Add("linkTo", "");
@@ -413,12 +401,11 @@ namespace DbUitlsCoreTest.Data
                             if (dispParentTable.IndexOf("rmrtemplate") >= 0)
                             {
                                 //TODO: needt to handle routing tempaltes ??? 
+                                // rmr == routing ?
 
                             }
                             else
                             {
-                                Console.WriteLine("--- drill down error ");
-                                Console.WriteLine(dispDict[fieldName]);
                                 Hashtable linkToParams = new Hashtable();
                                 linkToParams.Add("ltype", dispParentTable.Substring( 0, dispParentTable.IndexOf("_") ) );
                                 linkToParams.Add("lsubtype", dispParentSubtype);
@@ -459,6 +446,7 @@ namespace DbUitlsCoreTest.Data
                             if (dispParentTable.IndexOf("rmrtemplate") >= 0)
                             {
                                 //TODO: needt to handle routing tempaltes ??? 
+                                // rmr == routing ?
                             }
                             else if(!String.IsNullOrEmpty(dispParentTable))
                             {
@@ -488,7 +476,7 @@ namespace DbUitlsCoreTest.Data
                             linkTo.Add("link", dispParentSubtype);
 
                             field["linkTo"] = linkTo;
-                            field["linkToType"] = "genericPopup";
+                            field["linkToType"] = "viewValidation";
                             field.Add("isLinkType", true);
 
                             break;

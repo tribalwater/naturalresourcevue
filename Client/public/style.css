@@ -30,10 +30,21 @@ html,body{
 .app-wrapper{
 	height:100%;
 	position: absolute;
-	
+	width: 100%;
 }
-
-
+.prop-table-label-cell{
+	background-color: #E5E7E9;
+	font-weight: bold;
+	font-size: 15px;
+}
+.prop-table-value-cell{
+	background-color: #F8F9F9 ; 
+}
+.prop-table-label-row{
+	background-color: #454545;
+	border: none !important;
+	color:white !important;
+}
 .top-menu{
 	height: 7% !important;
 }
@@ -43,7 +54,7 @@ html,body{
 	padding: 0 11px;
 	width: 100%;
 	position: fixed;
-    bottom: 0;
+  bottom: 0;
 	left: 0;
 	background-color: black;
 	height: 5%;

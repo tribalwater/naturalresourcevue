@@ -1,5 +1,11 @@
 import React from "react";
+import { connect } from "react-redux";
+
 import {menu} from "semantic-ui-react";
+
+
+
+
 let linkArr = [
     { label : "Tables", isSelected : true} ,  { label : "Chairs chairs charis", isSelected : false} ,  { label : "Beds", isSelected : false},
     { label : "Ricks", isSelected : false} , { label : "Morty's", isSelected : false},{ label : "Sanchez", isSelected : false},
@@ -199,7 +205,17 @@ class HorizontalSlideMenu extends React.Component {
  
 	
     render() {
-        let{linkArr, hrNavOverFlow} = this.state;
+        console.log("--- props ----");
+        console.log(this.props)
+        let{hrNavOverFlow} = this.state;
+        let linkArr = this.props.tabs.map(t => {
+            let {url, name } = t;
+            let link = {};
+            link.label = name;
+            link.link = url;
+            link.isSelected = true;
+            return link;
+        })
         let links = linkArr.map(l => 
                                     <a 
                                         className = "pn-ProductNav_Link" 
@@ -229,5 +245,19 @@ class HorizontalSlideMenu extends React.Component {
     }
 }
 
-
-export default HorizontalSlideMenu;
+const mapStateToProps = state => {
+    return {
+      tabs : state.tabs
+    };
+  };
+  
+const mapDispatchToProps = dispatch => {
+    return {
+      addTab: tab => {
+        dispatch({ type: "ADD_ITEM", url: tab.url, name: tab.name });
+      }
+    };
+  };
+  
+export default connect(mapStateToProps, mapDispatchToProps)(HorizontalSlideMenu);
+  
