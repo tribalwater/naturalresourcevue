@@ -1130,10 +1130,6 @@ namespace DbUitlsCoreTest.Data
 
 
            var recs = this.buildItemRecord(itemDisp, sql, true);
-            foreach (var rec in recs)
-            {
-                Console.WriteLine(rec);
-            }
 
             return recs;
 
@@ -1765,12 +1761,11 @@ namespace DbUitlsCoreTest.Data
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].displayname))
                         {
-                            recordProps["displayname"] = dispDict[recName].displayname;
-                            recordProps["fieldtype"] = dispDict[recName].fieldtype;
+                            recordProps["displayname"]  = dispDict[recName].displayname;
+                            recordProps["fieldtype"]    = dispDict[recName].fieldtype;
                             recordProps["sortposition"] = dispDict[recName].sortposition;
-                            recordProps["sortorder"] = dispDict[recName].sortorder;
-
-
+                            recordProps["sortorder"]    = dispDict[recName].sortorder;
+                            recordProps["islisted"]     = dispDict[recName].listeditem;
                         }
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))

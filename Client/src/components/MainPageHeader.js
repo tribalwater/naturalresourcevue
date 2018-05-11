@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { Button, Menu, Grid, Header, Segment} from "semantic-ui-react";
-import HorizontalSlideMenu from "./common/HorizontalSlidMenu";
-
 
 class MainPageHeader extends Component {
     render() {

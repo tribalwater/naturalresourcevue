@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import {menu} from "semantic-ui-react";
+
 
 
 
@@ -13,13 +13,13 @@ let linkArr = [
     
 ]
 
-const leftButton = ({onClick}) => (
-     <button onClick={onClick} className="pn-Advancer pn-Advancer_Left" type="button">
-            <svg className="pn-Advancer_Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 551 1024">
-                <path d="M445.44 38.183L-2.53 512l447.97 473.817 85.857-81.173-409.6-433.23v81.172l409.6-433.23L445.44 38.18z"/>
-            </svg>
-        </button>
-);
+// const leftButton = ({onClick}) => (
+//      <button onClick={onClick} className="pn-Advancer pn-Advancer_Left" type="button">
+//             <svg className="pn-Advancer_Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 551 1024">
+//                 <path d="M445.44 38.183L-2.53 512l447.97 473.817 85.857-81.173-409.6-433.23v81.172l409.6-433.23L445.44 38.18z"/>
+//             </svg>
+//         </button>
+// );
 class HorizontalSlideMenu extends React.Component {
 
     constructor(props) {
@@ -52,7 +52,7 @@ class HorizontalSlideMenu extends React.Component {
         console.log("--- container monuted ---");
         console.log(this.refs.hrzSlideNavContents)
         this.setNavOverFlow();
-        let { hrzSlideNav, hrzSlideNavContents } = this.refs; 
+        let { hrzSlideNavContents } = this.refs; 
         hrzSlideNavContents.addEventListener(
        "transitionend",this.handleNavTransition ,false);
     }
@@ -69,9 +69,8 @@ class HorizontalSlideMenu extends React.Component {
     handleNavScroll(){
         console.log("handlenavScroll")
         let { hrzSlideNav, hrzSlideNavContents } = this.refs; 
-        let{last_known_scroll_position, ticking} = this.state;
-        hrzSlideNav =  hrzSlideNav;
-        hrzSlideNavContents = hrzSlideNavContents;
+        let{ticking} = this.state;
+
          this.setState({last_known_scroll_position :window.scrollY});
          if (!ticking) {
              // use animation frame to get off of main thread 
@@ -84,7 +83,7 @@ class HorizontalSlideMenu extends React.Component {
     }  
     handleAdvanceLeftClick(){
        
-        let { navBarTravelDistance, navBarTravelling,  navBarTravelDirection } = this.state;
+        let { navBarTravelDistance, navBarTravelling} = this.state;
         let { hrzSlideNav, hrzSlideNavContents } = this.refs; 
       
         // If in the middle of a move return
@@ -117,7 +116,7 @@ class HorizontalSlideMenu extends React.Component {
     }
     handleAdvanceRightClick(){
         console.log("handle right");
-        let { navBarTravelDistance, navBarTravelling,  navBarTravelDirection } = this.state;
+        let { navBarTravelDistance, navBarTravelling} = this.state;
         let { hrzSlideNav, hrzSlideNavContents } = this.refs; 
       
             // If in the middle of a move return
@@ -152,11 +151,9 @@ class HorizontalSlideMenu extends React.Component {
         hrzSlideNav.setAttribute("data-overflowing", this.determineOverflow(hrzSlideNavContents, hrzSlideNav ));
     }
     handleNavTransition(){
-        console.log("on transtion handler");
         let { hrzSlideNav, hrzSlideNavContents } = this.refs; 
-        let { navBarTravelDistance, navBarTravelling,  navBarTravelDirection } = this.state;
-        hrzSlideNav =  hrzSlideNav;
-        hrzSlideNavContents = hrzSlideNavContents;
+        let { navBarTravelDirection } = this.state;
+       
           // get the value of the transform, apply that to the current scroll position (so get the scroll pos first) and then remove the transform
         var styleOfTransform = window.getComputedStyle( hrzSlideNavContents, null);
         var tr = styleOfTransform.getPropertyValue("-webkit-transform") || styleOfTransform.getPropertyValue("transform");
@@ -175,8 +172,7 @@ class HorizontalSlideMenu extends React.Component {
     }
     setSelected(label){
         let newLinkArr =this.state.linkArr.map( l => {
-            console.log(l)
-            if(l.label == label){
+            if(l.label === label){
                 l.isSelected = true;
             }else{
                   l.isSelected = false;
@@ -205,9 +201,8 @@ class HorizontalSlideMenu extends React.Component {
  
 	
     render() {
-        console.log("--- props ----");
-        console.log(this.props)
-        let{hrNavOverFlow} = this.state;
+        console.log("--- render menu -----");
+        console.log(this.props.tabs)
         let linkArr = this.props.tabs.map(t => {
             let {url, name } = t;
             let link = {};
@@ -216,8 +211,9 @@ class HorizontalSlideMenu extends React.Component {
             link.isSelected = true;
             return link;
         })
-        let links = linkArr.map(l => 
-                                    <a 
+        let links = linkArr.map( (l, i) => 
+                                    <a  
+                                        key = {l.label + String(i) }
                                         className = "pn-ProductNav_Link" 
                                         aria-selected={l.isSelected}
                                         onClick = {() => this.setSelected(l.label)}
@@ -225,14 +221,14 @@ class HorizontalSlideMenu extends React.Component {
                                         {l.label}
                                     </a>
                                );
-                             
+        console.log(links)                     
         return (
          <div className={this.props.wrapperClassName ? this.props.wrapperClassName : "pn-ProductNav_Wrapper"}>
             <nav ref="hrzSlideNav" className="pn-ProductNav"  data-overflowing="right">
                 <div ref="hrzSlideNavContents"  onTransitionEnd = {() => this.handleNavTransition } className="pn-ProductNav_Contents">
                 {links}
                 </div>
-                <span classNameName="pn-ProductNav_Indicator"></span>
+               
             </nav>
             <button onClick={this.handleAdvanceLeftClick} className="pn-Advancer pn-Advancer_Left" type="button">
                 <svg className="pn-Advancer_Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 551 1024"><path d="M445.44 38.183L-2.53 512l447.97 473.817 85.857-81.173-409.6-433.23v81.172l409.6-433.23L445.44 38.18z"/></svg>

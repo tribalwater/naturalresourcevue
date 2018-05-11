@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Table } from 'semantic-ui-react'
-import { Link } from 'react-router-dom'
 
 class ItemPropertiesRow extends Component {
     render() {
 
-        let {displayname, tooltip, fieldvalue, fieldtype} = this.props;
+        let {displayname, tooltip} = this.props;
        
         return (
            <Table.Row title = { tooltip || "" } > 
@@ -33,7 +32,7 @@ class ItemPropertiesValuelCell extends Component {
       
       case "tabAddNew":
         linkNavPath = `/tabs/newtab/item/properites/${linkTo.link}`
-      
+        break;
       case "propPopup":
         linkNavPath = `/tabs/popup/item/properites/${linkTo.link}`  
         break;
@@ -46,7 +45,6 @@ class ItemPropertiesValuelCell extends Component {
    
     render(){
         let { fieldvalue, fieldtype, linkToType, linkTo, isLinkType } = this.props;
-        let tableCellValue;
         if(isLinkType){
             fieldvalue = this.handleLinkType(linkTo, linkToType, fieldvalue);
         }else{
@@ -55,7 +53,7 @@ class ItemPropertiesValuelCell extends Component {
                  fieldvalue = <span>{fieldvalue}</span>
                  break;    
             default:
-                 fieldvalue =fieldvalue
+                 fieldvalue = fieldvalue;
         }
         }
      

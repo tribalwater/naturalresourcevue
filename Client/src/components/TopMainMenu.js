@@ -7,7 +7,7 @@ class TopMainMenu extends Component {
     render() {
         let {menuOnClick} = this.props;
         return (
-            <Menu secondary attached="top"  compact className="top-menu">
+            <Menu secondary attached="top"   compact className="top-menu">
                 <Menu.Item onClick={menuOnClick}  >
                 <Icon name="sidebar" />NR
                 </Menu.Item>  

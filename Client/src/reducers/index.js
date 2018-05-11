@@ -1,5 +1,6 @@
-import { combineReducers } from 'redux'
-
+import { combineReducers } from 'redux';
+import * as actions from '../consts/ActionTypes';
+import itemlist from './itemlists';
 const tabLinks = [
     {
       name: "cHole",
@@ -8,7 +9,7 @@ const tabLinks = [
   ];
   const tabs = (state = tabLinks, action) => {
     switch (action.type) {
-      case "ADD_ITEM":
+      case actions.ADD_TAB:
         return state.concat([{ name: action.name, url: action.url }]);
         break;
   
@@ -22,5 +23,7 @@ const tabLinks = [
   
 
   export default combineReducers({
-    tabs
+    tabs,
+    itemlist
   })
+  

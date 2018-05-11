@@ -26,8 +26,7 @@ class ItemPropertiesTable extends React.Component {
            }    
            return acc;
         }, []);
-        console.log("----- label arr ------")
-        console.log(labelArr)
+      
         let sectionsObj = labelArr.reduce( 
             (acc, field, idx, labelArr) => {
               field.endIndex = (idx < labelArr.length - 1) ? labelArr[idx + 1].startIndex - 1 : this.props.fields.length;  
@@ -42,12 +41,11 @@ class ItemPropertiesTable extends React.Component {
     }
 
     componentDidMount(){
-        console.log(this.state)
-        console.log(" ---- table mounted -----");
+      
     }
   
     toggleSection(sectionId) {
-        console.log(sectionId)
+      
       let { startIndex, endIndex, isVisible } =
       this.state.sections[sectionId];
       //  alert(this.state.data[3].name)
@@ -95,7 +93,7 @@ class ItemPropertiesTable extends React.Component {
                         if(field.fieldtype == 'label' ){
                             let { startIndex, endIndex, isVisible } =
                             this.state.sections[field.id];
-                            return <Table.Row> 
+                            return <Table.Row  key={field.fieldname}> 
                                         <Table.Cell width={3} className="prop-table-label-row"  > 
                                             <Button primary onClick={() => this.toggleSection(field.id)} key={field.fieldname} fluid size="tiny">
                                             <Icon name= {isVisible ? 'chevron down': 'chevron right' } />
