@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
 import * as actions from '../consts/ActionTypes';
 import itemlist from './itemlists';
+import itemproperties from './itemproperties';
+
 const tabLinks = [
     {
       name: "cHole",
@@ -24,6 +26,7 @@ const tabLinks = [
 
   export default combineReducers({
     tabs,
-    itemlist
+    itemlist,
+    itemproperties
   })
   

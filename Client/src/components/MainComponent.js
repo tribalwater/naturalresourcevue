@@ -66,17 +66,13 @@ class MainComponent extends Component {
             <div className="app-wrapper" ref="content">
                 <MainPageHeader></MainPageHeader>
                 <Segment  className="page-container" style={{height: this.state.containerHeight}}>    
-                    {/* <CardExampleColored></CardExampleColored>      */}
-                    {/* <ItemPropertiesTable fields = {this.state.formattedItemProps} > </ItemPropertiesTable> */}
                     <Switch>
-                     {/* <Route exact path='/' render = { () =>  <ItemPropertiesTable fields = {this.state.formattedItemProps} /> } /> */}
-                     
-                     <Route  path='/item/properties/:itemtype/:id' 
-                             render = { () =>  <ItemPropertiesContainer fields = {this.state.formattedItemProps} /> } 
-                     />
-                     <Route  path='/item/list/:itemtype/:itemsubtype' 
-                             render = { () =>  <ItemListTableContainer fields = {this.state.formattedItemProps} /> }
-                     />
+                        <Route  path='/item/properties/:itemtype/:itemsubtype/:id' 
+                                render = { () =>  <ItemPropertiesContainer fields = {this.state.formattedItemProps} /> } 
+                        />
+                        <Route  path='/item/list/:itemtype/:itemsubtype' 
+                                render = { () =>  <ItemListTableContainer fields = {this.state.formattedItemProps} /> }
+                        />
                     </Switch>
                 </Segment>
             </div>

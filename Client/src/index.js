@@ -38,7 +38,7 @@ class App extends React.Component {
         <BrowserRouter>
           <div className="full-height"  >
             <TopMainMenu menuOnClick={() => this.setState({ menuVisible: !this.state.menuVisible })}></TopMainMenu>   
-            <Sidebar.Pushable inverted as={Segment} attached="bottom" >
+            <Sidebar.Pushable  as={Segment} attached="bottom" >
               <SidebarMenu menuVisible={this.state.menuVisible}></SidebarMenu>     
               <Sidebar.Pusher dimmed={this.state.menuVisible} >
                 <MainComponent></MainComponent>
