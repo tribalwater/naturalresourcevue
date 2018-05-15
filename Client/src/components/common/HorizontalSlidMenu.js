@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 
 
+import {  Link } from 'react-router-dom'
 
 
 
@@ -212,14 +213,15 @@ class HorizontalSlideMenu extends React.Component {
             return link;
         })
         let links = linkArr.map( (l, i) => 
-                                    <a  
+                                    <Link
                                         key = {l.label + String(i) }
                                         className = "pn-ProductNav_Link" 
                                         aria-selected={l.isSelected}
+                                        to={l.link}
                                         onClick = {() => this.setSelected(l.label)}
                                         > 
                                         {l.label}
-                                    </a>
+                                    </Link>
                                );
         console.log(links)                     
         return (

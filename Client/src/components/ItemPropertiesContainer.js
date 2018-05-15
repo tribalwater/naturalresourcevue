@@ -15,6 +15,28 @@ class ItemPropertiesContainer extends Component {
     this.props.getItemProperties({itemtype: params.itemtype, itemsubtype: params.itemsubtype, itemid: params.id})
   }
 
+  getDerivedStateFromProps(nextProps, prevState){
+    let {params} = this.props.match;
+    let newParams = nextProps.match.params;
+    console.log("get new props ")
+    if(params.id !== newParams.id){
+      this.props.getItemProperties({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.id})
+    }
+    
+    
+  }
+  
+  componentWillReceiveProps(nextProps){
+    console.log(" item properteis receiving props");
+    console.log(this.props)
+    let {params} = this.props.match;
+    let newParams = nextProps.match.params;
+    console.log("get new props ")
+    if(params.id !== newParams.id){
+      this.props.getItemProperties({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.id})
+    }
+    
+  }
   componentDidMount(){
      let tabs   = this.props.tabs;
      let url    = this.props.match.url;
@@ -23,8 +45,8 @@ class ItemPropertiesContainer extends Component {
      let urlArr           = url.split("/");
      let name             = urlArr[urlArr.length - 2 ];
     
-     if(currentURLTabArr.length < 1){
-       this.props.addTab({ url: url, name: name })
+     if(currentURLTabArr.length < 10){
+       this.props.addTab({ url: url, name: name + tabs.length + 1 })
      }
      
    }

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Link } from 'react-router-dom'
 import {Segment} from "semantic-ui-react";
 
+import { connect } from "react-redux";
+import {addTab}        from "../actions/tabs";
 
 import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
@@ -63,6 +65,7 @@ class MainComponent extends Component {
     
     render() {
         return (
+            <div>
             <div className="app-wrapper" ref="content">
                 <MainPageHeader></MainPageHeader>
                 <Segment  className="page-container" style={{height: this.state.containerHeight}}>    
@@ -73,11 +76,94 @@ class MainComponent extends Component {
                         <Route  path='/item/list/:itemtype/:itemsubtype' 
                                 render = { () =>  <ItemListTableContainer fields = {this.state.formattedItemProps} /> }
                         />
+                        <Route  path='/tabs' 
+                                render = { () =>  <Tabs fields = {this.state.formattedItemProps} /> }
+                        />
                     </Switch>
                 </Segment>
+            </div>
             </div>
         );
     }
 }
 
 export default MainComponent;
+
+let itemList = ({match}) => <div>I am an item list  {match.url} </div>
+let itemProps = () => <div> I am an item Props </div>
+let tabLinks = ['tab1', 'tab2']
+
+
+itemList= connect(maptabStateToProps, dispatchtabObj)(itemList)
+
+
+class tab extends Component {
+    componentDidMount(){
+        let {match, addTab} = this.props
+        console.log(match.url)
+       addTab({ url: match.url, name: `tab${match.params.id}`})
+        
+    }
+    componentWillReceiveProps(nextProps){
+        let {match, addTab} = nextProps
+        console.log(match)
+        if(this.props.match.url !==  match.url){
+            addTab({ url: match.url, name: `tab${match.params.id}`})
+                
+        }
+        
+    }
+    render() {
+        return (
+            <Switch>
+            <Route path="/tabs/:id/item/list/:itemtype/:itemsubtype" component={itemList}> </Route>
+            <Route path="/tabs/:id/props" component={itemList}> </Route>
+         </Switch>
+
+        );
+    }
+}
+const maptabStateToProps = state => {
+    return {
+      tabs : state.tabs,
+    };
+};
+
+const dispatchtabObj = {addTab}
+
+tab = connect(maptabStateToProps, dispatchtabObj)(tab)
+
+class Tabs extends Component {
+    componentDidMount(){
+   
+    }
+     render(){
+        return ( <div>
+                    <h1>I am the tab container</h1>
+                    <ul>
+                        {
+                            this.props.tabs.map((l, id) => <Link to = {`/tabs/${id}/item/list/document/ssdo`}>to tab </Link>)
+                        }
+                         <Link to = {`/tabs/1/item/list/document/dfdf`}>ssdo </Link>
+                         <Link to = {`/tabs/4/item/list/document/ddfdfs`}>ssdo </Link>
+                         
+                    </ul>
+                    <Route path="/tabs/:id" component={tab}> </Route>
+                </div>
+            )  
+        
+    }
+}
+
+
+
+
+const mapStateToProps = state => {
+    return {
+      tabs : state.tabs,
+    };
+};
+
+const dispatchObj = {addTab}
+
+Tabs = connect(mapStateToProps, dispatchObj)(Tabs)

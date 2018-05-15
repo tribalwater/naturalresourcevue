@@ -12,8 +12,6 @@ export const getVisibileItemFields = createSelector(
         for (const key in sections) {
             if (sections.hasOwnProperty(key)) {
                 let { startIndex, endIndex, isVisible }= sections[key];         
-                console.log("---- is visible ----");
-                console.log(isVisible);       
                 if (!isVisible) {
 
                         for (let index = startIndex; index <  endIndex ; index++) {
@@ -27,9 +25,7 @@ export const getVisibileItemFields = createSelector(
                         }
                 }
             }
-        }
-      
-    
+        }     
         return visibleFields
      }
 )
