@@ -32,11 +32,11 @@ class SidebarMenu extends Component {
   
     render() {
       let navLinks = links.fcnode.fcnode;
-      let mappedLinks = navLinks.map( l =>  <Menu.Item><Link to = {l["-link"]} > {l["-name"]} </Link> </Menu.Item>)
-      console.log(" ----- mapped links ----");
-      console.log(mappedLinks)
+      let mappedLinks = navLinks.map( (l, idx) =>   <Menu.Item key = {l["-name"] + idx}>
+                                        <Link   to =  {{  pathname : `/tabs/${idx + 1}${l["-link"]}`, state : {name : l["-name"], cameFromTab: true  }   }}> {l["-name"] }</Link> </Menu.Item>)
+     
         return (
-          <Sidebar width='thin' as={Menu} animation="uncover" visible={this.props.menuVisible} icon="labeled" vertical inline >
+          <Sidebar width='thin' as={Menu} animation="uncover" visible={this.props.menuVisible} icon="labeled" vertical >
             <Menu.Item><Icon name="home" />Home</Menu.Item>
             <Menu.Item><Icon name="block layout" />Topics</Menu.Item>
             <Menu.Item><Icon name="smile" />Friends</Menu.Item>

@@ -6,8 +6,6 @@ export const receiveItemList  = (payload) => ({
 });
 
 export const getItemList = (payload) =>  dispatch =>{
-   console.log("---- get item list ----");
-   console.log(payload);
    dispatch({
     type: actions.API,
     payload: {

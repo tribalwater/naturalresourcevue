@@ -19,8 +19,6 @@ export const toggleSection = (sectionid) => ({
 
 
 export const getItemProperties = (payload) =>  dispatch =>{
-   console.log("---- get item list ----");
-   console.log(payload);
    dispatch({
     type: actions.API,
     payload: {
@@ -38,8 +36,6 @@ export const getItemProperties = (payload) =>  dispatch =>{
 
 
 const getLabelFields = (fields) => {
-  console.log(" ---- get label fields ----");
-  console.log(fields)
   let labelArr = fields.reduce( (acc, field, idx, labelArr)  =>  {    
       if(field.fieldtype == 'label') {
           field.id =  `section${idx}`; 
@@ -47,14 +43,10 @@ const getLabelFields = (fields) => {
       }    
       return acc;
    }, []);
-   console.log("---- label arr -----");
-   console.log(labelArr)
   return labelArr;
 }
 
 const getFieldSections =   (labelArr, fields) => {
-  console.log(" ---- get sections ----");
-  console.log(labelArr)
   let sectionsObj = labelArr.reduce( 
       (acc, field, idx, labelArr) => {
         field.endIndex = (idx < labelArr.length - 1) ? labelArr[idx + 1].startIndex - 1 : fields.length;  

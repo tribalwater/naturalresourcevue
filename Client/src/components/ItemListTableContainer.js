@@ -15,18 +15,45 @@ class ItemListTableContainer extends Component {
         this.handleRowClick = this.handleRowClick.bind(this);
     }
     componentWillMount(){
-        console.log(" ---- params ----")
-        console.log(this.props)
+        let url      = this.props.match.url;
+        let urlArr           = url.split("/");
         let {params} = this.props.match
+        
         this.props.getItemList({itemtype: params.itemtype, itemsubtype: params.itemsubtype}); 
 
     }
-
+    componentWillReceiveProps(nextProps){
+        console.log(" item properteis receiving props");
+        console.log(this.props)
+        let {params} = this.props.match;
+        let newParams = nextProps.match.params;
+        console.log("get new props ")
+        if(params.itemtype !== newParams.itemtype || params.itemsubtype !== newParams.itemsubtype){
+            this.props.getItemList({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype}); 
+        }
+        
+    }
     handleRowClick( item){
-        let {history} = this.props;
-        let {params} = this.props.match
-        console.log(item)
-       history.push(`/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`)
+        let {history, tabs} = this.props;
+        let {params}  = this.props.match
+        let url      = this.props.match.url;
+        console.log(" ------ handle row click ------");
+        console.log(history)
+        if(history.location.state.cameFromTab){
+                    
+            history.push({ 
+                pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
+                state : {cameFromTab: true, cameFromLocation : url} 
+            });
+        }else{
+            history.push({ 
+                pathname: `/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
+                state : {cameFromTab: true, cameFromLocation : url} 
+            });
+
+        }
+
+      
     }
     
     render() {
@@ -36,10 +63,9 @@ class ItemListTableContainer extends Component {
                                                    { i.map( (field, idx) => {                 
                                                        let cell;
                                                      if(field.fieldtype == "itemid") {
-                                                        cell =  <Table.Cell style={{display :"none"}}>  </Table.Cell> 
-                                                        console.log(field.fieldtype == "itemid")
+                                                        cell =  <Table.Cell key = {idx} style={{display :"none"}}>  </Table.Cell> 
                                                      }else{
-                                                       cell =  <Table.Cell > {field.fieldvalue}  </Table.Cell> 
+                                                       cell =  <Table.Cell  key = {idx}> {field.fieldvalue}  </Table.Cell> 
                                                      }
                                                      return cell
                                                    })} 
@@ -47,7 +73,7 @@ class ItemListTableContainer extends Component {
 
         let hRow = this.props.listedItems[0] || [];
         hRow = hRow.filter(f => f.fieldtype !== "itemid") 
-        let headerRow = hRow && hRow.map(i => <Table.HeaderCell > {i.displayname} </Table.HeaderCell>) || [];
+        let headerRow = hRow && hRow.map( (i, idx) => <Table.HeaderCell  key = {idx}> {i.displayname} </Table.HeaderCell>) || [];
         return (
             <div>
                 I am an item table list

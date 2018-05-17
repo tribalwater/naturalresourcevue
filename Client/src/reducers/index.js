@@ -5,15 +5,25 @@ import itemproperties from './itemproperties';
 
 const tabLinks = [
     {
-      name: "cHole",
-      url: "/roster/1"
+      id: 0,
+      name: "home",
+      url: "/"
     }
   ];
   const tabs = (state = tabLinks, action) => {
     switch (action.type) {
       case actions.ADD_TAB:
-        return state.concat([{ name: action.name, url: action.url }]);
+        return state.concat([{ id: state[state.length - 1].id + 1,   name: action.name, url: action.url }]);
         break;
+
+      case actions.UPDATE_TAB_URL:
+         return state.map(tab=> 
+            tab.id === action.id ?
+            { ...tab, url: action.url } :
+            tab
+         )
+  
+        break;  
   
       case "GET_ITEM":
         return state.concat([{ title: action.title }]);

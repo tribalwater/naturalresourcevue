@@ -1,33 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
 
-
 import {  Link } from 'react-router-dom'
 
-
-
-
-let linkArr = [
-    { label : "Tables", isSelected : true} ,  { label : "Chairs chairs charis", isSelected : false} ,  { label : "Beds", isSelected : false},
-    { label : "Ricks", isSelected : false} , { label : "Morty's", isSelected : false},{ label : "Sanchez", isSelected : false},
-    { label :"PinkBear", isSelected : false} ,  { label :"Raven", isSelected : false},  { label : "Penis", isSelected : false},
-    
-]
-
-// const leftButton = ({onClick}) => (
-//      <button onClick={onClick} className="pn-Advancer pn-Advancer_Left" type="button">
-//             <svg className="pn-Advancer_Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 551 1024">
-//                 <path d="M445.44 38.183L-2.53 512l447.97 473.817 85.857-81.173-409.6-433.23v81.172l409.6-433.23L445.44 38.18z"/>
-//             </svg>
-//         </button>
-// );
 class HorizontalSlideMenu extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = { 
             count: 6, 
-            linkArr : linkArr,
             navBarTravelling: false,
             navBarTravelDirection: "",
 	        navBarTravelDistance: 150,
@@ -50,8 +31,6 @@ class HorizontalSlideMenu extends React.Component {
           document.documentElement.classList.add("js");
      }
     componentDidMount(){
-        console.log("--- container monuted ---");
-        console.log(this.refs.hrzSlideNavContents)
         this.setNavOverFlow();
         let { hrzSlideNavContents } = this.refs; 
         hrzSlideNavContents.addEventListener(
@@ -202,8 +181,7 @@ class HorizontalSlideMenu extends React.Component {
  
 	
     render() {
-        console.log("--- render menu -----");
-        console.log(this.props.tabs)
+      
         let linkArr = this.props.tabs.map(t => {
             let {url, name } = t;
             let link = {};
@@ -215,20 +193,20 @@ class HorizontalSlideMenu extends React.Component {
         let links = linkArr.map( (l, i) => 
                                     <Link
                                         key = {l.label + String(i) }
-                                        className = "pn-ProductNav_Link" 
-                                        aria-selected={l.isSelected}
-                                        to={l.link}
+                                        className = "pn-ProductNav_Link"
+                                        to={ {pathname : l.link, state : {name: l.label, cameFromTab: true}} }
                                         onClick = {() => this.setSelected(l.label)}
                                         > 
                                         {l.label}
                                     </Link>
                                );
-        console.log(links)                     
+                   
         return (
          <div className={this.props.wrapperClassName ? this.props.wrapperClassName : "pn-ProductNav_Wrapper"}>
             <nav ref="hrzSlideNav" className="pn-ProductNav"  data-overflowing="right">
                 <div ref="hrzSlideNavContents"  onTransitionEnd = {() => this.handleNavTransition } className="pn-ProductNav_Contents">
                 {links}
+                <Link to='/item/properties/document/ssdp/49018'>Test</Link>
                 </div>
                
             </nav>

@@ -12,28 +12,17 @@ class ItemPropertiesContainer extends Component {
 
   componentWillMount(){
     let {params} = this.props.match
-    this.props.getItemProperties({itemtype: params.itemtype, itemsubtype: params.itemsubtype, itemid: params.id})
+    
+  
+    this.props.getItemProperties({itemtype: params.itemtype, itemsubtype: params.itemsubtype, itemid: params.itemid})
   }
 
-  getDerivedStateFromProps(nextProps, prevState){
-    let {params} = this.props.match;
-    let newParams = nextProps.match.params;
-    console.log("get new props ")
-    if(params.id !== newParams.id){
-      this.props.getItemProperties({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.id})
-    }
-    
-    
-  }
-  
+
   componentWillReceiveProps(nextProps){
-    console.log(" item properteis receiving props");
-    console.log(this.props)
     let {params} = this.props.match;
     let newParams = nextProps.match.params;
-    console.log("get new props ")
-    if(params.id !== newParams.id){
-      this.props.getItemProperties({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.id})
+    if(params.itemid !== newParams.itemid){
+      this.props.getItemProperties({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.itemid})
     }
     
   }
@@ -45,9 +34,9 @@ class ItemPropertiesContainer extends Component {
      let urlArr           = url.split("/");
      let name             = urlArr[urlArr.length - 2 ];
     
-     if(currentURLTabArr.length < 10){
-       this.props.addTab({ url: url, name: name + tabs.length + 1 })
-     }
+    //  if(currentURLTabArr.length < 10){
+    //    this.props.addTab({ url: url, name: name + tabs.length + 1 })
+    //  }
      
    }
 
@@ -55,9 +44,6 @@ class ItemPropertiesContainer extends Component {
    render() {
         let table;
         let {fields, sections, toggleSection} = this.props;
-        console.log(" --- item container re render ---");
-        console.log(fields)
-        console.log(sections)
         if(fields.length > 0 && this.props.sections){
           table = <div>"table" </div>
            table = <ItemPropertiesTable fields= {fields} sections={sections} toggleSection = {toggleSection} />
