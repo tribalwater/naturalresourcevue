@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
+import { connect } from "react-redux";
+import { withRouter } from 'react-router'
 import {Menu, Icon, Sidebar } from "semantic-ui-react";
 
 let links = {
@@ -29,11 +31,20 @@ let links = {
   }
 }
 class SidebarMenu extends Component {
+
+  constructor(props){
+    super(props);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
+  }
   
-    render() {
+  handleMenuClick(l){
+    let {history, tabs} = this.props;
+    history.push({  pathname : `/tabs/${tabs.length}${l["-link"]}`, state : {name : l["-name"], cameFromTab: true  }   });
+  }
+  render() {
       let navLinks = links.fcnode.fcnode;
-      let mappedLinks = navLinks.map( (l, idx) =>   <Menu.Item key = {l["-name"] + idx}>
-                                        <Link   to =  {{  pathname : `/tabs/${idx + 1}${l["-link"]}`, state : {name : l["-name"], cameFromTab: true  }   }}> {l["-name"] }</Link> </Menu.Item>)
+      let {tabs} = this.props;
+      let mappedLinks = navLinks.map( (l, idx) =>   <Menu.Item key = {l["-name"] + idx} onClick = {() => this.handleMenuClick(l)}> {l["-name"] } </Menu.Item>)
      
         return (
           <Sidebar width='thin' as={Menu} animation="uncover" visible={this.props.menuVisible} icon="labeled" vertical >
@@ -48,4 +59,11 @@ class SidebarMenu extends Component {
     }
 }
 
-export default SidebarMenu;
+
+const mapStateToProps = state => {
+    return {
+      tabs : state.tabs,
+    };
+};
+
+export default  withRouter( connect(mapStateToProps)(SidebarMenu) );

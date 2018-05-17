@@ -8,7 +8,7 @@ import mutli from "./middleware/multi";
 
 import mainReducer from './reducers'
 
-const middleWare = applyMiddleware( api, mutli,  thunk);
+const middleWare = applyMiddleware(  mutli, api, thunk);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(mainReducer, composeEnhancers(middleWare) );
 

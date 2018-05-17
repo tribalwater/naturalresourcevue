@@ -23,11 +23,8 @@ class ItemListTableContainer extends Component {
 
     }
     componentWillReceiveProps(nextProps){
-        console.log(" item properteis receiving props");
-        console.log(this.props)
         let {params} = this.props.match;
         let newParams = nextProps.match.params;
-        console.log("get new props ")
         if(params.itemtype !== newParams.itemtype || params.itemsubtype !== newParams.itemsubtype){
             this.props.getItemList({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype}); 
         }
@@ -37,18 +34,15 @@ class ItemListTableContainer extends Component {
         let {history, tabs} = this.props;
         let {params}  = this.props.match
         let url      = this.props.match.url;
-        console.log(" ------ handle row click ------");
-        console.log(history)
-        if(history.location.state.cameFromTab){
-                    
+        if(history.location.state.cameFromTab){             
             history.push({ 
                 pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
-                state : {cameFromTab: true, cameFromLocation : url} 
+                state : {cameFromTab: true, cameFromLocation : url, name : history.location.state.name} 
             });
         }else{
             history.push({ 
                 pathname: `/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
-                state : {cameFromTab: true, cameFromLocation : url} 
+                state : {cameFromTab: true, cameFromLocation : url, name: history.location.name} 
             });
 
         }
@@ -57,7 +51,6 @@ class ItemListTableContainer extends Component {
     }
     
     render() {
-        // this logic needs to be moved into a selector function 
         let {listedItems, match} = this.props;
         let listedRows  = listedItems.map( (i, idx) =>  <Table.Row key={idx} onClick = {() => this.handleRowClick(i[0])}> 
                                                    { i.map( (field, idx) => {                 

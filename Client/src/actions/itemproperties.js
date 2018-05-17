@@ -3,7 +3,7 @@ import * as actions from "../consts/ActionTypes";
 export const receiveItemProperties  = (payload) => {
    return ({
     type: actions.RECEIVE_ITEM_PROPETIES,
-    payload : {...payload, records : fieldObjToArr(payload.records[0], payload.display)}
+    payload : {...payload, records : fieldObjToArr(payload.records[0], payload.display), sections: getFieldSections( getLabelFields(fieldObjToArr(payload.records[0], payload.display)) , fieldObjToArr(payload.records[0], payload.display))}
    })
 };
 
@@ -25,8 +25,8 @@ export const getItemProperties = (payload) =>  dispatch =>{
       url: `/item/${payload.itemtype}/${payload.itemsubtype}/properties/${payload.itemid}`,
       //schema: [schema.books],
       success:(payload) => [
-        receiveItemProperties(payload),
-        receiveItemPropertiesSections(payload)
+        receiveItemProperties(payload)
+        //receiveItemPropertiesSections(payload)
       ] ,
       label: 'itemproperties',
       method: "GET"

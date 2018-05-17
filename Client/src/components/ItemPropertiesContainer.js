@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import ItemPropertiesTable      from "./common/ItemPropertiesTable";
 import {getItemProperties, toggleSection}        from "../actions/itemproperties";
 import {addTab}        from "../actions/tabs";
-import {itemFieldsSelector, itemFieldSectionSelector, getVisibileItemFields} from "../selectors/itemproperties";
+import { getVisibileItemFields} from "../selectors/itemproperties";
 
 
 class ItemPropertiesContainer extends Component {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom'
 import {Segment} from "semantic-ui-react";
 
+
 import { connect } from "react-redux";
 import {addTab, updateTabUrl}        from "../actions/tabs";
 
@@ -69,16 +70,16 @@ class Tabs extends Component {
  
     componentDidMount(){
      
-        console.log(" --- does tab exists -----")
+      
        //addTab({ url: match.url, name: `tab${match.params.id}`})
        this.updateTabs(this.props)
         
     }
     componentWillReceiveProps(nextProps){
-        console.log("--- tabs receiving props -----")
+       
         let {match, location} = nextProps;
       
-        console.log(nextProps)
+       
         if(this.props.location.pathname !==  location.pathname){
            
            this.updateTabs(nextProps)
@@ -87,18 +88,18 @@ class Tabs extends Component {
         
     }
     updateTabs(nextProps){
-        let {match, addTab, tabs, location, history} = nextProps;
+        let {match, addTab, tabs, location, history,  updateTabUrl} = nextProps;
         let {params} =  match;
         let navState = history.location.state;
-        console.log(nextProps)
         let name = navState && navState.name ? navState.name: 'undefned';
-        let tab = tabs.filter(tab => tab.name == name)[0]
-        console.log(tab)
+        let tab = tabs.filter(tab => tab.id == params.tabid)[0]
         if(tab){
             console.log(" ---- tab does exists")
-           updateTabUrl({url: history.location.url, id : params.tabid})
+            console.log(name)
+           updateTabUrl({url: location.pathname, id : params.tabid, name: name})
         }else{
             console.log("----- tab doent exists ------")
+            console.log(name)
             addTab({ url: history.location.pathname, name:name})
 
         }

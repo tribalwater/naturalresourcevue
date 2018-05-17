@@ -18,7 +18,7 @@ const tabLinks = [
 
       case actions.UPDATE_TAB_URL:
          return state.map(tab=> 
-            tab.id === action.id ?
+            tab.id == action.id ?
             { ...tab, url: action.url } :
             tab
          )

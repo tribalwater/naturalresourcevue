@@ -24,10 +24,11 @@ class ItemPropertiesValuelCell extends Component {
      this.handleLinkType = this.handleLinkType.bind(this);
    }    
    handleLinkType(linkTo, linkToType, fieldvalue){
+     console.log(linkTo)
     let linkNavPath;
     switch (linkToType) {
       case "tabNavigate":
-        linkNavPath = `/tabs/currenttab/item/properites/${linkTo.link}`
+        linkNavPath = `/tabs/currenttab/item/properties/${linkTo.ltype}/${linkTo.lsubtype}/${linkTo.link.fieldvalue}`
         break;
       
       case "tabAddNew":

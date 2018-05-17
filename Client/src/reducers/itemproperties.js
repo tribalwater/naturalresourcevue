@@ -17,6 +17,7 @@ const  itemproperties = (state = intitialState , action ) => {
                 ...state,
                 fields   : action.payload.records,
                 display : action.payload.display,
+                sections : action.payload.sections
             };
 
         case actions.RECEIVE_ITEM_PROPETIES_SECTIONS: 
