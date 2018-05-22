@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Menu, Grid, Header, Segment} from "semantic-ui-react";
+import { Button, Menu, Grid, Header, Segment, Select} from "semantic-ui-react";
+import Media from "react-media";
+
 
 class MainPageHeader extends Component {
     render() {
@@ -9,7 +11,16 @@ class MainPageHeader extends Component {
                 <Header as="h3">Tribal Ground Water Use Permit Application Properties</Header> 
               </Grid.Column>
               <Grid.Column computer={8} mobile={16}  textAlign="left"  >
-                <ButtonExampleGroup></ButtonExampleGroup> 
+              <Media query="(max-width: 599px)">
+                {matches =>
+                  matches ? (
+                    <SelectExample></SelectExample>
+                  ) : (
+                    <ButtonExampleGroup></ButtonExampleGroup> 
+                  )
+                }
+              </Media>
+              
                 {/* <QuickNavButtonGroup></QuickNavButtonGroup> */}
               </Grid.Column>
               {/* <SelectExample></SelectExample> */}
@@ -23,7 +34,11 @@ class MainPageHeader extends Component {
     }
 }
 
+let countryOptions = [{ key: 'af', value: 'af', flag: 'af', text: 'Afghanistan' } ]
 
+const SelectExample = () => (
+  <Select placeholder='Select your country' options={countryOptions} />
+)
 class MenuExampleBasic extends React.Component {
     state = {}
   

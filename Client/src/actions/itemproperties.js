@@ -17,7 +17,6 @@ export const toggleSection = (sectionid) => ({
   payload : sectionid
 });
 
-
 export const getItemProperties = (payload) =>  dispatch =>{
    dispatch({
     type: actions.API,
@@ -33,7 +32,6 @@ export const getItemProperties = (payload) =>  dispatch =>{
     } 
   })
 };
-
 
 const getLabelFields = (fields) => {
   let labelArr = fields.reduce( (acc, field, idx, labelArr)  =>  {    

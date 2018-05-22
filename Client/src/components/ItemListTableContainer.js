@@ -6,7 +6,7 @@ import {Table}        from "semantic-ui-react";
 
 import {getItemList} from "../actions/items";
 import {addTab} from "../actions/tabs";
-import {itemArrayListedSortedSelector}  from "../selectors/itemlist";
+import {itemArrayListedSortedSelector, itemArrayListedSelector}  from "../selectors/itemlist";
 
 class ItemListTableContainer extends Component {
 
@@ -51,7 +51,12 @@ class ItemListTableContainer extends Component {
     }
     
     render() {
-        let {listedItems, match} = this.props;
+        let {listedItems, listedJsonItems, items,  match} = this.props;
+        console.log("----- listed items -----");
+        console.log(listedItems)
+        console.log("----- listed json items -----");
+        console.log(listedJsonItems)
+        console.log(items)
         let listedRows  = listedItems.map( (i, idx) =>  <Table.Row key={idx} onClick = {() => this.handleRowClick(i[0])}> 
                                                    { i.map( (field, idx) => {                 
                                                        let cell;
@@ -89,6 +94,8 @@ const mapStateToProps = state => {
     return {
       tabs : state.tabs,
       listedItems: itemArrayListedSortedSelector(state),
+      listedJsonItems: itemArrayListedSelector(state),
+      items: state.itemlist.items
     };
 };
 

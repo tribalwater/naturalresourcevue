@@ -9,7 +9,7 @@ import {addTab, updateTabUrl}        from "../actions/tabs";
 import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
-
+import ItemDataGrid             from "./ItemDataGrid";
 
 
 
@@ -49,6 +49,9 @@ class MainComponent extends Component {
                         />
                         <Route  path='/item/list/:itemtype/:itemsubtype' 
                                 render = { () =>  <ItemListTableContainer /> }
+                        />
+                        <Route  path='/item/datagrid/:itemtype/:itemsubtype' 
+                                render = { () =>  <ItemDataGrid /> }
                         />
                         <Route  path='/tabs/:tabid' 
                                 render = { () =>  <Tabs  /> }
@@ -106,8 +109,13 @@ class Tabs extends Component {
     }
      render(){
         return ( <Switch>
-                    <Route path="/tabs/:tabid/item/list/:itemtype/:itemsubtype" render = { () =>  <ItemListTableContainer />}> </Route>
-                    <Route path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" render = { () =>  <ItemPropertiesContainer  />} /> 
+                    <Route path="/tabs/:tabid/item/list/:itemtype/:itemsubtype"
+                           render = { () =>  <ItemListTableContainer />}> </Route>
+                    <Route path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" 
+                           render = { () =>  <ItemPropertiesContainer  />} />
+                    <Route path='/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype' 
+                           render = { () =>  <ItemDataGrid /> }
+                    /> 
                 </Switch>
             )  
         
