@@ -5,6 +5,7 @@ import { withRouter } from 'react-router';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 
+import  DataGrid from "./DataGrid"
 
 import {getItemList} from "../actions/items";
 import {itemArrayListedSortedSelector, itemArrayListedSelector}  from "../selectors/itemlist";
@@ -40,7 +41,9 @@ class ItemDataGrid extends Component {
         let {history, tabs} = this.props;
         let {params}  = this.props.match
         let url      = this.props.match.url;
-        if(history.location.state.cameFromTab){             
+        let cameFromTab =  history.location.state && history.location.state.cameFromTab;
+        
+        if(cameFromTab){             
             history.push({ 
                 pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
                 state : {cameFromTab: true, cameFromLocation : url, name : history.location.state.name} 
@@ -56,16 +59,12 @@ class ItemDataGrid extends Component {
       
     }
     render() {
-        let {listedItems, listedJsonItems, items, display,  match} = this.props;
-        // console.log("----- listed items -----");
-        // console.log(listedItems)
-        // console.log("----- listed json items -----");
-        // console.log(listedJsonItems)
-        console.log("----- display items -----");
-        
+        let {listedItems, listedJsonItems, items, display,  match} = this.props;        
         let cols =  listedItems.length > 1 && getCols(listedItems[0]) || [];
         let dt;
-       console.log(listedItems[0])
+        console.log(listedItems[0])
+        console.log("----- columns ------");
+        console.log(cols)
         //console.log(display)
         if(listedItems.length > 1){
            dt =  <ReactTable
@@ -73,11 +72,39 @@ class ItemDataGrid extends Component {
             columns={cols}
             defaultPageSize={10}
             className="-striped -highlight"
+            minRows={0}
+            style={{
+                height: "400px" // This will force the table body to overflow and scroll, since there is not enough room
+              }}
+            getTdProps={(state, rowInfo, column, instance) => {
+                return {
+                  onClick: (e, handleOriginal) => {
+                    console.log("A Td Element was clicked!");
+                    console.log("it produced this event:", e);
+                    console.log("It was in this column:", column);
+                    console.log("It was in this row:", rowInfo);
+                    console.log("It was in this table instance:", instance);
+                    let itemid = rowInfo.original.find(item => item.fieldname === "itemid");
+                    console.log("---- item id -----")
+                    console.log(itemid)
+                    this.handleRowClick(itemid)
+            
+                    // IMPORTANT! React-Table uses onClick internally to trigger
+                    // events like expanding SubComponents and pivots.
+                    // By default a custom 'onClick' handler will override this functionality.
+                    // If you want to fire the original onClick handler, call the
+                    // 'handleOriginal' function.
+                    if (handleOriginal) {
+                      handleOriginal();
+                    }
+                  }
+                };
+              }}  
         />           
         }
         return (
             <div>
-                data grid 
+             
                 {
                    dt
                 }
@@ -90,12 +117,18 @@ class ItemDataGrid extends Component {
 
 function getCols(listedItemsFirst) {
 
-    var cols = listedItemsFirst.map( (li, idx) => {
+    let filterdCols = listedItemsFirst.filter(item => item.fieldname !== "itemid");
+    var cols =  filterdCols.map( (li, idx) => {
+        console.log("----- col -----");
+        console.log(li)
         let colObj = {};
         colObj.Header = li.displayname;
         colObj.accessor = getDFunc(idx);
         colObj.id = li.fieldname;
-        return colObj;
+        if(li.fieldname !== "itemid"){
+            return colObj;
+        }
+       
     })
 
   

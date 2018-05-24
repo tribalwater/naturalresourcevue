@@ -34,7 +34,9 @@ class ItemListTableContainer extends Component {
         let {history, tabs} = this.props;
         let {params}  = this.props.match
         let url      = this.props.match.url;
-        if(history.location.state.cameFromTab){             
+        let cameFromTab =  history.location.state && history.location.state.cameFromTab;
+        
+        if(cameFromTab){             
             history.push({ 
                 pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
                 state : {cameFromTab: true, cameFromLocation : url, name : history.location.state.name} 
@@ -52,11 +54,6 @@ class ItemListTableContainer extends Component {
     
     render() {
         let {listedItems, listedJsonItems, items,  match} = this.props;
-        console.log("----- listed items -----");
-        console.log(listedItems)
-        console.log("----- listed json items -----");
-        console.log(listedJsonItems)
-        console.log(items)
         let listedRows  = listedItems.map( (i, idx) =>  <Table.Row key={idx} onClick = {() => this.handleRowClick(i[0])}> 
                                                    { i.map( (field, idx) => {                 
                                                        let cell;

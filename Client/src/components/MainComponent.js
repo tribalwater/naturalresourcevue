@@ -94,6 +94,7 @@ class Tabs extends Component {
         let {match, addTab, tabs, location, history,  updateTabUrl} = nextProps;
         let {params} =  match;
         let navState = history.location.state;
+        let altName  = location.pathname.split("/").pop()
         let name = navState && navState.name ? navState.name: 'undefned';
         let tab = tabs.filter(tab => tab.id == params.tabid)[0]
         if(tab){
@@ -103,7 +104,7 @@ class Tabs extends Component {
         }else{
             console.log("----- tab doent exists ------")
             console.log(name)
-            addTab({ url: history.location.pathname, name:name})
+            addTab({ url: history.location.pathname, name:altName})
 
         }
     }

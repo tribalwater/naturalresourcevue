@@ -12,7 +12,7 @@ let links = {
     "fcnode": [
       {
         "-name": "GW Permit",
-        "-link": "/item/list/document/gwpermit",
+        "-link": "/item/datagrid/document/gwpermit",
         "-args": "?itemtype=document&subtype=gwpermit",
         "-fcid": "1",
         "fcnode": {
