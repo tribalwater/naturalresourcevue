@@ -1,27 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 
 namespace DbUitlsCoreTest.Data
 {
     public interface IItemRepository
     {
+        Predicate<dynamic> nodeFilterOverride { get; set; }
+        string UserId { get; set; }
+
         object AddItem(object item, string itemtype, string subtype = null);
         object AddItemRelation(object item);
-      
+        System.Collections.Generic.List<dynamic> BuildItemProperties(System.Collections.Generic.List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder);
+        System.Collections.Generic.List<dynamic> buildItemRecord(System.Collections.Generic.List<dynamic> itemDsip, string sql, bool isList = false);
         int DeleteItem(string itemtype, string itemsubtype, string id);
         object DeleteItemDispaly(object item);
         object DeleteItemRelation(object item);
+        object FormatItemProperties(System.Collections.Generic.List<dynamic> itemprops, System.Collections.Generic.List<dynamic> itemdisp);
+        string formatOraDateTime(string xdate);
+        string formatOraDateTime(string xdate, bool adjusttime);
+        string formatStringDate(DateTime xdate);
+        string formatStringDate(string xdate);
         object GetAllItemRelations(string itemtype, string itemsubtype, string itemid);
         object GetAllItems(string itemtype, string itemsubtype);
+        IDbDataParameter getDBParameter(string name, string value);
         object GetItem(string itemtype, string itemsubtype, string itemid);
-        object GetItemCustomButtons(string itemtype, string subtype);
+        List<dynamic> GetItemCustomButtons(string itemtype, string subtype, string pagetype);
         object GetItemDispaly(object item);
-        List<dynamic> GetItemDisplay(string itemtype, string subtype, string fieldlist);
+        System.Collections.Generic.List<dynamic> GetItemDisplay(string itemtype, string subtype, string fieldlist = "");
+        string getItemIDList(string sql);
+        string getItemIDList(string sql, bool logerror);
+        string getItemIDList(string sql, bool logerror, string[] boundNames, string[] boundValues);
+        string getItemIdListFromDataTable(DataTable dtSource);
+        string getItemIdListFromDataTable(DataTable dtSource, string columnName);
         object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "");
-        object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder= "");
-        object FormatItemProperties(List<dynamic> itemprops, List<dynamic> itemdisp);
-        List<dynamic> BuildItemProperties(List<dynamic> itemdisp, string itemtype, string subtype, string itemid, string whereorder);
+        object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder = "");
         object GetItemRelation(object item);
         object GetItemTabs(string itemtype, string subtype);
+        string getTopVueParameter(string param);
+        Hashtable getUserRightsList(string userid);
         string getValueFromSQL(string sql);
         string getValueFromSQL(string sql, bool logerror);
         string getValueFromSQL(string sql, bool logerror, string[] boundNames, string[] boundValues);

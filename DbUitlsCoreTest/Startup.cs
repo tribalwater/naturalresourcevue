@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
 using DbUitlsCoreTest.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +24,7 @@ namespace DbUitlsCoreTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMediatR();
             services.AddCors();
             services.AddMvc();
             services.AddSingleton<IDapperHelper, DapperHelper>(ctx =>

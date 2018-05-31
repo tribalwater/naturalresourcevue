@@ -14,6 +14,7 @@ using System.Web;
 namespace DbUitlsCoreTest.Data
 {
     public class ItemSQLRepository : IItemRepository
+
     {
         private IDapperHelper _dapperHelper;
         private int _dbtype;
@@ -297,16 +298,16 @@ namespace DbUitlsCoreTest.Data
             //return this.GetItemProperties(res.ToList(), itemtype, subtype, "48924", "");
         }
 
-        public object GetItemCustomButtons(string itemtype, string subtype)
+        public List<dynamic>  GetItemCustomButtons(string itemtype, string subtype, string pagetype)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add("itemtypecd", itemtype);
             whereDict.Add("subtypecd", subtype);
+            whereDict.Add("pagetype", pagetype);
 
-            var res = _dapperHelper.GetList("itembuttons", null, whereDict);
+
+            List<dynamic> res = _dapperHelper.GetList("itembuttons", null, whereDict).ToList();
                 
-               
-
             return res;
 
         }
@@ -2557,7 +2558,6 @@ namespace DbUitlsCoreTest.Data
                     sql = DataUtils.sqlConvert(sql);
                 }
                 cmd.CommandText = sql;
-                cmd.CommandText = sql;
                 BindParameters(boundNames, boundValues, cmd);
                 var recReader = cmd.ExecuteReader();
 
@@ -2582,6 +2582,50 @@ namespace DbUitlsCoreTest.Data
             }    
 
            
+        }
+        /// <summary>
+        /// Build list of rights based on user
+        /// </summary>
+        /// <param name="userid">ID of user</param>
+        /// <returns>Hashtable with unique right list as keys</returns>
+        public Hashtable getUserRightsList(string userid)
+        {
+            string sql = "select rightcode from userrights where userid = " + userid +
+               " and rightcode not in" +
+               "(select rightcode from userrightsdisallowed where userid = " +
+               userid + ")" +
+               " union " +
+               "select gr.rightcode from grouprights gr, groupmembership gm " +
+               "where gm.groupid = gr.groupid and gm.userid = " + userid +
+               " and gr.rightcode not in" +
+               "(select rightcode from userrightsdisallowed where userid = " +
+               userid + ")";
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = sql;
+                Hashtable rightslist = new Hashtable();
+                var rightsReader = cmd.ExecuteReader();
+                if (rightsReader.Read())
+                {
+                    do
+                    {
+                        try
+                        {
+                            rightslist.Add((string)rightsReader.GetValue(0), "");
+                        }
+                        catch (Exception)
+                        {
+                            //ignore duplicate rights
+                        }
+                    } while (rightsReader.Read());
+                }
+                return rightslist;
+
+            }
+        
         }
 
         private void BindParameters(string[] boundNames, string[] boundValues, IDbCommand idbCmd)

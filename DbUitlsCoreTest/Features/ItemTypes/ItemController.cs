@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using MediatR;
+using DbUitlsCoreTest.Features;
+using DbUitlsCoreTest.Features.ItemTypes;
 
 namespace DbUitlsCoreTest.Controllers
 {
@@ -15,10 +18,13 @@ namespace DbUitlsCoreTest.Controllers
     public class ItemController : Controller
     {
         private IItemRepository _respository;
+        private readonly IMediator _mediator;
 
-        public ItemController(IItemRepository repository)
+
+        public ItemController(IItemRepository repository, IMediator mediator)
         {
             _respository = repository;
+            _mediator = mediator;
 
         }
         // GET: api/itemtype/subtype
@@ -109,13 +115,41 @@ namespace DbUitlsCoreTest.Controllers
             return Ok(_respository.GetItemTabs(itemtype, subtype));
         }
 
-        [HttpGet("buttons")]
-        public IActionResult GetItemCustomButtons(string itemtype, string subtype)
+        [HttpGet("buttons/{pagetype}")]
+        public async Task<object> GetItemProeprtiesCustomButtons(string itemtype, string subtype, string pagetype)
+        {
+           
+            if (subtype == "null") {
+                subtype = null; 
+            }
+
+            var customButtons = await _mediator.Send(new ItemButtonListQuery.Query(itemtype, subtype, pagetype));
+            var standardButtons = new List<object>();
+            if (pagetype == "properties") {
+                standardButtons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, pagetype));
+            }
+            else if (pagetype == "list")
+            {
+                /// conffigute stand buttons
+            }
+
+
+            var res = customButtons.Concat(standardButtons);
+            Console.WriteLine("----- res for item buttons ----- ");
+            Console.WriteLine(res);
+            //_respository.GetItemCustomButtons(itemtype, subtype, pagetype)
+            return Ok(res);
+        }
+
+        [HttpPost("buttons/{pagetype}")]
+        public async Task<object>  AddItemProeprtiesCustomButtons(string itemtype, string subtype, string pagetype)
         {
             Console.WriteLine("----- get it -----");
             Console.WriteLine(itemtype);
-
-            return Ok(_respository.GetItemCustomButtons(itemtype, subtype));
+           // var result = 
+            return await _mediator.Send(new ItemButtonCQ.AddButtonCommand { name = "rar", buttontype = "fuck" }); 
+           
+           // return Ok(_respository.GetItemCustomButtons(itemtype, subtype, pagetype));
         }
 
         [HttpGet("relations/{id}")]
