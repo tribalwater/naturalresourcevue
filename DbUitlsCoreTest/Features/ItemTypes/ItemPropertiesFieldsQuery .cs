@@ -10,7 +10,7 @@ using MediatR;
 
 namespace DbUitlsCoreTest.Features.ItemTypes
 {
-    public class ItemPropertiesButtonsQuery
+    public class ItemPropertiesFieldsQuery
     {
         public class Query : IRequest<List<object>>
         {
@@ -44,7 +44,12 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                 //Build email button if active user has an email address
                 string sql = $"select email from users where userid = {userid}";
                 string useremail = _repository.getItemIDList(sql);
+                Console.WriteLine(" ------ useremail ---- ");
+
+                Console.WriteLine(useremail);
                 bool test = useremail.Length > 1;
+                Console.WriteLine(useremail.Length);
+                Console.WriteLine(" ------ useremail length ---- ");
                 bool shouldHideEmail = _repository.getTopVueParameter("HideAllEmailIcon").ToLower() != "true";
                 if (useremail.Length > 1 
                     //&& !shouldHideEmail
