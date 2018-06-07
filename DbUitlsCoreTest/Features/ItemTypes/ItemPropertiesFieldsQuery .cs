@@ -39,7 +39,7 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                 _repository = repository;
             }
 
-            private void addEmailButton(string userid, string itemtype, string subtype,  List<dynamic> buttons)
+            private void addEmailButton(string userid, string itemtype, string subtype, List<dynamic> buttons)
             {
                 //Build email button if active user has an email address
                 string sql = $"select email from users where userid = {userid}";

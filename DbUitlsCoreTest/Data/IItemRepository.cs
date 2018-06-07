@@ -17,6 +17,7 @@ namespace DbUitlsCoreTest.Data
         int DeleteItem(string itemtype, string itemsubtype, string id);
         object DeleteItemDispaly(object item);
         object DeleteItemRelation(object item);
+        List<Hashtable> GetItemFormFields(string itemtype, string subtype);
         object FormatItemProperties(System.Collections.Generic.List<dynamic> itemprops, System.Collections.Generic.List<dynamic> itemdisp);
         string formatOraDateTime(string xdate);
         string formatOraDateTime(string xdate, bool adjusttime);
@@ -37,7 +38,7 @@ namespace DbUitlsCoreTest.Data
         object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "");
         object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder = "");
         object GetItemRelation(object item);
-        object GetItemTabs(string itemtype, string subtype);
+        List<dynamic> GetItemTabs(string itemtype, string subtype);
         string getTopVueParameter(string param);
         Hashtable getUserRightsList(string userid);
         string getValueFromSQL(string sql);

@@ -109,8 +109,6 @@ namespace DbUitlsCoreTest.Data
             return res;
         }
 
-      
-
         public int DeleteItem(string itemtype, string itemsubtype, string id)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
@@ -140,8 +138,6 @@ namespace DbUitlsCoreTest.Data
         {
             return null;
         }
-
-
 
         public object GetAllItemRelations(string itemtype, string itemsubtype, string itemid)
         {
@@ -189,18 +185,15 @@ namespace DbUitlsCoreTest.Data
             return null;
         }
 
-
         public object InsertItemDispaly(object item)
         {
             return null;
         }
 
-
         public object UpdateItemDispaly(object item)
         {
             return null;
         }
-
 
         public object GetItemDispaly(object item)
         {
@@ -311,6 +304,30 @@ namespace DbUitlsCoreTest.Data
             return res;
 
         }
+
+        public List<dynamic> GetItemTabs(string itemtype, string subtype)
+        {
+            string sql = $@"select itemtabid, tabname, taburl, idargname, rightcode, extraarguments, displaycondition, helptext
+                                from itemtabs where itemtypecd = '{itemtype}'";
+
+            if (subtype == null || subtype.Length == 0)
+            {
+                sql += " and subtypecd is null ";
+            }
+            else
+            {
+                sql += " and subtypecd = '" + subtype + "' ";
+            }
+            sql += "order by taborder";
+
+            Console.WriteLine(" ---- item tab sql -----");
+            Console.WriteLine(sql);
+
+            List<dynamic> res = _dapperHelper.RawQuery(sql).ToList();
+
+            return res;
+
+        }
         public object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "")
         {
             Console.WriteLine("get list ------*******_--");
@@ -331,6 +348,230 @@ namespace DbUitlsCoreTest.Data
             recordset.Add("records", itemRecs);
 
             return recordset;
+        }
+
+        public List<Hashtable> GetItemFormFields(string itemtype, string subtype)
+        {
+            List<dynamic> itemDisp = this.GetItemDisplay(itemtype, subtype);
+            List <Hashtable> formfields = new List<Hashtable>();
+
+            string eventname = "";
+            string handler = "";
+            //Picklist options for times
+            string[] timecompvals = new string[] {"0:00","0:15","0:30","0:45","1:00","1:15","1:30","1:45",
+                                               "2:00","2:15","2:30","2:45","3:00","3:15",
+                                               "3:30","3:45","4:00","4:15","4:30","4:45","5:00","5:15",
+                                               "5:30","5:45","6:00","6:15","6:30","6:45",
+                                               "7:00","7:15","7:30","7:45","8:00","8:15","8:30","8:45",
+                                               "9:00","9:15","9:30","9:45","10:00","10:15",
+                                               "10:30","10:45","11:00","11:15","11:30","11:45",
+                                               "12:00","12:15","12:30","12:45","13:00","13:15",
+                                               "13:30","13:45","14:00","14:15","14:30","14:45",
+                                               "15:00","15:15","15:30","15:45","16:00","16:15",
+                                               "16:30","16:45","17:00","17:15","17:30","17:45",
+                                               "18:00","18:15","18:30","18:45","19:00","19:15",
+                                               "19:30","19:45","20:00","20:15","20:30","20:45",
+                                               "21:00","21:15","21:30","21:45","22:00","22:15",
+                                               "22:30","22:45","23:00","23:15","23:30","23:45"};
+            string[] timecompdisp = new string[] {"12:00 AM","12:15 AM","12:30 AM","12:45 AM",
+                                               "1:00 AM","1:15 AM","1:30 AM","1:45 AM",
+                                               "2:00 AM","2:15 AM","2:30 AM","2:45 AM",
+                                               "3:00 AM","3:15 AM","3:30 AM","3:45 AM",
+                                               "4:00 AM","4:15 AM","4:30 AM","4:45 AM",
+                                               "5:00 AM","5:15 AM","5:30 AM","5:45 AM",
+                                               "6:00 AM","6:15 AM","6:30 AM","6:45 AM",
+                                               "7:00 AM","7:15 AM","7:30 AM","7:45 AM",
+                                               "8:00 AM","8:15 AM","8:30 AM","8:45 AM",
+                                               "9:00 AM","9:15 AM","9:30 AM","9:45 AM",
+                                               "10:00 AM","10:15 AM","10:30 AM","10:45 AM",
+                                               "11:00 AM","11:15 AM","11:30 AM","11:45 AM",
+                                               "12:00 PM","12:15 PM","12:30 PM","12:45 PM",
+                                               "1:00 PM","1:15 PM","1:30 PM","1:45 PM",
+                                               "2:00 PM","2:15 PM","2:30 PM","2:45 PM",
+                                               "3:00 PM","3:15 PM","3:30 PM","3:45 PM",
+                                               "4:00 PM","4:15 PM","4:30 PM","4:45 PM",
+                                               "5:00 PM","5:15 PM","5:30 PM","5:45 PM",
+                                               "6:00 PM","6:15 PM","6:30 PM","6:45 PM",
+                                               "7:00 PM","7:15 PM","7:30 PM","7:45 PM",
+                                               "8:00 PM","8:15 PM","8:30 PM","8:45 PM",
+                                               "9:00 PM","9:15 PM","9:30 PM","9:45 PM",
+                                               "10:00 PM","10:15 PM","10:30 PM","10:45 PM",
+                                               "11:00 PM","11:15 PM","11:30 PM","11:45 PM"};
+
+            //Use TBD rather than midnight if TBAMeetingTimes parameter is set to true
+            bool tbdmeetingtimes = false;
+            if (this.getTopVueParameter("TBDMeetingTimes") == "true")
+            {
+                tbdmeetingtimes = true;
+                timecompdisp[0] = "TBD";
+            }
+
+            string output = "";
+          
+            //Flag for multi-select lookup field
+            bool multilookup = false;
+
+            foreach (var field in itemDisp)
+            {
+                string defaultvalue = "";
+                Hashtable formfield = new Hashtable();
+
+                formfield.Add("fieldtype", field.fieldtype);
+                formfield.Add("fieldname", field.fieldname);
+                formfield.Add("displayname", field.displayname);
+                formfield.Add("sortposition", field.sortposition);
+                formfield.Add("sortorder", field.sortorder);
+                formfield.Add("required", field.required);
+                formfield.Add("itemvaluegroup", field.itemvaluegroup);
+                formfield.Add("fieldlength", field.fieldlength);
+                formfield.Add("maxlength", field.maxlength);
+                formfield.Add("onblur", field.onblur);
+                formfield.Add("onfocus", field.onfocus);
+                formfield.Add("onchange", field.onchange);
+                formfield.Add("onkeydown", field.onkeydown);
+
+
+                if (field.defaultvalue.Length > 0 && field.fieldtype == "autonumber")
+                {
+                    defaultvalue = field.defaultvalue;
+                    if (defaultvalue.IndexOf("SQL_value") >= 0)
+                    {
+                        string sqlstmt = defaultvalue.Substring(defaultvalue.IndexOf("SQL_value") + 10);
+                        //sqlstmt = DataUtils.substituteObjectValues(sqlstmt);
+                        defaultvalue = this.getItemIDList(sqlstmt);
+                        if (defaultvalue == "0") { defaultvalue = ""; }
+                    }
+                    else if (defaultvalue.IndexOf("Session[") >= 0)
+                    {
+                        //TODO: implement default value for session 
+                    }
+                    else if (defaultvalue.IndexOf("Request.Params.Get(") >= 0)
+                    {
+                        //TODO: implement default value request params 
+                    }
+                    else if (defaultvalue == "sysdate")
+                    {
+                        defaultvalue = DateTime.Now.ToString();
+                    }
+                }
+                //Substitute object stub references for actual values
+               // defaultvalue =  DataUtils.substituteObjectValues(defaultvalue);
+
+                //If default value starts with "SQL_value", get value from SQL statement and use it
+                if (defaultvalue.StartsWith("SQL_value"))
+                {
+                    defaultvalue = defaultvalue.Replace("SQL_value", "");
+                    defaultvalue = this.getValueFromSQL(defaultvalue, true);
+                    if (defaultvalue == null)
+                    {
+                        defaultvalue = "";
+                    }
+                }
+
+                Console.WriteLine(field);
+                switch (field.fieldtype)
+                {
+                    case "approval":
+                        // TODO : need to implment approval field for insert
+                        break;
+                    //Treat all hidden and readonly type fields the same
+                    case "hidden":
+                        goto case "readonly";
+                    case "readonlycurrency":
+                        goto case "readonly";
+                    case "readonlydate":
+                        goto case "readonly";
+                    case "readonlydatetime":
+                        goto case "readonly";
+                    case "readonlypicklist":
+                        goto case "readonly";
+                    case "readonlylookup":
+                        goto case "readonly";
+                    case "readonlynumeric":
+                        goto case "readonly";
+                    case "readonly":
+                        //Do nothing, unless a default value was specified
+                        if (defaultvalue != null && defaultvalue.Length > 0)  formfield.Add("defaultvalue", defaultvalue);
+                        break;
+                    case "label":
+                        //Nothing to display for label types
+                        break;
+                    case "fielddelta":
+                        //Nothing to display for fielddelta types
+                        break;
+                    //Do nothing, unless a default value was specified
+                    case "autonumber":
+                        if (defaultvalue == null || defaultvalue.Length == 0)
+                        {
+                            defaultvalue = "(AutoNumber)";
+                            formfield.Add("defaultvalue",defaultvalue);
+                        }
+                       
+                        if (field.Value == "Y")
+                        {
+                            formfield.Add("isReadonly", true);
+                        }
+                        
+                        break;
+                    case "inlinequery":
+                        if ( !string.IsNullOrEmpty(field.customsql && field.defaultvalue == field.customsql) )
+                        {
+                            formfield.Add("isDisabled", true);
+                            formfield.Add("defaultvalue", defaultvalue);
+                        }
+                        break;
+                    case "linkedfield":
+                        if ( !string.IsNullOrEmpty(field.parenttable && field.defaultvalue  ==  field.parenttable) )
+                        {
+                            formfield.Add("isDisabled", true);
+                            formfield.Add("defaultvalue", defaultvalue);
+                        }
+                        break;
+                    case "url":
+                        goto case "text";
+                    case "text":
+                        formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
+                        break;
+                    case "textdate":
+                        formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
+                        break;
+                    case "password":
+                        formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
+                        break;
+                    case "combo":
+                        formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
+                        if (field.itemvaluegroup.Length > 0)
+                        {
+                            formfield.Add("groupname", field.itemvaluegroup);
+                        }
+                        else if (field.customsql.Length > 0)
+                        {
+                            formfield.Add("sql", field.customsql)
+                        }
+                        else if (column.Attributes["parenttable"].Value.Length > 0)
+                        {
+                            if (column.Attributes["parentcolumn"].Value == column.Attributes["parentfieldname"].Value)
+                            {
+                                output += "tablename=" + column.Attributes["parenttable"].Value +
+                                   "&columnname=" + column.Attributes["parentcolumn"].Value;
+                            }
+                            if (column.Attributes["parentsubtype"].Value.Length > 0)
+                            {
+                                output += "&subtype=" + column.Attributes["parentsubtype"].Value;
+                            }
+                        }
+                        output += "</xml><div id=\"" + fieldname + "_opts\" class=\"combobox\" " +
+                                  "style=\"visibility: hidden; display: none;\"></div>";
+                        break;
+                    case "test":
+                        break;
+                    default:
+                        break;
+                }
+
+                formfields.Add(formfield);
+            }
+            return formfields;
         }
 
         public object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder = "")
@@ -626,25 +867,7 @@ namespace DbUitlsCoreTest.Data
             return recs;
         }
 
-        public object GetItemTabs(string itemtype, string subtype)
-        {
-            Dictionary<string, string> whereDict = new Dictionary<string, string>();
-            whereDict.Add("itemtypecd", itemtype);
-
-            if (subtype == null)
-            {
-                whereDict.Add("subtypecd", null);
-            }
-            else
-            {
-                whereDict.Add("subtypecd", subtype);
-            }
-
-            var res = _dapperHelper.GetList("itemtabs", null, whereDict);
-
-            return res;
-
-        }
+    
 
         private  List<dynamic> BuildItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
         {

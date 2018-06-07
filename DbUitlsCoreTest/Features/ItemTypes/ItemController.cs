@@ -124,13 +124,16 @@ namespace DbUitlsCoreTest.Controllers
             }
 
             var customButtons = await _mediator.Send(new ItemButtonListQuery.Query(itemtype, subtype, pagetype));
+            var customTabs = await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype, pagetype));
+
             var standardButtons = new List<object>();
             if (pagetype == "properties") {
                 standardButtons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, pagetype));
             }
             else if (pagetype == "list")
             {
-                /// conffigute stand buttons
+                // shouldShowSearch and shouldShowInsert should come from request params 
+                standardButtons = await _mediator.Send(new ItemListButtonsQuery.Query(itemtype, subtype, pagetype, true, true));
             }
 
 
@@ -151,6 +154,27 @@ namespace DbUitlsCoreTest.Controllers
            
            // return Ok(_respository.GetItemCustomButtons(itemtype, subtype, pagetype));
         }
+
+        [HttpGet("buttons")]
+        public async Task<object> GetItemProeprtiesTabs(string itemtype, string subtype)
+        {
+
+            //var customTabs = await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype,e));
+            //return Ok(customTabs);
+
+            return Ok(Task.Delay(10));
+        }
+
+        [HttpGet("insert")]
+        public async Task<object> GetItemFormFields(string itemtype, string subtype)
+        {
+
+            var customTabs = _respository.GetItemFormFields(itemtype, subtype);
+                //await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype, pagetype));
+            return Ok(customTabs);
+        }
+
+
 
         [HttpGet("relations/{id}")]
         public IActionResult GetItemRelation(string itemtype, string subtype, string id)

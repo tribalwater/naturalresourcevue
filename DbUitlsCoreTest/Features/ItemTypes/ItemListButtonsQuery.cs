@@ -28,8 +28,8 @@ namespace DbUitlsCoreTest.Features.ItemTypes
             public string ItemType;
             public string ItemsSubType;
             public string PageType;
-            private bool ShouldShowSearchButton;
-            private bool ShouldShowInsertButton;
+            public bool ShouldShowSearchButton;
+            public bool ShouldShowInsertButton;
 
 
         }
@@ -51,7 +51,7 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                 if (shouldShowSearchButton)
                 {
                   
-                    var Emailbutton = new
+                    var SearchButton = new
                     {
                          ITEMTYPECD = itemtype,
                          SUBTYPECD  =  subtype,
@@ -60,17 +60,16 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                          EVENTHANDLER = "goToSearch",
                          ACTION      = "GOTOSEARCH"
                     };
-                    buttons.Add(Emailbutton);
+                    buttons.Add(SearchButton);
                 }
             }
 
-            private  void addInsertButton(string userid, string itemtype, string subtype, List<dynamic> buttons)
+            private  void addInsertButton(string itemtype, string subtype, bool shouldsShowInsertButton,  List<dynamic> buttons)
             {
-                string editright = itemtype + subtype + "_edit";
-                Hashtable rightslist = _repository.getUserRightsList(userid);
-                if (rightslist.ContainsKey(editright))
+                
+                if (shouldsShowInsertButton)
                 {
-                    var Editbutton = new
+                    var InsertButton = new
                     {
                         ITEMTYPECD = itemtype,
                         SUBTYPECD = subtype,
@@ -79,7 +78,7 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                         EVENTHANDLER = "goToInsert",
                         ACTION = "GOTOINSERT"
                     };
-                    buttons.Add(Editbutton);
+                    buttons.Add(InsertButton);
                 }
             }
             public async Task<List<object>> Handle(Query message, CancellationToken cancellationToken)
@@ -87,10 +86,9 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                 // Console.WriteLine(message.buttontype);
 
                 await Task.Delay(10);
-                string userID = "5327";
                 List<dynamic> itemButtons = new List<dynamic>();
-                this.addSearchButton( message.ItemType, message.ItemsSubType, message.shouldShowSearchButton, itemButtons);
-                this.addInsertButton( message.ItemType, message.ItemsSubType, itemButtons);
+                this.addSearchButton( message.ItemType, message.ItemsSubType, message.ShouldShowSearchButton, itemButtons);
+                this.addInsertButton( message.ItemType, message.ItemsSubType, message.ShouldShowInsertButton, itemButtons);
 
                 return itemButtons;
             }
