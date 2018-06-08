@@ -546,22 +546,242 @@ namespace DbUitlsCoreTest.Data
                         }
                         else if (field.customsql.Length > 0)
                         {
-                            formfield.Add("sql", field.customsql)
+                            formfield.Add("sql", field.customsql);
                         }
-                        else if (column.Attributes["parenttable"].Value.Length > 0)
+                        else if (field.parenttable.Length > 0)
                         {
-                            if (column.Attributes["parentcolumn"].Value == column.Attributes["parentfieldname"].Value)
+                            if (field.parentcolumn == field.parentfieldname)
                             {
-                                output += "tablename=" + column.Attributes["parenttable"].Value +
-                                   "&columnname=" + column.Attributes["parentcolumn"].Value;
+                                formfield.Add("tablename", field.parenttable);
+                                formfield.Add("columnname", field.parentcolumn);
                             }
-                            if (column.Attributes["parentsubtype"].Value.Length > 0)
+                            if (field.parentsubtyp.Length > 0)
                             {
-                                output += "&subtype=" + column.Attributes["parentsubtype"].Value;
+                                formfield.Add("parentsubtype", field.parentsubtype);
                             }
                         }
-                        output += "</xml><div id=\"" + fieldname + "_opts\" class=\"combobox\" " +
-                                  "style=\"visibility: hidden; display: none;\"></div>";
+                        break;
+                    case "multilookup":
+                        multilookup = true;
+                        goto case "lookup";
+                    case "lookup":
+                        bool lkpnewbtn = false;
+                        string ludval = defaultvalue.Replace("\"", "&#34;");
+                        if (field.parenttable.Length > 0)
+                        {
+                            if (multilookup)
+                            {
+                                string parentcolumn = field.parentcolumn;
+                                string defaultValueSanitized = sqlEncode(defaultvalue).Replace(", ", "|~").Replace(",", "','").Replace("\r\n", "','").Replace("|~", ", ").Replace("\n", "','");
+                                string query = "select " + parentcolumn +
+                                        " from " + field.parenttable +
+                                        " where " + field.parentfieldname + " is not null " +
+                                        "and (" + parentcolumn + " in('" + defaultValueSanitized + "') " +
+                                        "or to_char(itemid) in ('" + defaultValueSanitized + "')) ";
+                                ludval = this.getItemIDList(query, true);
+                                if (ludval.Equals("0"))
+                                {
+                                    ludval = "";
+                                }
+                            }
+                            else if (field.parentcolumn != field.parentfieldname)
+                            {
+                                ludval = "select " + field.parentcolumn +
+                                         " from " + field.parenttable +
+                                         " where " + field.parentfieldname +
+                                         " = '" + defaultvalue + "'";
+                                ludval = this.getValueFromSQL(ludval, true);
+                            }
+                        }
+                        formfield.Add("ludval", ludval);
+                        string rsvis = " style=\"visibility: hidden;\"";
+                        formfield.Add("visibililty", "hidden");
+                        if (defaultvalue != null && defaultvalue.Length > 0)
+                        {
+                            formfield["visibililty"] = "visible";
+                        }
+                        if (field.required != "Y")
+                        {
+                            // TODO : handle the case when not requred need to investicate
+                            // what removeCBValue does
+
+                            //output += "&nbsp;<span id=\"" + fieldname + "_rspan\"" + rsvis + ">" +
+                            //          "<a href=\"JavaScript:;\" onclick=\"Javascript:removeCBValue('" + cfldid +
+                            //          "')\">(Clear Selection)</a></span>";
+                        }
+                      
+                        if (multilookup)
+                        {
+                            formfield.Add("multiplevalue", true);
+                        }
+
+                        formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
+                        formfield.Add("dispcol", field.parentcolumn);
+                        formfield["onfocus"] = "resetCBField";
+                  
+                        if (field.itemvaluegroup.Length > 0)
+                        {
+                            formfield.Add("groupname", field.itemvaluegroup);
+                        }
+                        else if (field.customsql.Length > 0)
+                        {
+                            formfield.Add("tablename", field.parenttable);
+                            formfield.Add("columnname", field.parentcolumn);
+                            formfield.Add("idcolumn", field.parentfieldname);
+                            formfield.Add("sql", DataUtils.encryptData(field.customsql) );
+                        }
+                        else if (field.parenttable.Length > 0)
+                        {
+                            lkpnewbtn = true;
+                            if (field.parentcolum  == field.parentfieldnam )
+                            {
+                                formfield.Add("tablename", field.parenttable);
+                                formfield.Add("columnname", field.parentcolumn);
+                            }
+                            else
+                            {
+                                formfield.Add("tablename", field.parenttable);
+                                formfield.Add("columnname", field.parentcolumn);
+                                formfield.Add("idcolumn", field.parentfieldname);
+                            }
+                            if (field.parentsubtype.Length > 0)
+                            {
+                                formfield.Add("parentsubtype", field.parentsubtype);
+                            }
+                        }
+                        //If the parent item is item display and this is not a multi-row insert or edit, 
+                        //create a 'new' button to add a new record
+                        if (lkpnewbtn && field.parenttable.IndexOf("_properties") > 0)
+                        {
+                            string ptypecd = field.parenttable;
+                            ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
+                            string psubtype = field.parentsubtype;
+                            string userid = "5327";
+                           
+                            Hashtable rightslist = this.getUserRightsList(userid);
+                            if (rightslist.ContainsKey(ptypecd + psubtype + "_insert"))
+                            {
+                                formfield.Add("onclick", "onTheFlyInsert");
+                                formfield.Add("parentsubtype", psubtype);
+                            }
+                        }
+                        break;
+                    case "textarea":
+                        double rows = 0;
+                        try
+                        {
+                            rows = int.Parse(field.maxlength);
+                            rows = Math.Round(rows / 1000);
+                            //Textarea boxes should always show at least 4 rows and not more than 12 rows
+                            if (rows < 4)
+                            {
+                                rows = 4;
+                            }
+                            else if (rows > 12)
+                            {
+                                rows = 12;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            rows = 4;
+                        }
+                        formfield.Add("shouldCheckSpelling", true);
+                        formfield.Add("rows", rows.ToString() );
+                        formfield.Add("onkeypress", "checkLen");
+                        formfield.Add("onblur", "checkLen");
+                        formfield.Add("defaultvalue", defaultvalue);
+                        //if (field.onblur  != null && field.onblur.Length > 0)
+                        //{
+                        //    formfield.Add("onblur", "checkLen");
+                        //   // TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\"";
+                        //}
+                        //else
+                        //{
+                        //    output += "onblur=\"checkLen(event,this,'" + column.Attributes["maxlength"].Value + "')\"";
+                        //}
+                        //try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
+                        //catch { }
+                        //try { output += " onkeydown=\"checkBackspace(event,this);" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
+                        //catch { }
+                        //try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                        //catch { }
+                        break;
+                    case "date":
+                        formfield.Add("defaultvalue", DataUtils.formatOraDate(defaultvalue));
+                        formfield.Add("dispcol", field.parentcolumn);
+                        formfield["onblur"] = "validateDate";
+                        formfield.Add("onclick", "openCal");
+
+                        // try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
+
+                        output += " />&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" " +
+                           "onclick=\"openCal('" + fieldname + "', event)\"><img " +
+                           "src=\"" + HttpContext.Current.Application["apppath"] + "/images/calendar.gif\" alt=\"Click here to choose a date\" border=\"0\" /></a>";
+                        break;
+                    case "datetime":
+                        cfldid += "dt";
+                        output += "<input type=\"hidden\" name=\"" +
+                           fieldname + "\" value=\"" +
+                           dbutils.formatDateTime(defaultvalue) + "\" /><input type=\"text\" name=\"" +
+                           fieldname + "dt\" onblur=\"validateDate(this);concatDateTime('" +
+                           fieldname + "');";
+                        try { output += TVUtils.substituteObjectValues(column.Attributes["onblur"].Value); }
+                        catch { }
+                        output += "\" id=\"" + cfldid + "\"";
+                        output += " value=\"" +
+                           dbutils.formatOraDate(defaultvalue) +
+                           "\" size=\"10\" maxlength=\"11\"";
+                        try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
+                        catch { }
+                        try { output += " onkeydown=\"" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
+                        catch { }
+                        try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                        catch { }
+                        output += " />&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" " +
+                           "onclick=\"openCal('" + fieldname + "dt', event)\"><img " +
+                           "src=\"" + HttpContext.Current.Application["apppath"] + "/images/calendar.gif\" alt=\"Click here to choose a date\" border=\"0\" /></a>" +
+                           "&nbsp;<input type=\"text\" name=\"" + fieldname +
+                           "tm\" size=\"8\" maxlength=\"8\" onblur=\"validateTime(this),concatDateTime('" +
+                           fieldname + "')\" value=\"" +
+                           dbutils.formatOraTime(defaultvalue) + "\" id=\"" + cfldid + "tm\"";
+                        output += " />&nbsp;hh:mm AM/PM (" + Session["timezone"] + ")";
+                        break;
+                    case "datetimepl":
+                        cfldid += "dt";
+                        if (tbdmeetingtimes && defaultvalue.IndexOf("TBD") >= 0)
+                        {
+                            defaultvalue = defaultvalue.Replace("TBD", "");
+                        }
+                        string curtime = dbutils.formatOraTime(defaultvalue);
+                        if (curtime.StartsWith("0"))
+                        {
+                            curtime = curtime.Substring(1);
+                        }
+                        if (String.IsNullOrEmpty(curtime))
+                        {
+                            curtime = (tbdmeetingtimes) ? "0:00" : "12:00";
+                        }
+                        output += "<input type=\"hidden\" name=\"" + fieldname +
+                                  "\" value=\"" + dbutils.formatDateTime(defaultvalue) + "\" />" +
+                                  "<input type=\"text\" name=\"" + fieldname + "dt\"" +
+                                  "onblur=\"validateDate(this),concatDateTime('" + fieldname + "');";
+                        try { output += TVUtils.substituteObjectValues(column.Attributes["onblur"].Value); }
+                        catch { }
+                        output += "\" value=\"" + dbutils.formatOraDate(defaultvalue) + "\" id=\"" + cfldid + "\"";
+                        try { output += " onkeydown=\"" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
+                        catch { }
+                        try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                        catch { }
+                        output += " size=\"10\" maxlength=\"11\" />&nbsp;<a id=\"" + fieldname + "_link\" href=\"JavaScript:;\" " +
+                                  "onclick=\"openCal('" + fieldname + "dt', event)\">" +
+                                  "<img src=\"" + HttpContext.Current.Application["apppath"] +
+                                  "/images/calendar.gif\" border=\"0\" alt=\"Click here to choose a date\" /></a>" +
+                                  "&nbsp;<select name=\"" + fieldname +
+                                  "tm\" onchange=\"concatDateTime('" + fieldname + "')\" id=\"" + cfldid + "tm\"";
+                        output += ">" +
+                        TVUtils.getOptions(timecompvals, timecompdisp, curtime) +
+                           "</select> (" + Session["timezone"] + ")";
                         break;
                     case "test":
                         break;
@@ -2863,7 +3083,22 @@ namespace DbUitlsCoreTest.Data
             }
         }
 
-       
+        /// <summary>
+        /// Replace apostrophe's with double apostrophe's for SQL compatability
+        /// </summary>
+        /// <param name="str">string to be encoded</param>
+        /// <returns>encoded string</returns>
+        public static string sqlEncode(string str)
+        {
+            if (str != null && str.Length > 0)
+            {
+                string tempstr = str.Replace("'", "''");
+                return tempstr;
+            }
+            return "";
+        }
+
+
     }
 
 }

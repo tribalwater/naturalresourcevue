@@ -1015,6 +1015,57 @@ namespace DbUitlsCoreTest.Data
         {
             return DataUtils.decryptData(x, "TopVuepw", "TVs@lt");
         }
+        /// <summary>
+        /// Encrypt specified text
+        /// </summary>
+        /// <param name="x">Text to be encrypted</param>
+        /// <returns>Encrypted text</returns>
+        public static string encryptData(string x)
+        {
+            return encryptData(x, "TopVuepw", "TVs@lt");
+        }
+
+        /// <summary>
+        /// Encrypt specified text
+        /// </summary>
+        /// <param name="x">Text to be encrypted</param>
+        /// <param name="encpwd">Encryption password</param>
+        /// <param name="saltstring">String value for encryption salt</param>
+        /// <returns>Encrypted text</returns>
+        public static string encryptData(string x, string encpwd, string saltstring)
+        {
+            if (x == null)
+            {
+                return "";
+            }
+            //Set up hashes and keys for encryption
+            byte[] vecbytes = Encoding.UTF8.GetBytes("Z1X2Y3W4V5U6T7S8");
+            byte[] saltbytes = Encoding.UTF8.GetBytes(saltstring);
+            byte[] textbytes = Encoding.UTF8.GetBytes(x);
+            //Set password and type of encryption
+            PasswordDeriveBytes password = new PasswordDeriveBytes(encpwd, saltbytes, "MD5", 1);
+            byte[] keybytes = password.GetBytes(16);
+            string stringkey = Convert.ToBase64String(keybytes);
+            RijndaelManaged symkey = new RijndaelManaged();
+            symkey.Mode = CipherMode.CBC;
+            //Create and initialize encryptor
+            ICryptoTransform encryptor = symkey.CreateEncryptor(keybytes, vecbytes);
+            MemoryStream ms = new MemoryStream();
+            //Specify data to be encrypted
+            CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
+            cs.Write(textbytes, 0, textbytes.Length);
+            //Make sure all data has been encrypted
+            cs.FlushFinalBlock();
+            //Load encrypted data into byte array
+            byte[] encryptedbytes = ms.ToArray();
+            //Close memory objects
+            ms.Close();
+            cs.Close();
+            //Convert byte array into Base64 string and return
+            return Convert.ToBase64String(encryptedbytes);
+        }
+
+        ///
 
         /// <summary>
         /// Decrypt the specified text
