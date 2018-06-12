@@ -43,13 +43,13 @@ namespace DbUitlsCoreTest.Data
 
         public ItemSQLRepository(IDapperHelper dapperHelper, int dbtype = 2, bool DLSOverride = false)
         {
-            _dapperHelper       = dapperHelper;
-            _dbtype             = dbtype;
-            _DLSOverride        = DLSOverride;
-            _flattenRecord      = false;
-            _mixedCaseTags      = false;
+            _dapperHelper = dapperHelper;
+            _dbtype = dbtype;
+            _DLSOverride = DLSOverride;
+            _flattenRecord = false;
+            _mixedCaseTags = false;
 
-            userId              = "5327";
+            userId = "5327";
         }
 
         private IEnumerable<dynamic> GetItemRelatonTypeAndSubTypes(string itemtype, string itemsubtype, string itemid)
@@ -69,17 +69,17 @@ namespace DbUitlsCoreTest.Data
         {
             JObject ItemTypeJson = JObject.FromObject(item);
 
-            string[] keys = ItemTypeJson.Properties().Select(p => p.Name.ToString()).ToArray();     
+            string[] keys = ItemTypeJson.Properties().Select(p => p.Name.ToString()).ToArray();
             string[] vals = ItemTypeJson.Properties().Select(p => p.Value.ToString()).ToArray();
-          
+
             return _dapperHelper.Insert($"{itemtype}_PROPERTIES", keys, vals);
         }
 
-        public object UpdateItem(string itemtype, string itemsubtype, string id,  object updateObject)
+        public object UpdateItem(string itemtype, string itemsubtype, string id, object updateObject)
         {
-            JObject ItemTypeJson                  = JObject.FromObject(updateObject);
-            Dictionary<string,string> updateDict  = ItemTypeJson.ToObject<Dictionary<string, string>>();
-            Dictionary<string, string> whereDict  = new Dictionary<string, string>();
+            JObject ItemTypeJson = JObject.FromObject(updateObject);
+            Dictionary<string, string> updateDict = ItemTypeJson.ToObject<Dictionary<string, string>>();
+            Dictionary<string, string> whereDict = new Dictionary<string, string>();
 
             whereDict.Add(itemtype + "type", itemsubtype);
             whereDict.Add("itemid", id);
@@ -87,15 +87,15 @@ namespace DbUitlsCoreTest.Data
             var result = _dapperHelper.Update($"{itemtype}_PROPERTIES", updateDict, whereDict);
 
             return result;
-           
+
         }
 
-        public object GetItem(string itemtype, string itemsubtype, string itemid )
+        public object GetItem(string itemtype, string itemsubtype, string itemid)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
             whereDict.Add("itemid", itemid);
-            
+
             var res = _dapperHelper.Get(itemtype + "_properties", null, whereDict);
             return res;
         }
@@ -142,9 +142,9 @@ namespace DbUitlsCoreTest.Data
         public object GetAllItemRelations(string itemtype, string itemsubtype, string itemid)
         {
             Dictionary<string, List<dynamic>> RelatedItemListDict = new Dictionary<string, List<dynamic>>();
-            var RelatedItemTypes =  this.GetItemRelatonTypeAndSubTypes(itemtype, itemsubtype, itemid).ToList();
+            var RelatedItemTypes = this.GetItemRelatonTypeAndSubTypes(itemtype, itemsubtype, itemid).ToList();
             Console.WriteLine("--- get related itme types -----");
-           
+
             foreach (var item in RelatedItemTypes)
             {
                 string[] TypeSubTypeArr = item.typesubtype.Split("_");
@@ -172,9 +172,9 @@ namespace DbUitlsCoreTest.Data
 
                 Console.WriteLine(sql);
 
-                var data= this._dapperHelper.RawQuery(sql).ToList();
+                var data = this._dapperHelper.RawQuery(sql).ToList();
                 RelatedItemListDict.Add(disname.displayname, data);
-        
+
             }
 
             return RelatedItemListDict;
@@ -209,7 +209,7 @@ namespace DbUitlsCoreTest.Data
         // need to handle when fieldlist list is passed as param
         // need to handle when urlendcoding is set?
         // need to handle sort order 
-       
+
 
         public List<dynamic> GetItemDisplay(string itemtype, string subtype, string fieldlist = "")
         {
@@ -265,11 +265,11 @@ namespace DbUitlsCoreTest.Data
             }
 
             var res = _dapperHelper.RawQuery(sql).ToList();
-      
+
             int rlcount = 0;
             foreach (var item in res)
             {
-                if(item.fieldname == null || item.fieldname.Length == 0)
+                if (item.fieldname == null || item.fieldname.Length == 0)
                 {
                     item.fieldname = "rlc" + rlcount;
                     rlcount++;
@@ -282,16 +282,16 @@ namespace DbUitlsCoreTest.Data
                 {
                     continue;
                 }
-              
 
-            } 
-            // need to update this to include actualy id 
-            
-;           return res.ToList();
+
+            }
+// need to update this to include actualy id 
+
+; return res.ToList();
             //return this.GetItemProperties(res.ToList(), itemtype, subtype, "48924", "");
         }
 
-        public List<dynamic>  GetItemCustomButtons(string itemtype, string subtype, string pagetype)
+        public List<dynamic> GetItemCustomButtons(string itemtype, string subtype, string pagetype)
         {
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add("itemtypecd", itemtype);
@@ -300,7 +300,7 @@ namespace DbUitlsCoreTest.Data
 
 
             List<dynamic> res = _dapperHelper.GetList("itembuttons", null, whereDict).ToList();
-                
+
             return res;
 
         }
@@ -336,7 +336,7 @@ namespace DbUitlsCoreTest.Data
             var itemRecs = this.BuildItemList(itemDisp, itemtype, subtype, "", "");
             foreach (var hsm in itemRecs)
             {
-               
+
                 foreach (var item in hsm)
                 {
                     Console.WriteLine(item);
@@ -353,7 +353,7 @@ namespace DbUitlsCoreTest.Data
         public List<Hashtable> GetItemFormFields(string itemtype, string subtype)
         {
             List<dynamic> itemDisp = this.GetItemDisplay(itemtype, subtype);
-            List <Hashtable> formfields = new List<Hashtable>();
+            List<Hashtable> formfields = new List<Hashtable>();
 
             string eventname = "";
             string handler = "";
@@ -407,7 +407,7 @@ namespace DbUitlsCoreTest.Data
             }
 
             string output = "";
-          
+
             //Flag for multi-select lookup field
             bool multilookup = false;
 
@@ -418,6 +418,7 @@ namespace DbUitlsCoreTest.Data
 
                 formfield.Add("fieldtype", field.fieldtype);
                 formfield.Add("fieldname", field.fieldname);
+                formfield.Add("valuegroup", field.itemvaluegroup);
                 formfield.Add("displayname", field.displayname);
                 formfield.Add("sortposition", field.sortposition);
                 formfield.Add("sortorder", field.sortorder);
@@ -429,6 +430,7 @@ namespace DbUitlsCoreTest.Data
                 formfield.Add("onfocus", field.onfocus);
                 formfield.Add("onchange", field.onchange);
                 formfield.Add("onkeydown", field.onkeydown);
+
 
 
                 if (field.defaultvalue.Length > 0 && field.fieldtype == "autonumber")
@@ -455,7 +457,7 @@ namespace DbUitlsCoreTest.Data
                     }
                 }
                 //Substitute object stub references for actual values
-               // defaultvalue =  DataUtils.substituteObjectValues(defaultvalue);
+                // defaultvalue =  DataUtils.substituteObjectValues(defaultvalue);
 
                 //If default value starts with "SQL_value", get value from SQL statement and use it
                 if (defaultvalue.StartsWith("SQL_value"))
@@ -469,6 +471,8 @@ namespace DbUitlsCoreTest.Data
                 }
 
                 Console.WriteLine(field);
+                //TODO: for each switch case need to subsititute object values for event handlers
+                // and re refrence buildIdInsertField in Tvutils
                 switch (field.fieldtype)
                 {
                     case "approval":
@@ -491,7 +495,7 @@ namespace DbUitlsCoreTest.Data
                         goto case "readonly";
                     case "readonly":
                         //Do nothing, unless a default value was specified
-                        if (defaultvalue != null && defaultvalue.Length > 0)  formfield.Add("defaultvalue", defaultvalue);
+                        if (defaultvalue != null && defaultvalue.Length > 0) formfield.Add("defaultvalue", defaultvalue);
                         break;
                     case "label":
                         //Nothing to display for label types
@@ -504,24 +508,24 @@ namespace DbUitlsCoreTest.Data
                         if (defaultvalue == null || defaultvalue.Length == 0)
                         {
                             defaultvalue = "(AutoNumber)";
-                            formfield.Add("defaultvalue",defaultvalue);
+                            formfield.Add("defaultvalue", defaultvalue);
                         }
-                       
+
                         if (field.Value == "Y")
                         {
                             formfield.Add("isReadonly", true);
                         }
-                        
+
                         break;
                     case "inlinequery":
-                        if ( !string.IsNullOrEmpty(field.customsql && field.defaultvalue == field.customsql) )
+                        if (!string.IsNullOrEmpty(field.customsql && field.defaultvalue == field.customsql))
                         {
                             formfield.Add("isDisabled", true);
                             formfield.Add("defaultvalue", defaultvalue);
                         }
                         break;
                     case "linkedfield":
-                        if ( !string.IsNullOrEmpty(field.parenttable && field.defaultvalue  ==  field.parenttable) )
+                        if (!string.IsNullOrEmpty(field.parenttable && field.defaultvalue == field.parenttable))
                         {
                             formfield.Add("isDisabled", true);
                             formfield.Add("defaultvalue", defaultvalue);
@@ -609,7 +613,7 @@ namespace DbUitlsCoreTest.Data
                             //          "<a href=\"JavaScript:;\" onclick=\"Javascript:removeCBValue('" + cfldid +
                             //          "')\">(Clear Selection)</a></span>";
                         }
-                      
+
                         if (multilookup)
                         {
                             formfield.Add("multiplevalue", true);
@@ -618,7 +622,7 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("defaultvalue", defaultvalue.Replace("\"", "&#34;"));
                         formfield.Add("dispcol", field.parentcolumn);
                         formfield["onfocus"] = "resetCBField";
-                  
+
                         if (field.itemvaluegroup.Length > 0)
                         {
                             formfield.Add("groupname", field.itemvaluegroup);
@@ -628,12 +632,12 @@ namespace DbUitlsCoreTest.Data
                             formfield.Add("tablename", field.parenttable);
                             formfield.Add("columnname", field.parentcolumn);
                             formfield.Add("idcolumn", field.parentfieldname);
-                            formfield.Add("sql", DataUtils.encryptData(field.customsql) );
+                            formfield.Add("sql", DataUtils.encryptData(field.customsql));
                         }
                         else if (field.parenttable.Length > 0)
                         {
                             lkpnewbtn = true;
-                            if (field.parentcolum  == field.parentfieldnam )
+                            if (field.parentcolum == field.parentfieldnam)
                             {
                                 formfield.Add("tablename", field.parenttable);
                                 formfield.Add("columnname", field.parentcolumn);
@@ -657,7 +661,7 @@ namespace DbUitlsCoreTest.Data
                             ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
                             string psubtype = field.parentsubtype;
                             string userid = "5327";
-                           
+
                             Hashtable rightslist = this.getUserRightsList(userid);
                             if (rightslist.ContainsKey(ptypecd + psubtype + "_insert"))
                             {
@@ -687,7 +691,7 @@ namespace DbUitlsCoreTest.Data
                             rows = 4;
                         }
                         formfield.Add("shouldCheckSpelling", true);
-                        formfield.Add("rows", rows.ToString() );
+                        formfield.Add("rows", rows.ToString());
                         formfield.Add("onkeypress", "checkLen");
                         formfield.Add("onblur", "checkLen");
                         formfield.Add("defaultvalue", defaultvalue);
@@ -712,48 +716,19 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("dispcol", field.parentcolumn);
                         formfield["onblur"] = "validateDate";
                         formfield.Add("onclick", "openCal");
-
-                        // try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
-
-                        output += " />&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" " +
-                           "onclick=\"openCal('" + fieldname + "', event)\"><img " +
-                           "src=\"" + HttpContext.Current.Application["apppath"] + "/images/calendar.gif\" alt=\"Click here to choose a date\" border=\"0\" /></a>";
                         break;
                     case "datetime":
-                        cfldid += "dt";
-                        output += "<input type=\"hidden\" name=\"" +
-                           fieldname + "\" value=\"" +
-                           dbutils.formatDateTime(defaultvalue) + "\" /><input type=\"text\" name=\"" +
-                           fieldname + "dt\" onblur=\"validateDate(this);concatDateTime('" +
-                           fieldname + "');";
-                        try { output += TVUtils.substituteObjectValues(column.Attributes["onblur"].Value); }
-                        catch { }
-                        output += "\" id=\"" + cfldid + "\"";
-                        output += " value=\"" +
-                           dbutils.formatOraDate(defaultvalue) +
-                           "\" size=\"10\" maxlength=\"11\"";
-                        try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
-                        catch { }
-                        try { output += " onkeydown=\"" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
-                        catch { }
-                        try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
-                        catch { }
-                        output += " />&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" " +
-                           "onclick=\"openCal('" + fieldname + "dt', event)\"><img " +
-                           "src=\"" + HttpContext.Current.Application["apppath"] + "/images/calendar.gif\" alt=\"Click here to choose a date\" border=\"0\" /></a>" +
-                           "&nbsp;<input type=\"text\" name=\"" + fieldname +
-                           "tm\" size=\"8\" maxlength=\"8\" onblur=\"validateTime(this),concatDateTime('" +
-                           fieldname + "')\" value=\"" +
-                           dbutils.formatOraTime(defaultvalue) + "\" id=\"" + cfldid + "tm\"";
-                        output += " />&nbsp;hh:mm AM/PM (" + Session["timezone"] + ")";
+                        formfield.Add("defaultvalue", DataUtils.formatOraDate(defaultvalue));
+                        formfield["onblur"] = "validateDate";
+                        formfield.Add("onclick", "openCal");
                         break;
                     case "datetimepl":
-                        cfldid += "dt";
+
                         if (tbdmeetingtimes && defaultvalue.IndexOf("TBD") >= 0)
                         {
                             defaultvalue = defaultvalue.Replace("TBD", "");
                         }
-                        string curtime = dbutils.formatOraTime(defaultvalue);
+                        string curtime = DataUtils.formatOraDate(defaultvalue);
                         if (curtime.StartsWith("0"))
                         {
                             curtime = curtime.Substring(1);
@@ -762,26 +737,453 @@ namespace DbUitlsCoreTest.Data
                         {
                             curtime = (tbdmeetingtimes) ? "0:00" : "12:00";
                         }
-                        output += "<input type=\"hidden\" name=\"" + fieldname +
-                                  "\" value=\"" + dbutils.formatDateTime(defaultvalue) + "\" />" +
-                                  "<input type=\"text\" name=\"" + fieldname + "dt\"" +
-                                  "onblur=\"validateDate(this),concatDateTime('" + fieldname + "');";
-                        try { output += TVUtils.substituteObjectValues(column.Attributes["onblur"].Value); }
-                        catch { }
-                        output += "\" value=\"" + dbutils.formatOraDate(defaultvalue) + "\" id=\"" + cfldid + "\"";
-                        try { output += " onkeydown=\"" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
-                        catch { }
-                        try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
-                        catch { }
-                        output += " size=\"10\" maxlength=\"11\" />&nbsp;<a id=\"" + fieldname + "_link\" href=\"JavaScript:;\" " +
-                                  "onclick=\"openCal('" + fieldname + "dt', event)\">" +
-                                  "<img src=\"" + HttpContext.Current.Application["apppath"] +
-                                  "/images/calendar.gif\" border=\"0\" alt=\"Click here to choose a date\" /></a>" +
-                                  "&nbsp;<select name=\"" + fieldname +
-                                  "tm\" onchange=\"concatDateTime('" + fieldname + "')\" id=\"" + cfldid + "tm\"";
-                        output += ">" +
-                        TVUtils.getOptions(timecompvals, timecompdisp, curtime) +
-                           "</select> (" + Session["timezone"] + ")";
+                        formfield.Add("defaultvalue", defaultvalue);
+                        formfield["onblur"] = "validateDate";
+                        formfield["onchange"] = "concatDateTime";
+                        formfield.Add("onclick", "openCal");
+                        break;
+                    case "time":
+
+                        if (tbdmeetingtimes && defaultvalue.IndexOf("TBD") >= 0)
+                        {
+                            defaultvalue = defaultvalue.Replace("TBD", "");
+                        }
+                        if (defaultvalue.StartsWith("0"))
+                        {
+                            defaultvalue = defaultvalue.Substring(1);
+                        }
+                        //  DataUtils.getOptions(timecompvals, timecompdisp, defaultvalue) 
+                        formfield.Add("timevals", timecompvals);
+                        formfield.Add("timedisp", timecompdisp);
+                        formfield.Add("defaultvalue", defaultvalue);
+                        break;
+                    case "users":
+                        //Display popup for multi-select user and distr list
+                        string sqlDisplay = string.Format("select displayid from itemdisplay where itemtypecd = '{0}' and subtypecd {1} and fieldname = '{2}'",
+                          field.itemtypecd,
+                           (string.IsNullOrEmpty(field.subtypecd) ? " is null" : string.Format(" = '{0}'", sqlEncode(field.subtypecd))),
+                           field.displayname
+                        );
+
+                        formfield.Add("onclick", "openUsersField");
+                        formfield.Add("displayid", this.getValueFromSQL(sqlDisplay));
+                        formfield.Add("usertype", field.parentsubtype);
+                        formfield.Add("storefield", "lasnamefirst");
+                        formfield.Add("pagetitle", "Select");
+                        formfield.Add("defaultvalue", defaultvalue);
+
+                        break;
+                    case "models":
+                        //Nothing to build for model type fields
+                        break;
+                    case "validation":
+
+                        if (int.Parse(field.maxlength > 1))
+                        {
+                            formfield.Add("multiple", "multiple");
+                        }
+
+                        if (field.require == "N" && Convert.ToInt16(field.maxlength) <= 1)
+                        {
+                            formfield.Add("defaultoptionvalue", "-- NONE -- ");
+                        }
+                        else if (Convert.ToInt16(field.maxlength) <= 1)
+                        {
+                            formfield.Add("defaultoptionvalue", "- Select one -");
+                        }
+                        formfield.Add("validationoptions", this.getValidationOptions(field.itemvaluegroup, defaultvalue));
+                        formfield.Add("onclick", "viewValidationOptions");
+                        formfield.Add("groupname", field.itemvaluegroup);
+                        //if (int.Parse(column.Attributes["maxlength"].Value) > 1)
+                        //{
+                        //    output += "<br /><span title=\"Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked\">" +
+                        //              "Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked</span>";
+                        //}
+                        break;
+                    case "picklist":
+                        //Substitute line feeds and hard returns for commas
+                        bool pknewbtn = true;
+                        string storedvalue = defaultvalue;
+                        if (defaultvalue.IndexOf("\r") >= 0)
+                        {
+                            defaultvalue = defaultvalue.Replace(",", "CoMmA");
+                        }
+                        defaultvalue = defaultvalue.Replace("\n", "\r");
+                        defaultvalue = defaultvalue.Replace("\r\r", "\r");
+                        defaultvalue = defaultvalue.Replace("\r", ",");
+                        string seloptions = "";
+
+                        string parentNode = "";
+                        if (field.fieldname.ToUpper() == field.childfieldnam.ToUpper()) parentNode = field.childname;
+
+                        if (!string.IsNullOrEmpty(parentNode))
+                        {
+
+                            formfield["onkeydown"] = "selTypeAhead";
+                            formfield.Add("size", field.fieldlength);
+
+                            if (int.Parse(field.maxlength) > 1)
+                            {
+                                formfield.Add("multiple", "multiple");
+                            }
+                            if (defaultvalue.Length > 0)
+                            {
+                                formfield.Add("multiple", defaultvalue);
+                            }
+                            if (field.childfieldname.Length > 0)
+                            {
+
+                                formfield.Add("parentfor", field.childfieldname);
+                                formfield["onchange"] = "updateListOptions";
+
+
+                            }
+                            else
+                            {
+                                // add the existing onchange when we do not have a childfield
+                                if (field.onchange != null)
+                                {
+                                    // output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\"";
+                                }
+                            }
+
+                            if (field.required == "N" && Convert.ToInt16(field.maxlength) <= 1)
+                            {
+                                formfield.Add("defaultoptionvalue", "-- NONE -- ");
+                            }
+                            else if (Convert.ToInt16(field.maxlength) <= 1)
+                            {
+                                formfield.Add("defaultoptionvalue", "- Select one -");
+
+                            }
+
+                            if (int.Parse(field.maxlength) > 1)
+                            {
+                                formfield.Add("helptext", "-Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items ");
+                            }
+                            if (field.childfieldname != null && field.childfieldname.Length > 0)
+                            {
+                                //output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
+                                //   fieldname + "\");</script>";
+                            }
+                            //If field is multi-select, it cannot be used with or as a parent group
+                        }
+                        else if (int.Parse(field.maxlength > 1))
+                        {
+
+
+                            if (defaultvalue.Length > 0)
+                            {
+                                field.Add("defaultvalue", defaultvalue);
+                            }
+                            if (!string.IsNullOrEmpty(field.childfieldname))
+                            {
+                                field.Add("parentfor", field.childfieldname);
+                                field.Add("onclick", field.updateListOptions);
+                            }
+                            if (!string.IsNullOrEmpty(field.itemvaluegroup))
+                            {
+                                field.Add("seloptions", this.getGenericOptions(field.itemvaluegroup, defaultvalue));
+                            }
+                            else if (!string.IsNullOrEmpty(field.customsql))
+                            {
+                                formfield.Add("customsql", this.getSQLOptions(field.customsql, defaultvalue, true));
+                                pknewbtn = false;
+                            }
+                            else if (!string.IsNullOrEmpty(field.parenttable))
+                            {
+                                if (!string.IsNullOrEmpty(field.parentsubtype))
+                                {
+                                    string storedfield = field.parentfieldname;
+                                    if (storedfield == null || storedfield.Length == 0)
+                                    {
+                                        storedfield = "itemid";
+                                    }
+                                    if (storedfield.Equals(field.parentcolumn))
+                                    {
+                                        storedfield += " col1";
+                                    }
+                                    string optitemtypecd = field.parenttable.Substring(0,
+                                      field.parenttabl.ToLower().IndexOf("_"));
+                                    output += dbutils.getParentOptions(
+                                     optitemtypecd, column.Attributes["parentsubtype"].Value,
+                                     storedfield, column.Attributes["parentcolumn"].Value, defaultvalue);
+                                }
+                                else
+                                {
+                                    output += dbutils.getOptions(
+                                       column.Attributes["parenttable"].Value
+                                       , column.Attributes["parentfieldname"].Value
+                                       , column.Attributes["parentcolumn"].Value, defaultvalue);
+                                }
+                                //If the parent item is item display and this is not a multi-row insert or edit, 
+                                //create a 'new' button to add a new record
+                                if (column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
+                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                {
+                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
+                                    string psubtype = column.Attributes["parentsubtype"].Value;
+                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
+                                    {
+                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
+                                           ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                    }
+                                }
+                            }
+                            output += "</select>";
+                            if (column.Attributes["itemvaluegroup"].Value.Length > 0)
+                            {
+                                Hashtable rightslist = new Hashtable();
+                                try
+                                {
+                                    rightslist = (Hashtable)Session["rightslist"];
+                                }
+                                catch (Exception)
+                                {
+                                    //Ignore error if can't get to the Session object
+                                }
+                                //Build new button if:
+                                //user has insert rights
+                                //the field has at least one value
+                                //the field does not have a parent
+                                //the field does not have any children
+                                if (rightslist.ContainsKey("itemvalue_insert") &&
+                                   seloptions.IndexOf(fieldname + "_c") < 0 &&
+                                   seloptions.IndexOf("<option") >= 0 &&
+                                   seloptions.IndexOf("execFilterChildren") < 0)
+                                {
+                                    output += "&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" onclick=\"JavaScript:insertItemValue('" +
+                                    fieldname + "','" +
+                                    column.Attributes["itemvaluegroup"].Value +
+                                    "')\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add a new item\"/></a>";
+                                }
+                            }
+                            output += "<input type=\"hidden\" name=\"" + fieldname +
+                               "\" id=\"hid_" + fieldname + "\" value=\"" +
+                               storedvalue + "\"/></span><br />Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked";
+                        }
+                        else
+                        {
+                            if (column.Attributes["itemvaluegroup"].Value.Length > 0)
+                            {
+                                cfldid = fieldname;
+                                //seloptions = dbutils.getGenericSelects(column.Attributes["itemvaluegroup"].Value,
+                                //                                       fieldname,
+                                //                                       column.Attributes["fieldlength"].Value,
+                                //                                       Convert.ToInt16(column.Attributes["maxlength"].Value),
+                                //                                       column.Attributes["required"].Value, defaultvalue, column);
+                                seloptions = dbutils.getParentChildSelects(column.Attributes["itemvaluegroup"].Value,
+                                                                       fieldname,
+                                                                       column.Attributes["fieldlength"].Value,
+                                                                       Convert.ToInt16(column.Attributes["maxlength"].Value),
+                                                                       column.Attributes["required"].Value, defaultvalue, column);
+
+                                output += seloptions;
+                                Hashtable rightslist = new Hashtable();
+                                try
+                                {
+                                    rightslist = (Hashtable)Session["rightslist"];
+                                }
+                                catch (Exception)
+                                {
+                                    //Ignore error if can't get to the Session object
+                                }
+                                //Build new button if:
+                                //user has insert rights
+                                //the field has at least one value
+                                //the field does not have a parent
+                                //the field does not have any children
+                                //the field is not using a custom SQL statement
+                                if (rightslist.ContainsKey("itemvalue_insert") &&
+                                   seloptions.IndexOf(fieldname + "_c") < 0 &&
+                                   seloptions.IndexOf("<option") >= 0 &&
+                                   seloptions.IndexOf("execFilterChildren") < 0 &&
+                                   string.IsNullOrEmpty(column.Attributes["customsql"].Value))
+                                {
+                                    output += "&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" onclick=\"JavaScript:insertItemValue('" +
+                                     fieldname + "','" +
+                                     column.Attributes["itemvaluegroup"].Value +
+                                     "')\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add a new item\"/></a>";
+                                }
+                            }
+                            else if (column.Attributes["customsql"].Value.Length > 0)
+                            {
+                                pknewbtn = false;
+                                output += "<select onKeyDown=\"selTypeAhead();";
+                                try { output += TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value); }
+                                catch { }
+                                output += "\" id=\"sel_" + fieldname +
+                                   "\" name=\"" + fieldname + "\" size=\"" +
+                                   column.Attributes["fieldlength"].Value + "\"";
+                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                {
+                                    output += " parentfor=\"" +
+                                       column.Attributes["childfieldname"].Value;
+                                    if (rowx != null && rowx.Length > 0)
+                                    {
+                                        output += "_" + rowx;
+                                    }
+                                    output += "\" onchange=\"updateListOptions(this);";
+                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
+                                    catch { }
+                                    output += "\" xmldoc=\"" +
+                                       column.Attributes["childxmldoc"].Value + "\"";
+                                }
+                                else
+                                {
+                                    output += " onchange=\"";
+                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
+                                    catch { }
+                                    output += "\"";
+                                }
+                                if (column.Attributes["parentcolumn"].Value.Length > 0)
+                                {
+                                    output += " dispcol=\"" + column.Attributes["parentcolumn"].Value + "\"";
+                                }
+                                try { output += " onblur=\"" + TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\""; }
+                                catch { }
+                                try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                                catch { }
+                                output += ">";
+                                if (column.Attributes["required"].Value == "N" && Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                {
+                                    output += "<option value=\"\">- None -</option>";
+                                }
+                                else if (Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                {
+                                    output += "<option value=\"\">- Select one -</option>";
+                                }
+                                string customsql = column.Attributes["customsql"].Value;
+                                customsql = substituteObjectValues(customsql);
+                                output += dbutils.getSQLOptions(customsql,
+                                   defaultvalue);
+                                output += "</select>";
+                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                {
+                                    output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
+                                       fieldname + "\");</script>";
+                                }
+                                //Add the View button for view the selected routing template on the insert or edit page
+                                if (column.Attributes["parenttable"].Value.IndexOf("rmrtemplate") >= 0)
+                                {
+                                    output += "<img src='images/bigview.gif' alt='View template' onmouseover=\"this.style.cursor='hand'\" onclick=\"viewRoutingTemplate(document.getElementById('" + fieldname + "'))\" />";
+                                }
+                                //If the parent item is item display and this is not a multi-row insert or edit, 
+                                //create a 'new' button to add a new record
+                                if (pknewbtn && column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
+                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                {
+                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
+                                    string psubtype = column.Attributes["parentsubtype"].Value;
+                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
+                                    {
+                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
+                                            ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                    }
+                                }
+                            }
+                            else if (column.Attributes["parenttable"].Value.Length > 0)
+                            {
+                                output += "<select onKeyDown=\"selTypeAhead();";
+                                try { output += TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value); }
+                                catch { }
+                                output += "\" id=\"sel_" + fieldname +
+                                   "\" name=\"" + fieldname + "\" size=\"" +
+                                   column.Attributes["fieldlength"].Value + "\"";
+                                if (defaultvalue.Length > 0)
+                                {
+                                    output += " curval=\"" + defaultvalue + "\"";
+                                }
+                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                {
+                                    output += " parentfor=\"" +
+                                       column.Attributes["childfieldname"].Value;
+                                    if (rowx != null && rowx.Length > 0)
+                                    {
+                                        output += "_" + rowx;
+                                    }
+                                    output += "\" onchange=\"updateListOptions(this);";
+                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
+                                    catch { }
+                                    output += "\" xmldoc=\"" +
+                                       column.Attributes["childxmldoc"].Value + "\"";
+                                }
+                                else
+                                {
+                                    try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
+                                    catch { }
+                                }
+                                output += " dispcol=\"" + column.Attributes["parentcolumn"].Value + "\"" +
+                                   " valuecol=\"" + column.Attributes["parentfieldname"].Value + "\"";
+                                try { output += " onblur=\"" + TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\""; }
+                                catch { }
+                                try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                                catch { }
+                                output += ">";
+                                if (column.Attributes["required"].Value == "N" && Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                {
+                                    output += "<option value=\"\">- None -</option>";
+                                }
+                                else if (Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                {
+                                    output += "<option value=\"\">- Select one -</option>";
+                                }
+                                if (column.Attributes["parentsubtype"].Value.Length > 0)
+                                {
+                                    string storedfield = column.Attributes["parentfieldname"].Value;
+                                    if (storedfield == null || storedfield.Length == 0)
+                                    {
+                                        storedfield = "itemid";
+                                    }
+                                    if (storedfield.Equals(column.Attributes["parentcolumn"].Value))
+                                    {
+                                        storedfield += " col1";
+                                    }
+                                    string optitemtypecd = column.Attributes["parenttable"].Value.Substring(0,
+                                       column.Attributes["parenttable"].Value.ToLower().IndexOf("_"));
+                                    output += dbutils.getParentOptions(
+                                       optitemtypecd, column.Attributes["parentsubtype"].Value,
+                                       storedfield, column.Attributes["parentcolumn"].Value, defaultvalue);
+                                }
+                                else
+                                {
+                                    output += dbutils.getOptions(
+                                       column.Attributes["parenttable"].Value
+                                       , column.Attributes["parentfieldname"].Value
+                                       , column.Attributes["parentcolumn"].Value, defaultvalue);
+                                }
+                                output += "</select>";
+                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                {
+                                    output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
+                                       fieldname + "\");</script>";
+                                }
+                                //Add the View button for view the selected routing template on the insert or edit page
+                                if (column.Attributes["parenttable"].Value.IndexOf("rmrtemplate") >= 0)
+                                {
+                                    output += "<img src='images/bigview.gif' alt='View template' onmouseover=\"this.style.cursor='hand'\" onclick=\"viewRoutingTemplate(document.getElementById('" + fieldname + "'))\" />";
+                                }
+                                //If the parent item is item display and this is not a multi-row insert or edit, 
+                                //create a 'new' button to add a new record
+                                if (pknewbtn && column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
+                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                {
+                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
+                                    string psubtype = column.Attributes["parentsubtype"].Value;
+                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
+                                    {
+                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
+                                                  ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                    }
+                                }
+                            }
+                        }
                         break;
                     case "test":
                         break;
@@ -805,13 +1207,13 @@ namespace DbUitlsCoreTest.Data
             Hashtable recordset = new Hashtable();
             recordset.Add("display", itemDispDict);
             recordset.Add("records", itemProps);
-           
+
             return recordset;
         }
 
         public object FormatItemProperties(List<dynamic> itemprops, List<dynamic> itemdisp)
         {
-            if(itemprops.Count < 1 || itemdisp.Count < 1)
+            if (itemprops.Count < 1 || itemdisp.Count < 1)
             {
                 return new { };
             }
@@ -824,26 +1226,26 @@ namespace DbUitlsCoreTest.Data
             foreach (var item in propDict.Values)
             {
                 if (item.ContainsKey("fieldname") == true) {
-                    fieldList.Add(item);  
+                    fieldList.Add(item);
                 }
             }
 
 
 
-            foreach (var field in fieldList) 
+            foreach (var field in fieldList)
             {
-                string fieldName  = field["fieldname"];
+                string fieldName = field["fieldname"];
                 string fieldValue = field["fieldvalue"];
-                string fieldType  = field["fieldtype"];
+                string fieldType = field["fieldtype"];
 
-                string dispLinkType      = dispDict[fieldName].linktype;
-                string dispParentTable   = dispDict[fieldName].parenttable;
+                string dispLinkType = dispDict[fieldName].linktype;
+                string dispParentTable = dispDict[fieldName].parenttable;
                 string dispParentSubtype = dispDict[fieldName].parentsubtype;
 
                 if (dispDict[fieldName].tooltip != null) field["tooltip"] = dispDict[fieldName].tooltip;
-           
-                bool isUrl = fieldType == "url" && ( fieldValue.ToLower().StartsWith("http") || fieldValue.ToLower().IndexOf("a") > 0 );
-                bool islinked = ( dispDict[fieldName].linkfield != null && propDict[fieldName + "link"] != null && propDict[fieldName + "link"]["fieldvalue"].Length > 0) ;
+
+                bool isUrl = fieldType == "url" && (fieldValue.ToLower().StartsWith("http") || fieldValue.ToLower().IndexOf("a") > 0);
+                bool islinked = (dispDict[fieldName].linkfield != null && propDict[fieldName + "link"] != null && propDict[fieldName + "link"]["fieldvalue"].Length > 0);
 
                 if (fieldType == "approval")
                 {
@@ -851,8 +1253,8 @@ namespace DbUitlsCoreTest.Data
                 }
                 if (isUrl || islinked)
                 {
-                   // field.Add("linkTo", "");
-                   // field.Add("linkToType", "");
+                    // field.Add("linkTo", "");
+                    // field.Add("linkToType", "");
 
                     switch (dispLinkType)
                     {
@@ -869,11 +1271,11 @@ namespace DbUitlsCoreTest.Data
                             else
                             {
                                 Hashtable linkToParams = new Hashtable();
-                                linkToParams.Add("ltype", dispParentTable.Substring( 0, dispParentTable.IndexOf("_") ) );
+                                linkToParams.Add("ltype", dispParentTable.Substring(0, dispParentTable.IndexOf("_")));
                                 linkToParams.Add("lsubtype", dispParentSubtype);
                                 linkToParams.Add("link", propDict[fieldName + "link"]);
-                                
-                                field["linkTo"]     = linkToParams;
+
+                                field["linkTo"] = linkToParams;
                                 field["linkToType"] = "tabNavigate";
                                 field.Add("isLinkType", true);
 
@@ -910,7 +1312,7 @@ namespace DbUitlsCoreTest.Data
                                 //TODO: needt to handle routing tempaltes ??? 
                                 // rmr == routing ?
                             }
-                            else if(!String.IsNullOrEmpty(dispParentTable))
+                            else if (!String.IsNullOrEmpty(dispParentTable))
                             {
                                 Hashtable linkToParams = new Hashtable();
                                 linkToParams.Add("ltype", dispParentTable.Substring(0, dispParentTable.IndexOf("_")));
@@ -927,7 +1329,7 @@ namespace DbUitlsCoreTest.Data
                                 linkToParams.Add("link", propDict[fieldName + "link"]);
 
                                 field["linkTo"] = linkToParams;
-                                field["linkToType"]= "genericPopup";
+                                field["linkToType"] = "genericPopup";
                                 field.Add("isLinkType", true);
 
                             }
@@ -943,7 +1345,7 @@ namespace DbUitlsCoreTest.Data
 
                             break;
                         default:
-                            if(fieldType == "url")
+                            if (fieldType == "url")
                             {
                                 if (fieldName.IndexOf("@") > 0)
                                 {
@@ -956,7 +1358,7 @@ namespace DbUitlsCoreTest.Data
                                 else
                                 {
                                     Hashtable linkToUrl = new Hashtable();
-                                    linkToUrl.Add("link", fieldValue +  "," + fieldName );
+                                    linkToUrl.Add("link", fieldValue + "," + fieldName);
                                     field["linkTo"] = linkToUrl;
                                     field["linkToType"] = "newWindow";
 
@@ -981,18 +1383,18 @@ namespace DbUitlsCoreTest.Data
                     {
                         case "formattedtext":
                             // need to handle formated text on the client 
-                           // output += "<span style=\"margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;\">" + fielddata + "</span>";
+                            // output += "<span style=\"margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;\">" + fielddata + "</span>";
                             break;
                         case "readonlycurrency":
                             goto case "currency";
                         case "currency":
-                            string formattedVal=  DataUtils.formatCurrency(fieldValue)
+                            string formattedVal = DataUtils.formatCurrency(fieldValue)
                                                     .Replace("\r\n", "\r")
                                                     .Replace("\r", "<br />")
                                                     .Replace("\n", "<br />");
 
                             field["fieldvalue"] = formattedVal;
-                           
+
                             break;
                         case "grid":
                             // need to figure how to handle this if needed on the client 
@@ -1008,23 +1410,23 @@ namespace DbUitlsCoreTest.Data
 
 
                             field["isGrid"] = true;
-                            
-                               //string.Format(
-                               //    "<iframe src=\"tvgridview.aspx?view=readonly&itemtypecd={0}&subtype={1}&relitemtypecd={2}&relsubtype={3}&relcolumn={4}&maxlength={5}&parentfield={9}&fieldlist={6}&itemid={8}{7}\" height=\"200\" width=\"100%\"></iframe>",
-                               //    column.Attributes["itemtypecd"].Value,
-                               //    column.Attributes["subtypecd"].Value,
-                               //    column.Attributes["parenttable"].Value,
-                               //    column.Attributes["parentsubtype"].Value,
-                               //    column.Attributes["parentcolumn"].Value,
-                               //    column.Attributes["maxlength"].Value,
-                               //    column.Attributes["defaultvalue"].Value,
-                               //    column.Attributes["customsql"].Value,
-                               //    itemidString,
-                               //    column.Attributes["parentfieldname"].Value
-                               //);
+
+                            //string.Format(
+                            //    "<iframe src=\"tvgridview.aspx?view=readonly&itemtypecd={0}&subtype={1}&relitemtypecd={2}&relsubtype={3}&relcolumn={4}&maxlength={5}&parentfield={9}&fieldlist={6}&itemid={8}{7}\" height=\"200\" width=\"100%\"></iframe>",
+                            //    column.Attributes["itemtypecd"].Value,
+                            //    column.Attributes["subtypecd"].Value,
+                            //    column.Attributes["parenttable"].Value,
+                            //    column.Attributes["parentsubtype"].Value,
+                            //    column.Attributes["parentcolumn"].Value,
+                            //    column.Attributes["maxlength"].Value,
+                            //    column.Attributes["defaultvalue"].Value,
+                            //    column.Attributes["customsql"].Value,
+                            //    itemidString,
+                            //    column.Attributes["parentfieldname"].Value
+                            //);
                             break;
                         default:
-                           field["fieldvalue"] = fieldValue.Replace("\r\n", "\r").Replace("\r", "<br />").Replace("\n", "<br />");
+                            field["fieldvalue"] = fieldValue.Replace("\r\n", "\r").Replace("\r", "<br />").Replace("\n", "<br />");
                             break;
                     }
 
@@ -1051,13 +1453,13 @@ namespace DbUitlsCoreTest.Data
             //string whereorder = "";
             string relationlink = "";
             string orderbyclause = "";
-     
-         
+
+
             this.BuildSqlFromItemDisp(
                                       itemdisp, itemtype, subtype, itemtable,
-                                      item => (item.fieldtype != "relation search" && item.fieldtype != "label"), 
+                                      item => (item.fieldtype != "relation search" && item.fieldtype != "label"),
                                       whereorder, ref whereclause, ref orderbyclause, ref columns, ref linktables,
-                                      ref idname,  ref relationlink, ref linktablecount, false
+                                      ref idname, ref relationlink, ref linktablecount, false
                                      );
 
             string firstcol = columns.Substring(0, columns.IndexOf(","));
@@ -1075,7 +1477,7 @@ namespace DbUitlsCoreTest.Data
                " from " + itemtable + relationlink + linktables +
                " " + whereclause + itemtable + "." + idname + " = " + itemid;
 
-           
+
             //If using SQL Server, convert query before running it
             if (this._dbtype.Equals(2))
             {
@@ -1087,9 +1489,9 @@ namespace DbUitlsCoreTest.Data
             return recs;
         }
 
-    
 
-        private  List<dynamic> BuildItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
+
+        private List<dynamic> BuildItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
         {
             Console.WriteLine("get item list -----");
             string columns = "";
@@ -1113,11 +1515,11 @@ namespace DbUitlsCoreTest.Data
                 itemtype = "cdrlschedule";
             }
 
-            string itemtable     = itemtype + "_properties";
-            string linktables    = "";
-            int linktablecount   = 0;
-            string whereclause   = "";
-            string relationlink  = "";
+            string itemtable = itemtype + "_properties";
+            string linktables = "";
+            int linktablecount = 0;
+            string whereclause = "";
+            string relationlink = "";
             string orderbyclause = "";
             if (whereorder == null)
             {
@@ -1129,11 +1531,11 @@ namespace DbUitlsCoreTest.Data
             {
                 whereorder = newTimeAdjust(whereorder);
             }
-            
+
 
 
             //Build clauses for SQL statement
-            this.BuildSqlFromItemDisp( itemDisp, itemtype, subtype, itemtable, filterfunc, whereorder, 
+            this.BuildSqlFromItemDisp(itemDisp, itemtype, subtype, itemtable, filterfunc, whereorder,
                                        ref whereclause, ref orderbyclause, ref columns, ref linktables,
                                        ref idname, ref relationlink, ref linktablecount, true
                                      );
@@ -1141,7 +1543,7 @@ namespace DbUitlsCoreTest.Data
             string firstcol = columns.Substring(0, columns.IndexOf(","));
             string sql = "";
 
-           
+
 
             //If searching by related file, add display node to indicate hits
             if (whereorder.IndexOf("artifact.filename") >= 0 && columns.IndexOf("fbartifact") >= 0)
@@ -1174,7 +1576,7 @@ namespace DbUitlsCoreTest.Data
             {
                 hassubtype = true;
             }
-          
+
             //If no criteria was specified, just get simple count from properties
             if (whereorder.Length == 0)
             {
@@ -1189,9 +1591,9 @@ namespace DbUitlsCoreTest.Data
                     sql += "case when itemrights.itemid is null then 'N' else 'Y' end xcontrolled, " +
                     "case when itemrights2.itemid is null then 'N' else 'Y' end xallowed ";
                 }
-              
+
                 sql += " from " + itemtable + linktables.Substring(0, ir2pos + 28 + itemtable.Length);
-               
+
                 //Determine how to filter by subtype
                 if (itemtable == "user_properties" && subtype == "contact")
                 {
@@ -1255,7 +1657,7 @@ namespace DbUitlsCoreTest.Data
                         }
                     }
                 }
-              
+
                 sql += ") tvtmptble ";
                 if (getTopVueParameter("ShowLockedRecords") != "true")
                 {
@@ -1283,7 +1685,7 @@ namespace DbUitlsCoreTest.Data
 
             }
 
-     
+
             else
             {
                 //If a whereorder was specified, build the full query
@@ -1387,7 +1789,7 @@ namespace DbUitlsCoreTest.Data
             Console.WriteLine("--- building item list  1-----");
             Console.WriteLine(sql);
             var res = this._dapperHelper.RawQuery(sql);
-            if(res != null)
+            if (res != null)
             {
                 //if (this.LastRec > int.Parse(xAttr.Value))
                 //{
@@ -1401,7 +1803,7 @@ namespace DbUitlsCoreTest.Data
                 xAttr.Add("totalrecs", "unknown");
 
             }
-         
+
 
             //Get recordset to return to user, attempt to use distinct keyword initially
             //(Use funky case to more easily keep track of it) - cannot use distinct keyword if any long type fields are being returned - track DiStIncT keyword so it can be removed if the query fails when DiStIncT is included
@@ -1446,7 +1848,7 @@ namespace DbUitlsCoreTest.Data
                     {
                         sql += " and ";
                     }
-                    sql += itemtable + "." + itemtype+
+                    sql += itemtable + "." + itemtype +
                        "type is null";
                     hassubtype = true;
                 }
@@ -1507,7 +1909,7 @@ namespace DbUitlsCoreTest.Data
                             }
 
                             var colItem = itemDisp.Where(item => item.parenttable == obfdetails[0] && item.parentcolumn == obfdetails[1]).First();
-                          
+
                             if (colItem != null)
                             {
                                 orderbyclause = orderbyclause.Replace(obfieldname, colItem.fieldname);
@@ -1573,7 +1975,7 @@ namespace DbUitlsCoreTest.Data
             }
 
 
-           var recs = this.buildItemRecord(itemDisp, sql, true);
+            var recs = this.buildItemRecord(itemDisp, sql, true);
 
             return recs;
 
@@ -1584,8 +1986,8 @@ namespace DbUitlsCoreTest.Data
 
         private object BuildSqlFromItemDisp(
                                             List<dynamic> itemdisp, string itemtype, string subtype, string itemtable,
-                                            Predicate<dynamic> filterfunc,  string whereorder, ref string whereclause,
-                                            ref string orderbyclause, ref string columns,  ref string linktables, 
+                                            Predicate<dynamic> filterfunc, string whereorder, ref string whereclause,
+                                            ref string orderbyclause, ref string columns, ref string linktables,
                                             ref string idname, ref string relationlink, ref int linktablecount, bool isListPage
                                           )
         {
@@ -1614,7 +2016,7 @@ namespace DbUitlsCoreTest.Data
             linktablecount = 0;
 
             // filters out items that dont have a parent table and have a fieldttyep of itemid
-            var fullDisp = itemdisp.Where(item => ( (item.parenttable != "" || item.parenttable != null) && item.fieldtype != "itemid" ));
+            var fullDisp = itemdisp.Where(item => ((item.parenttable != "" || item.parenttable != null) && item.fieldtype != "itemid"));
             foreach (var item in fullDisp)
             {
                 string parentTableName = item.parenttable;
@@ -1639,16 +2041,16 @@ namespace DbUitlsCoreTest.Data
             //i => i.parenttable != '' && i.fieldtype != 'itemid')
             IEnumerable<dynamic> filteredDispNodes;
             if (filterfunc != null) {
-                 filteredDispNodes = itemdisp.Where(item => filterfunc(item));
+                filteredDispNodes = itemdisp.Where(item => filterfunc(item));
             }
             else
             {
                 filteredDispNodes = itemdisp;
-            }            
+            }
             foreach (var item in filteredDispNodes)
             {
                 item.l = "rarar";
-                if(item.fieldtype == "label")
+                if (item.fieldtype == "label")
                 {
                     continue;
                 }
@@ -1670,9 +2072,9 @@ namespace DbUitlsCoreTest.Data
 
                 //build default order by if none was specified
                 // added ternary because the itemid column could possibly not have a sortposition attribute and be included
-                
+
                 string sortPos = (item.sortposition.ToString() == null ? "0" : item.sortposition.ToString());
-              
+
                 if (buildorderby && int.Parse(sortPos) > 0)
                 {
                     string obyfld = item.fieldname;
@@ -1680,7 +2082,7 @@ namespace DbUitlsCoreTest.Data
                     {
                         obyfld = itemtype + "_properties." + obyfld;
                     }
-                    orderinfo.Add(item.sortposition + "-" +  obyfld + " " +item.sortdirection);
+                    orderinfo.Add(item.sortposition + "-" + obyfld + " " + item.sortdirection);
                 }
 
                 if (item.fieldtype == "itemid")
@@ -1705,21 +2107,21 @@ namespace DbUitlsCoreTest.Data
                                "." + idname + " and mxi.itemtypecd = '" + itemtype + "' " +
                                "left join model_properties mxp on " +
                                "mxp.itemid = mxi.modelid ";
-                    
+
                 }
                 else if (item.fieldtype == "inlinequery" || (item.fieldtype == "formattedtext" && this._dbtype == 1))
                 {
                     columns += item.parenttable + ".val " + item.fieldname;
-                                linktables += "\r left join (" + item.defaultvalue  +
-                               ") " + item.parenttable + " on " +
-                               item.parenttable + "." + item.parentcolumn + " = " +
-                               itemtable + "." + item.parentfieldname;
-                    
+                    linktables += "\r left join (" + item.defaultvalue +
+                   ") " + item.parenttable + " on " +
+                   item.parenttable + "." + item.parentcolumn + " = " +
+                   itemtable + "." + item.parentfieldname;
+
                 }
                 //Look up data from specified parent table
                 else if (item.parenttable != null && item.parenttable.Length > 0 && item.parentfieldname != item.parentcolumn)
                 {
-                    if(item.fieldtype.IndexOf("relation search") == 0 )
+                    if (item.fieldtype.IndexOf("relation search") == 0)
                     {
                         linktables += $@"\r\n left join itemrelation on ((itemrelation.itemid1 = {itemtable} .  {idname} 
                                       and itemrelation.itemtypecd1 = '{itemtype}') or 
@@ -1851,7 +2253,7 @@ namespace DbUitlsCoreTest.Data
                                 {
                                     //If only one and just one of the fields in the join is numeric, then convert both to varchar
                                     if ((isFieldNumeric(parentTables[item.fieldname].ToString(), item.parentfieldname.Split('.')[1]) ^
-                                       isFieldNumeric(itemtable, item.parentfieldname.Split('.')[0])) 
+                                       isFieldNumeric(itemtable, item.parentfieldname.Split('.')[0]))
                                        //|| getTopVueParameter("AlwaysToCharJoins") == "true"
                                        )
                                     {
@@ -1882,7 +2284,7 @@ namespace DbUitlsCoreTest.Data
                         }
                         else
                         {
-                         
+
                             columns += itemtable + "." + item.fieldname + " " + item.fieldname + "_val, ";
                             columns += parentTables[item.fieldname].ToString() + "." +
                                        item.parentcolumn.Replace("parent_table_", parentTables[item.fieldname].ToString() + ".").Replace("tblstub.", parentTables[item.fieldname].ToString() + ".") +
@@ -1908,7 +2310,7 @@ namespace DbUitlsCoreTest.Data
                                                item.parentfieldname + "))";
                                 }
                                 else if ((isFieldNumeric(parentTables[item.fieldname].ToString(), item.parentfieldname) ^
-                                   isFieldNumeric(itemtable, item.fieldname)) 
+                                   isFieldNumeric(itemtable, item.fieldname))
                                    // || getTopVueParameter("AlwaysToCharJoins") == "true"
                                    )
                                 {
@@ -1919,7 +2321,7 @@ namespace DbUitlsCoreTest.Data
                                 {
                                     newlinktabledata = " on " + parentTables[item.fieldname].ToString() + "." +
                                                        item.parentfieldname + " = " + itemtable + "." + item.fieldname;
-                                 }
+                                }
                             }
                             else
                             {
@@ -1934,7 +2336,7 @@ namespace DbUitlsCoreTest.Data
                                                        " like '%,' || to_char(" + parentTables[item.fieldname].ToString() + "." +
                                                        item.parentfieldname + "))";
                                 }
-                                else if ((isFieldNumeric(parentTables[item.fieldname].ToString(),item.parentfieldname) ^
+                                else if ((isFieldNumeric(parentTables[item.fieldname].ToString(), item.parentfieldname) ^
                                    isFieldNumeric(itemtable, item.fieldname))
                                    // || getTopVueParameter("AlwaysToCharJoins") == "true"
                                    )
@@ -1960,7 +2362,7 @@ namespace DbUitlsCoreTest.Data
                                                "." + item.linkfield +
                                                " " + item.fieldname + "link";
                             }
-                           
+
                             if (parentTables[item.fieldname].ToString().IndexOf("_") > 0)
                             {
                                 item.lc = parentTables[item.fieldname].ToString().Substring(parentTables[item.fieldname].ToString().LastIndexOf("_"));
@@ -1969,7 +2371,7 @@ namespace DbUitlsCoreTest.Data
                             {
                                 item.lc = "";
                             }
-                           
+
                         }
 
                     }
@@ -1980,16 +2382,16 @@ namespace DbUitlsCoreTest.Data
                 }
                 else
                 {
-                    if ( item.parenttable != null && !String.IsNullOrEmpty(item.parenttable) )
+                    if (item.parenttable != null && !String.IsNullOrEmpty(item.parenttable))
                     {
-                        columns += itemtable + "." +  item.fieldname + " " +  item.fieldname + "_val, ";
+                        columns += itemtable + "." + item.fieldname + " " + item.fieldname + "_val, ";
                     }
-                    columns += itemtable + "." +  item.fieldname;
-                    if ( item.linkfield != null && !String.IsNullOrEmpty(item.linkfield) )
+                    columns += itemtable + "." + item.fieldname;
+                    if (item.linkfield != null && !String.IsNullOrEmpty(item.linkfield))
                     {
                         columns += ", " + itemtable +
                                    "." + item.linkfield +
-                                   " " +  item.fieldname + "link";
+                                   " " + item.fieldname + "link";
                     }
                 }
             }
@@ -2162,13 +2564,13 @@ namespace DbUitlsCoreTest.Data
             }
             var dispDict = itemDsip.ToDictionary(x => x.fieldname, x => x);
 
-          
+
 
             using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
             {
 
                 List<dynamic> records = new List<dynamic>();
-                
+
                 SqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
 
@@ -2186,9 +2588,9 @@ namespace DbUitlsCoreTest.Data
                         bool numericfield = false;
                         bool hiddenfield = false;
 
-                        string fieldType  = recReader.GetFieldType(i).ToString();
+                        string fieldType = recReader.GetFieldType(i).ToString();
                         string fieldValue = recReader.GetValue(i).ToString();
-                        string fieldName  = recReader.GetName(i).ToLower();
+                        string fieldName = recReader.GetName(i).ToLower();
 
 
                         Hashtable recordProps = new Hashtable();
@@ -2205,11 +2607,11 @@ namespace DbUitlsCoreTest.Data
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].displayname))
                         {
-                            recordProps["displayname"]  = dispDict[recName].displayname;
-                            recordProps["fieldtype"]    = dispDict[recName].fieldtype;
+                            recordProps["displayname"] = dispDict[recName].displayname;
+                            recordProps["fieldtype"] = dispDict[recName].fieldtype;
                             recordProps["sortposition"] = dispDict[recName].sortposition;
-                            recordProps["sortorder"]    = dispDict[recName].sortorder;
-                            recordProps["islisted"]     = dispDict[recName].listeditem;
+                            recordProps["sortorder"] = dispDict[recName].sortorder;
+                            recordProps["islisted"] = dispDict[recName].listeditem;
                         }
 
                         if (dispDict.ContainsKey(recName) && !String.IsNullOrEmpty(dispDict[recName].fieldname))
@@ -2254,7 +2656,7 @@ namespace DbUitlsCoreTest.Data
                                 record["controlled"] = recordProps;
 
                             }
-                            else if (fieldName == "xallowed" )
+                            else if (fieldName == "xallowed")
                             {
                                 recordProps["fieldvalue"] = fieldValue;
                                 record["allowed"] = recordProps;
@@ -2264,8 +2666,8 @@ namespace DbUitlsCoreTest.Data
 
                                 Hashtable dtProps = new Hashtable();
                                 recordProps["hide"] = "";
-                                string dtName= fieldName + "dt";
-                                                            
+                                string dtName = fieldName + "dt";
+
                                 if (fieldValue.Length > 0 && !DataUtils.hasTime(fieldValue) && fieldName.IndexOf("formatted") < 0)
                                 {
                                     recordProps["fieldvalue"] = DataUtils.formatOraDate(fieldValue);
@@ -2333,18 +2735,18 @@ namespace DbUitlsCoreTest.Data
                                     //Keep original value if can't get decimal data
                                 }
                                 recordProps["fieldvalue"] = DataUtils.StripUnicodeCharacters(tempval);
-                               // record.Add(dtName, dtProps);
+                                // record.Add(dtName, dtProps);
                             }
-                            else if (dispDict.ContainsKey(recName) && dispDict[recName].fieldtype  == "password")
+                            else if (dispDict.ContainsKey(recName) && dispDict[recName].fieldtype == "password")
                             {
                                 recordProps["fieldvalue"] = "- Not Displayed -";
                             }
                             else
                             {
-                               if(  dispDict.ContainsKey(recName) && dispDict[recName].encode != null 
-                                    && dispDict[recName].encode == "true"
-                                   // || this.getTopVueParameter("HandleUnicodeInXML") == "true"
-                                 )
+                                if (dispDict.ContainsKey(recName) && dispDict[recName].encode != null
+                                     && dispDict[recName].encode == "true"
+                                  // || this.getTopVueParameter("HandleUnicodeInXML") == "true"
+                                  )
                                 {
                                     bool isnvarcharfield = false;
                                     if (this._dbtype == 1)
@@ -2387,7 +2789,7 @@ namespace DbUitlsCoreTest.Data
                                                     //TVUtils.LogWarning("Unable to add character to XML: " + chr.ToString() + " - code: " + ((int)chr) + "\r\n" + e.ToString());
                                                 }
                                             }
-                                            
+
                                         }
                                     }
                                 }
@@ -2415,15 +2817,15 @@ namespace DbUitlsCoreTest.Data
                                             }
                                         }
                                     }
-                                }  
+                                }
 
                             }
 
                             if (recName != "xcontrolled" && recName != "xallowed")
                             {
-                                if ( dispDict.ContainsKey(recName) &&  ( dispDict[recName].fieldname == recName || dispDict[recName].parentcolumn == recName) == null)
+                                if (dispDict.ContainsKey(recName) && (dispDict[recName].fieldname == recName || dispDict[recName].parentcolumn == recName) == null)
                                 {
-                                     recordProps.Add("hide", "");
+                                    recordProps.Add("hide", "");
                                 }
                                 if (hiddenfield && recordProps["hide"] == null)
                                 {
@@ -2434,7 +2836,7 @@ namespace DbUitlsCoreTest.Data
                         }
 
                         else
-                        {   
+                        {
                             recordProps["fieldvalue"] = (datefield || timefield || (fieldType == "System.DateTime") ?
                                          DataUtils.formatOraDate(fieldValue) : fieldValue);
                             record[recName] = recordProps;
@@ -2467,7 +2869,7 @@ namespace DbUitlsCoreTest.Data
 
 
                     }
-                  
+
                     records.Add(record);
                 }
 
@@ -2475,7 +2877,7 @@ namespace DbUitlsCoreTest.Data
 
                 return records;
             }
-           
+
         }
         /// <summary>
         /// Check field type for table and column specified
@@ -2485,7 +2887,7 @@ namespace DbUitlsCoreTest.Data
         /// <returns>True if column in table is a numeric type, otherwise false</returns>
         private bool isFieldNumeric(string tablename, string columnname)
         {
-            
+
             if (columnname.IndexOf("||") >= 0)
             {
                 return false;
@@ -2521,7 +2923,7 @@ namespace DbUitlsCoreTest.Data
         /// <returns>Value of named parameter, or "-N/A-" if parameter does not exist</returns>
         public string getTopVueParameter(string param)
         {
-            string tvparam =STR_NA;
+            string tvparam = STR_NA;
             bool resethashtable = false;
             Hashtable TVParams = new Hashtable();
             //if (HttpContext.Current != null)
@@ -2543,7 +2945,7 @@ namespace DbUitlsCoreTest.Data
             else
             {
                 resethashtable = true;
-              
+
                 string[] selectArr = { "value", "encrypted" };
                 Dictionary<string, string> whereDict = new Dictionary<string, string>();
                 whereDict.Add("valuename", $"'{param}'");
@@ -2649,25 +3051,25 @@ namespace DbUitlsCoreTest.Data
             {
                 return null;
             }
-           
-           // BindParameters(boundNames, boundValues, idbCmd);
+
+            // BindParameters(boundNames, boundValues, idbCmd);
             //If using SQL Server, convert query before running it
             if (this._dbtype.Equals(2))
             {
                 sql = DataUtils.sqlConvert(sql);
             }
-         
+
             string val = null;
 
             //Build delimitted list if returning multiple rows
             if (multivals)
             {
                 var idbReader = this._dapperHelper.ExecuteReaderFromQuery(sql);
-                
+
                 string idlist = "";
                 try
                 {
-                  
+
                     if (idbReader != null && idbReader.Read())
                     {
                         do
@@ -2704,7 +3106,7 @@ namespace DbUitlsCoreTest.Data
                 object result = this._dapperHelper.ExecuteScalerFromQuery(sql);
                 try
                 {
-                    
+
                     if (result != null)
                     {
                         val = result.ToString();
@@ -2721,13 +3123,13 @@ namespace DbUitlsCoreTest.Data
                 }
                 finally
                 {
-                   // result.Close();
+                    // result.Close();
                 }
             }
 
             return val;
         }
-       
+
         /// <summary>
         /// Format date into yyyymmddhhmmss format for alphabetic sorting
         /// </summary>
@@ -3006,7 +3408,7 @@ namespace DbUitlsCoreTest.Data
 
                 string idlist = "";
 
-                while (recReader.Read()){
+                while (recReader.Read()) {
 
                     if (idlist.Length > 0)
                     {
@@ -3022,9 +3424,9 @@ namespace DbUitlsCoreTest.Data
                 }
 
                 return idlist;
-            }    
+            }
 
-           
+
         }
         /// <summary>
         /// Build list of rights based on user
@@ -3068,7 +3470,7 @@ namespace DbUitlsCoreTest.Data
                 return rightslist;
 
             }
-        
+
         }
 
         private void BindParameters(string[] boundNames, string[] boundValues, IDbCommand idbCmd)
@@ -3098,8 +3500,312 @@ namespace DbUitlsCoreTest.Data
             return "";
         }
 
+        public string getValidationOptions(string groupname, string defaultvalue)
+        {
+            string SqlStmt = "select distinct valuetext, sortorder from itemvalidation " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "order by sortorder, valuetext";
 
-    }
+            return this._dapperHelper.RawQuery(SqlStmt).ToString();
 
-}
+        }
+
+        /// <summary>
+        /// Build select box options from ItemValues group
+        /// </summary>
+        /// <param name="groupname">ItemValue GroupName to be selected</param>
+        /// <param name="defaultvalue">value of option to be selected initially</param>
+        /// <returns>list of HTML option tags</returns>
+        public List<dynamic> getGenericOptions(string groupname, string defaultvalue)
+        {
+            return getGenericOptions(groupname, defaultvalue, false);
+        }
+
+        public List<dynamic> getGenericOptions(string groupname, string defaultvalue, bool useDivs)
+        {
+            string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "and (active = 'Y' or valuetext = '" + sqlEncode(defaultvalue) + "') " +
+               "order by valueorder, valuetext";
+            // ((HttpContext.Current == null || HttpContext.Current.Request == null || HttpContext.Current.Request.FilePath.ToLower().IndexOf("search.aspx") >= 0) ? "" :
+
+            List<dynamic> oplist = this._dapperHelper.RawQuery(SqlStmt).ToList();
+            return oplist;
+        }
+
+        /// <summary>
+        /// Build select box options from ItemValues group
+        /// </summary>
+        /// <param name="groupname">ItemValue GroupName to be selected</param>
+        /// <returns>list of HTML option tags</returns>
+        public List<dynamic> getGenericOptions(string groupname)
+        {
+            string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "order by valueorder, valuetext";
+
+            List<dynamic> oplist = this._dapperHelper.RawQuery(SqlStmt).ToList();
+            return oplist;
+        }
+
+
+        /// <summary>
+        /// Build select box options from a select statement
+        /// </summary>
+        /// <param name="sql">SQL statement used to build recordset</param>
+        /// <param name="defaultvalue">value of option to be selected initially</param>
+        /// <param name="selectFirst">Select the first value</param>
+        /// <returns>list of HTML option tags</returns>
+        public List<Hashtable> getSQLOptions(string sql, string defaultvalue, bool selectFirst)
+        {
+            //If using SQL Server, convert query before running it
+            List<Hashtable> OptionsList = new List<Hashtable>();
+
+            if (this._dbtype.Equals(2))
+            {
+                sql = DataUtils.sqlConvert(sql);
+            }
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = sql;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = sql;
+
+
+                if (sql.ToLower().IndexOf("order by") < 0)
+                {
+                    cmd.CommandText += " order by 2";
+                }
+
+                if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
+                {
+                    islist = true;
+                }
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    if (islist)
+                    {
+                        foreach (string val in defaultvalue.Split(','))
+                        {
+                            if (recReader.GetValue(0).ToString() == val.Replace("CoMmA", ","))
+                            {
+                                isSelected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (defaultvalue == recReader.GetValue(0).ToString())
+                    {
+                        isSelected = true;
+                    }
+                    else if (selectFirst)
+                    {
+                        isSelected = true;
+                        selectFirst = false;
+                    }
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    itemoption.Add("selectFirst", selectFirst);
+                    OptionsList.Add(itemoption);
+
+
+                }
+
+                return OptionsList;
+
+
+            }
+        }
+
+            /// <summary>
+            /// Build select box options from a select statement
+            /// </summary>
+            /// <param name="sql">SQL statement used to build recordset</param>
+            /// <param name="defaultvalue">value of option to be selected initially</param>
+            /// <returns>list of HTML option tags</returns>
+            public string getSQLOptions(string sql, string defaultvalue)
+            {
+                return getSQLOptions(sql, defaultvalue, false);
+            }
+
+            /// Build select box options from a select statement
+            /// </summary>
+            /// <param name="sql">SQL statement used to build recordset</param>
+            /// <param name="selectFirst">Select the first value</param>
+            /// <returns>list of HTML option tags</returns>
+            public string getSQLOptions(string sql, bool selectFirst)
+            {
+                return getSQLOptions(sql, "", selectFirst);
+            }
+
+            /// <summary>
+            /// Build select box options from a select statement
+            /// </summary>
+            /// <param name="sql">SQL statement used to build recordset</param>
+            /// <returns>list of HTML option tags</returns>
+            public string getSQLOptions(string sql)
+            {
+                return getSQLOptions(sql, "", false);
+            }
+
+            /// <summary>
+            /// Build select box options from parent table
+            /// </summary>
+            /// <param name="itemtypecd">Type code of item to be retrieved</param>
+            /// <param name="subtypecd">Sub type of item to be retrieved</param>
+            /// <param name="storedfield">Name of field which will be stored</param>
+            /// <param name="displayfields">Coma seperated list of fields to be displayed</param>
+            /// <param name="defaultvalue">Value(s) to be set as selected</param>
+            /// <returns>list of HTML option tags</returns>
+            public string getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields, string defaultvalue)
+            {
+                IDbConnection idbConn = getDBConnection();
+                openConnection(idbConn);
+                IDbCommand idbCmd = idbConn.CreateCommand();
+                string SqlStmt = "select " + storedfield + ", " + displayfields +
+                   " from " + itemtypecd + "_properties";
+                if (subtypecd != null && subtypecd.Length > 0)
+                {
+                    if (subtypecd.IndexOf(",") > 0)
+                    {
+                        SqlStmt += " where " + itemtypecd + "type in ('" +
+                           subtypecd.Replace(",", "','") + "')";
+                    }
+                    else
+                    {
+                        SqlStmt += " where " + itemtypecd + "type = '" +
+                           subtypecd + "'";
+                    }
+                }
+                SqlStmt += " order by " + displayfields;
+                //If using SQL Server, convert query before running it
+                if (this.dbType.Equals(2))
+                {
+                    SqlStmt = sqlConvert(SqlStmt);
+                }
+                idbCmd.CommandText = SqlStmt;
+                openConnection(idbConn);
+                IDataReader idbReader = null;
+                string oplist = "";
+                try
+                {
+                    idbReader = idbCmd.ExecuteReader();
+                    bool islist = false;
+                    if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
+                    {
+                        islist = true;
+                    }
+                    if (idbReader.Read())
+                    {
+                        do
+                        {
+                            oplist += "<option value=\"" + idbReader.GetValue(0) + "\"";
+                            if (islist)
+                            {
+                                if (defaultvalue.Replace("CoMmA", ",").IndexOf(idbReader.GetValue(0).ToString()) >= 0)
+                                {
+                                    oplist += " selected=\"true\"";
+                                }
+                            }
+                            else
+                            {
+                                if (defaultvalue == idbReader.GetValue(0).ToString())
+                                {
+                                    oplist += " selected=\"true\"";
+                                }
+                            }
+                            oplist += ">";
+                            for (int i = 1; i < idbReader.FieldCount; i++)
+                            {
+                                oplist += Convert.ToString(idbReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                            }
+                            oplist += "</option>";
+                        } while (idbReader.Read());
+                    }
+                }
+                catch (Exception e)
+                {
+                    TVUtils.LogError("Error building parent options\r" +
+                       e.ToString() +
+                       "\r" + SqlStmt);
+                }
+                finally
+                {
+                    if (idbReader != null)
+                    {
+                        idbReader.Close();
+                    }
+                    idbConn.Close();
+                }
+                return oplist;
+            }
+
+            /// <summary>
+            /// Build select box options from parent table
+            /// </summary>
+            /// <param name="itemtypecd">Type code of item to be retrieved</param>
+            /// <param name="subtypecd">Sub type of item to be retrieved</param>
+            /// <param name="storedfield">Name of field which will be stored</param>
+            /// <param name="displayfields">Coma seperated list of fields to be displayed</param>
+            /// <returns>list of HTML option tags</returns>
+            public string getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields)
+            {
+                IDbConnection idbConn = getDBConnection();
+                openConnection(idbConn);
+                IDbCommand idbCmd = idbConn.CreateCommand();
+                string SqlStmt = "select " + storedfield + ", " + displayfields +
+                   " from " + itemtypecd + "_properties";
+                if (subtypecd != null && subtypecd.Length > 0)
+                {
+                    if (subtypecd.IndexOf(",") > 0)
+                    {
+                        SqlStmt += " where " + itemtypecd + "type in ('" +
+                           subtypecd.Replace(",", "','") + "')";
+                    }
+                    else
+                    {
+                        SqlStmt += " where " + itemtypecd + "type = '" +
+                           subtypecd + "'";
+                    }
+                }
+                SqlStmt += " order by " + displayfields;
+                //If using SQL Server, convert query before running it
+                if (this.dbType.Equals(2))
+                {
+                    SqlStmt = sqlConvert(SqlStmt);
+                }
+                idbCmd.CommandText = SqlStmt;
+                openConnection(idbConn);
+                IDataReader idbReader = idbCmd.ExecuteReader();
+                string oplist = "";
+                if (idbReader.Read())
+                {
+                    do
+                    {
+                        oplist += "<option value=\"" + idbReader.GetValue(0) + "\">";
+                        for (int i = 1; i < idbReader.FieldCount; i++)
+                        {
+                            oplist += Convert.ToString(idbReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                        }
+                        oplist += "</option>";
+                    } while (idbReader.Read());
+                }
+                idbReader.Close();
+                idbConn.Close();
+                return oplist;
+            }
+
+
+        }
+
+   }
+
 
