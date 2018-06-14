@@ -1250,6 +1250,133 @@ namespace DbUitlsCoreTest.Data
         }
 
 
+        /// <summary>
+        /// Build HTML select options based on specified list of values
+        /// </summary>
+        /// <param name="values">List of values to be displayed</param>
+        /// <param name="defaultvalue">value to select by default</param>
+        /// <returns>HTML select options</returns>
+        public static List<Hashtable> getOptions(string[] values, string defaultvalue)
+        {
+            string oplist = "";
+            Hashtable multoptions = new Hashtable();
+            List<Hashtable> itemoptions = new List<Hashtable>();
+            if (defaultvalue != null && defaultvalue.Length > 0)
+            {
+                foreach (string val in defaultvalue.Split(','))
+                {
+                    try
+                    {
+                        multoptions.Add(val, "");
+                    }
+                    catch (Exception)
+                    {
+                        //Ignore any duplicates
+                    }
+                }
+            }
+            foreach (string val in values)
+            {
+                Hashtable itemvalue = new Hashtable();
+                string formattedval = val.Replace("&amp;", "&");
+                itemvalue.Add("optionvalue", formattedval);
+                if (val.Equals(defaultvalue) || multoptions.ContainsKey(val))
+                {
+                    itemvalue.Add("isselected", true);
+                }
+                itemoptions.Add(itemvalue);
+            }
+            return itemoptions;
+        }
+
+        /// <summary>
+        /// Build HTML select options based on specified list of values and corresponding display names
+        /// </summary>
+        /// <param name="values">List of values for option values</param>
+        /// <param name="displaynames">List of values to be displayed</param>
+        /// <param name="defaultvalue">value to select by default</param>
+        /// <returns>HTML select options</returns>
+        public static List<Hashtable> getOptions(string[] values, string[] displaynames, string defaultvalue)
+        {
+            return getOptions(values, displaynames, defaultvalue, false);
+        }
+
+        public static List<Hashtable> getOptions(string[] values, string[] displaynames, string defaultvalue, bool useDivs)
+        {
+            string oplist = "";
+            Hashtable multoptions = new Hashtable();
+            List<Hashtable> itemoptions = new List<Hashtable>();
+            if (defaultvalue != null && defaultvalue.Length > 0)
+            {
+                foreach (string val in defaultvalue.Split(','))
+                {
+                    try
+                    {
+                        multoptions.Add(val, "");
+                    }
+                    catch (Exception)
+                    {
+                        //Ignore any duplicates
+                    }
+                }
+            }
+            for (int i = 0; i < values.Length; i++)
+            {
+                string dispval = values[i];
+                Hashtable itemvalue = new Hashtable();
+                try
+                {
+                    dispval = displaynames[i];
+                }
+                catch (Exception)
+                {
+                    //If no corresponding display name, use value
+                }
+                if (values[i].Equals(defaultvalue) || multoptions.ContainsKey(values[i]))
+                {
+                    itemvalue.Add("isselected", true);
+
+                }
+                string formattedval = dispval.Replace("&amp;", "&");
+                itemvalue.Add("optionvalue", formattedval);
+                itemoptions.Add(itemvalue);
+
+            }
+            if (useDivs == true)
+            {
+                //oplist += "</select><i class=\"dropdown icon\"></i>";
+                //if (displaynames[0] == "")
+                //{
+                //    oplist += "<div class=\"default text\">- None -</div>";
+                //}
+                //else
+                //{
+                //    oplist += "<div class=\"default text\">" + displaynames[0] + "</div>";
+                //}
+                //oplist += "<div tabindex=\"-1\" class=\"menu transition hidden\">";
+                //for (int i = 0; i < values.Length; i++)
+                //{
+                //    string dispval = values[i];
+                //    try
+                //    {
+                //        dispval = displaynames[i];
+                //    }
+                //    catch (Exception)
+                //    {
+                //        //If no corresponding display name, use value
+                //    }
+                //    oplist += "<div class=\"item\" data-value=\"" + values[i] + "\"";
+                //    if (values[i].Equals(defaultvalue) || multoptions.ContainsKey(values[i]))
+                //    {
+                //        oplist += " selected=\"selected\"";
+                //    }
+                //    oplist += ">" + dispval.Replace("&amp;", "&") + "</div>";
+                //}
+                //oplist += "</div>";
+            }
+
+            return itemoptions;
+        }
 
     }
 

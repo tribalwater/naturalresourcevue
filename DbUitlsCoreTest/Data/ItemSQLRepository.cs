@@ -425,12 +425,17 @@ namespace DbUitlsCoreTest.Data
                 formfield.Add("required", field.required);
                 formfield.Add("itemvaluegroup", field.itemvaluegroup);
                 formfield.Add("fieldlength", field.fieldlength);
+                formfield.Add("itemvaluegroup", field.itemvaluegroup);
                 formfield.Add("maxlength", field.maxlength);
+                formfield.Add("multirow", field.multirow);
+                formfield.Add("parentcolumn", field.parentcolumn);
+                formfield.Add("parenttable", field.parenttable);
+                formfield.Add("parentsubtype", field.parentsubtype);
+                formfield.Add("parentfieldname", field.parentfieldname);
                 formfield.Add("onblur", field.onblur);
                 formfield.Add("onfocus", field.onfocus);
                 formfield.Add("onchange", field.onchange);
                 formfield.Add("onkeydown", field.onkeydown);
-
 
 
                 if (field.defaultvalue.Length > 0 && field.fieldtype == "autonumber")
@@ -698,17 +703,17 @@ namespace DbUitlsCoreTest.Data
                         //if (field.onblur  != null && field.onblur.Length > 0)
                         //{
                         //    formfield.Add("onblur", "checkLen");
-                        //   // TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\"";
+                        //   // TVUtils.substituteObjectValues(field.onblur"].Value) + "\"";
                         //}
                         //else
                         //{
-                        //    output += "onblur=\"checkLen(event,this,'" + column.Attributes["maxlength"].Value + "')\"";
+                        //    output += "onblur=\"checkLen(event,this,'" + field.maxlength"].Value + "')\"";
                         //}
-                        //try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
+                        //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\""; }
                         //catch { }
-                        //try { output += " onkeydown=\"checkBackspace(event,this);" + TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value) + "\""; }
+                        //try { output += " onkeydown=\"checkBackspace(event,this);" + TVUtils.substituteObjectValues(field.onkeydown"].Value) + "\""; }
                         //catch { }
-                        //try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
+                        //try { output += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value) + "\""; }
                         //catch { }
                         break;
                     case "date":
@@ -794,7 +799,7 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("validationoptions", this.getValidationOptions(field.itemvaluegroup, defaultvalue));
                         formfield.Add("onclick", "viewValidationOptions");
                         formfield.Add("groupname", field.itemvaluegroup);
-                        //if (int.Parse(column.Attributes["maxlength"].Value) > 1)
+                        //if (int.Parse(field.maxlength"].Value) > 1)
                         //{
                         //    output += "<br /><span title=\"Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked\">" +
                         //              "Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked</span>";
@@ -843,7 +848,7 @@ namespace DbUitlsCoreTest.Data
                                 // add the existing onchange when we do not have a childfield
                                 if (field.onchange != null)
                                 {
-                                    // output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\"";
+                                    // output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\"";
                                 }
                             }
 
@@ -903,42 +908,38 @@ namespace DbUitlsCoreTest.Data
                                     {
                                         storedfield += " col1";
                                     }
-                                    string optitemtypecd = field.parenttable.Substring(0,
-                                      field.parenttabl.ToLower().IndexOf("_"));
-                                    output += dbutils.getParentOptions(
-                                     optitemtypecd, column.Attributes["parentsubtype"].Value,
-                                     storedfield, column.Attributes["parentcolumn"].Value, defaultvalue);
+                                    string optitemtypecd = field.parenttable.Substring(0, field.parenttabl.ToLower().IndexOf("_"));
+                                    List<Hashtable> optionvalues = this.getParentOptions(optitemtypecd,field.parentsubtype.Value,
+                                                                                         storedfield, field.parentcolumn, defaultvalue);
+                                    field.Add("optionvalues", optionvalues);
                                 }
                                 else
                                 {
-                                    output += dbutils.getOptions(
-                                       column.Attributes["parenttable"].Value
-                                       , column.Attributes["parentfieldname"].Value
-                                       , column.Attributes["parentcolumn"].Value, defaultvalue);
+                                      List<Hashtable> optionvalues = this.getOptions(field.parenttable,field.parentfieldname, field.parentcolumn, defaultvalue);
                                 }
                                 //If the parent item is item display and this is not a multi-row insert or edit, 
                                 //create a 'new' button to add a new record
-                                if (column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
-                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                if (field.multirow == null && field.parenttable.IndexOf("_properties") > 0)
                                 {
-                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    string ptypecd = field.parenttable;
                                     ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
-                                    string psubtype = column.Attributes["parentsubtype"].Value;
-                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    string psubtype = field.parentsubtype;
+                                    string userid = "5327";
+                                    Hashtable tmprights = this.getUserRightsList(userid);
                                     if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
                                     {
-                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
-                                           ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                        formfield.Add("onclick", "onTheFlyInsert");
                                     }
                                 }
                             }
-                            output += "</select>";
-                            if (column.Attributes["itemvaluegroup"].Value.Length > 0)
+                            
+                            if (field.itemvaluegroup.Length > 0)
                             {
+                                string userid = "5327";
                                 Hashtable rightslist = new Hashtable();
                                 try
                                 {
-                                    rightslist = (Hashtable)Session["rightslist"];
+                                    rightslist = this.getUserRightsList(userid); 
                                 }
                                 catch (Exception)
                                 {
@@ -950,41 +951,35 @@ namespace DbUitlsCoreTest.Data
                                 //the field does not have a parent
                                 //the field does not have any children
                                 if (rightslist.ContainsKey("itemvalue_insert") &&
-                                   seloptions.IndexOf(fieldname + "_c") < 0 &&
+                                   seloptions.IndexOf(field.fieldname + "_c") < 0 &&
                                    seloptions.IndexOf("<option") >= 0 &&
                                    seloptions.IndexOf("execFilterChildren") < 0)
                                 {
-                                    output += "&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" onclick=\"JavaScript:insertItemValue('" +
-                                    fieldname + "','" +
-                                    column.Attributes["itemvaluegroup"].Value +
-                                    "')\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add a new item\"/></a>";
+                                   formfield.Add("onclick", "insertItemValue");
+
                                 }
                             }
-                            output += "<input type=\"hidden\" name=\"" + fieldname +
-                               "\" id=\"hid_" + fieldname + "\" value=\"" +
-                               storedvalue + "\"/></span><br />Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked";
+                         
                         }
                         else
                         {
-                            if (column.Attributes["itemvaluegroup"].Value.Length > 0)
+                            if (field.itemvaluegroup.Length > 0)
                             {
-                                cfldid = fieldname;
-                                //seloptions = dbutils.getGenericSelects(column.Attributes["itemvaluegroup"].Value,
+                                
+                                //seloptions = dbutils.getGenericSelects(field.itemvaluegroup"].Value,
                                 //                                       fieldname,
-                                //                                       column.Attributes["fieldlength"].Value,
-                                //                                       Convert.ToInt16(column.Attributes["maxlength"].Value),
-                                //                                       column.Attributes["required"].Value, defaultvalue, column);
-                                seloptions = dbutils.getParentChildSelects(column.Attributes["itemvaluegroup"].Value,
-                                                                       fieldname,
-                                                                       column.Attributes["fieldlength"].Value,
-                                                                       Convert.ToInt16(column.Attributes["maxlength"].Value),
-                                                                       column.Attributes["required"].Value, defaultvalue, column);
+                                //                                       field.fieldlength"].Value,
+                                //                                       Convert.ToInt16(field.maxlength"].Value),
+                                //                                       field.required"].Value, defaultvalue, column);
+                                seloptions = this.getParentChildSelects(field.itemvaluegroup, field.fieldname,field.fieldlength,Convert.ToInt16(field.maxlength),
+                                                                        field.required, defaultvalue);
 
                                 output += seloptions;
                                 Hashtable rightslist = new Hashtable();
+                                string userid = "5327";
                                 try
                                 {
-                                    rightslist = (Hashtable)Session["rightslist"];
+                                    rightslist = this.getUserRightsList(userid); ;
                                 }
                                 catch (Exception)
                                 {
@@ -997,192 +992,259 @@ namespace DbUitlsCoreTest.Data
                                 //the field does not have any children
                                 //the field is not using a custom SQL statement
                                 if (rightslist.ContainsKey("itemvalue_insert") &&
-                                   seloptions.IndexOf(fieldname + "_c") < 0 &&
+                                   seloptions.IndexOf(field.fieldname + "_c") < 0 &&
                                    seloptions.IndexOf("<option") >= 0 &&
                                    seloptions.IndexOf("execFilterChildren") < 0 &&
-                                   string.IsNullOrEmpty(column.Attributes["customsql"].Value))
+                                   string.IsNullOrEmpty(field.customsql))
                                 {
-                                    output += "&nbsp;<a id='" + fieldname + "_link' href=\"JavaScript:;\" onclick=\"JavaScript:insertItemValue('" +
-                                     fieldname + "','" +
-                                     column.Attributes["itemvaluegroup"].Value +
-                                     "')\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add a new item\"/></a>";
+                                    formfield.Add("onclick", "insertItemValue");
                                 }
                             }
-                            else if (column.Attributes["customsql"].Value.Length > 0)
+                            else if (field.customsql.Length > 0)
                             {
                                 pknewbtn = false;
-                                output += "<select onKeyDown=\"selTypeAhead();";
-                                try { output += TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value); }
-                                catch { }
-                                output += "\" id=\"sel_" + fieldname +
-                                   "\" name=\"" + fieldname + "\" size=\"" +
-                                   column.Attributes["fieldlength"].Value + "\"";
-                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                              
+                                formfield.Add("onkeydown", "selTypeAhead");
+                                
+                                if (field.childfieldname.Length > 0)
                                 {
-                                    output += " parentfor=\"" +
-                                       column.Attributes["childfieldname"].Value;
-                                    if (rowx != null && rowx.Length > 0)
-                                    {
-                                        output += "_" + rowx;
-                                    }
-                                    output += "\" onchange=\"updateListOptions(this);";
-                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
-                                    catch { }
-                                    output += "\" xmldoc=\"" +
-                                       column.Attributes["childxmldoc"].Value + "\"";
+                                    formfield["onchange"] = "updateListOptions";
                                 }
                                 else
                                 {
-                                    output += " onchange=\"";
-                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
-                                    catch { }
-                                    output += "\"";
+                                    //output += " onchange=\"";
+                                    //try { output += TVUtils.substituteObjectValues(field.onchange"].Value); }
+                                    //catch { }
+                                    //output += "\"";
                                 }
-                                if (column.Attributes["parentcolumn"].Value.Length > 0)
+                                if (field.parentcolumn.Length > 0)
                                 {
-                                    output += " dispcol=\"" + column.Attributes["parentcolumn"].Value + "\"";
+                                    formfield.Add("dispcol", field.parentcolumn);
                                 }
-                                try { output += " onblur=\"" + TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\""; }
-                                catch { }
-                                try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
-                                catch { }
-                                output += ">";
-                                if (column.Attributes["required"].Value == "N" && Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                
+                                if (field.required == "N" && Convert.ToInt16(field.maxlength) <= 1)
                                 {
                                     output += "<option value=\"\">- None -</option>";
+                                    formfield.Add("defaultoption", "- None -");
                                 }
-                                else if (Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                else if (Convert.ToInt16(field.maxlength) <= 1)
                                 {
-                                    output += "<option value=\"\">- Select one -</option>";
+                                    formfield.Add("defaultoption", "-Select one - ");
                                 }
-                                string customsql = column.Attributes["customsql"].Value;
-                                customsql = substituteObjectValues(customsql);
-                                output += dbutils.getSQLOptions(customsql,
-                                   defaultvalue);
-                                output += "</select>";
-                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                string customsql = field.customsqle;
+                               
+                                formfield.Add("customsql", this.getSQLOptions(field.customsql, defaultvalue));
+                                if (field.childfieldname.Length > 0)
                                 {
-                                    output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
-                                       fieldname + "\");</script>";
+                                    //output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
+                                    //   fieldname + "\");</script>";
                                 }
                                 //Add the View button for view the selected routing template on the insert or edit page
-                                if (column.Attributes["parenttable"].Value.IndexOf("rmrtemplate") >= 0)
+                                if (field.parenttable.IndexOf("rmrtemplate") >= 0)
                                 {
-                                    output += "<img src='images/bigview.gif' alt='View template' onmouseover=\"this.style.cursor='hand'\" onclick=\"viewRoutingTemplate(document.getElementById('" + fieldname + "'))\" />";
+                                    formfield.Add("onclick", "viewRoutingTemplat");
                                 }
                                 //If the parent item is item display and this is not a multi-row insert or edit, 
                                 //create a 'new' button to add a new record
-                                if (pknewbtn && column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
-                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                if (pknewbtn && field.multirow == null &&
+                                   field.parenttable.IndexOf("_properties") > 0)
                                 {
-                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    string ptypecd = field.parenttable;
                                     ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
-                                    string psubtype = column.Attributes["parentsubtype"].Value;
-                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    string psubtype = field.parentsubtype;
+                                    string userid = "5327";
+                                    Hashtable tmprights = new Hashtable();
                                     if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
                                     {
-                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
-                                            ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                        formfield.Add("onclick", "ontheflyinsert");
                                     }
                                 }
                             }
-                            else if (column.Attributes["parenttable"].Value.Length > 0)
+                            else if (field.parenttable.Length > 0)
                             {
-                                output += "<select onKeyDown=\"selTypeAhead();";
-                                try { output += TVUtils.substituteObjectValues(column.Attributes["onkeydown"].Value); }
-                                catch { }
-                                output += "\" id=\"sel_" + fieldname +
-                                   "\" name=\"" + fieldname + "\" size=\"" +
-                                   column.Attributes["fieldlength"].Value + "\"";
+                                formfield.Add("onkeydown", "selTypeAhead");
                                 if (defaultvalue.Length > 0)
                                 {
-                                    output += " curval=\"" + defaultvalue + "\"";
+                                    formfield.Add("curval", defaultvalue);
                                 }
-                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                if (field.childfieldname.Length > 0)
                                 {
-                                    output += " parentfor=\"" +
-                                       column.Attributes["childfieldname"].Value;
-                                    if (rowx != null && rowx.Length > 0)
-                                    {
-                                        output += "_" + rowx;
-                                    }
-                                    output += "\" onchange=\"updateListOptions(this);";
-                                    try { output += TVUtils.substituteObjectValues(column.Attributes["onchange"].Value); }
-                                    catch { }
-                                    output += "\" xmldoc=\"" +
-                                       column.Attributes["childxmldoc"].Value + "\"";
+                                    formfield.Add("parentfor", field.childfieldname);
+                                    formfield["onchange"] = "updateListOptions"; 
                                 }
                                 else
                                 {
-                                    try { output += " onchange=\"" + TVUtils.substituteObjectValues(column.Attributes["onchange"].Value) + "\""; }
-                                    catch { }
+                                   //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\""; }
+                                   //catch { }
                                 }
-                                output += " dispcol=\"" + column.Attributes["parentcolumn"].Value + "\"" +
-                                   " valuecol=\"" + column.Attributes["parentfieldname"].Value + "\"";
-                                try { output += " onblur=\"" + TVUtils.substituteObjectValues(column.Attributes["onblur"].Value) + "\""; }
-                                catch { }
-                                try { output += " onfocus=\"" + TVUtils.substituteObjectValues(column.Attributes["onfocus"].Value) + "\""; }
-                                catch { }
-                                output += ">";
-                                if (column.Attributes["required"].Value == "N" && Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                formfield.Add("dispcol", field.parentcolumn);
+                                formfield.Add("valuecol", field.parentfieldname);
+                                if (field.required.Value == "N" && Convert.ToInt16(field.maxlength) <= 1)
                                 {
-                                    output += "<option value=\"\">- None -</option>";
+                                    formfield.Add("defaultoptionvalue", "- None -");
+
                                 }
-                                else if (Convert.ToInt16(column.Attributes["maxlength"].Value) <= 1)
+                                else if (Convert.ToInt16(field.maxlength) <= 1)
                                 {
-                                    output += "<option value=\"\">- Select one -</option>";
+                                    formfield.Add("defaultoptionvalue", "- Select one -");
                                 }
-                                if (column.Attributes["parentsubtype"].Value.Length > 0)
+                                if (field.parentsubtype.Length > 0)
                                 {
-                                    string storedfield = column.Attributes["parentfieldname"].Value;
+                                    string storedfield = field.parentfieldname;
                                     if (storedfield == null || storedfield.Length == 0)
                                     {
                                         storedfield = "itemid";
                                     }
-                                    if (storedfield.Equals(column.Attributes["parentcolumn"].Value))
+                                    if (storedfield.Equals(field.parentcolumn))
                                     {
                                         storedfield += " col1";
                                     }
-                                    string optitemtypecd = column.Attributes["parenttable"].Value.Substring(0,
-                                       column.Attributes["parenttable"].Value.ToLower().IndexOf("_"));
-                                    output += dbutils.getParentOptions(
-                                       optitemtypecd, column.Attributes["parentsubtype"].Value,
-                                       storedfield, column.Attributes["parentcolumn"].Value, defaultvalue);
+                                    string optitemtypecd = field.parenttable.Substring(0,
+                                       field.parenttable.ToLower().IndexOf("_"));
+                                    List<Hashtable> optionvalues = this.getParentOptions(
+                                       optitemtypecd, field.parentsubtype,
+                                       storedfield, field.parentcolumn, defaultvalue);
+                                    field.Add("optionvalues", optionvalues);
+                                   
                                 }
                                 else
                                 {
-                                    output += dbutils.getOptions(
-                                       column.Attributes["parenttable"].Value
-                                       , column.Attributes["parentfieldname"].Value
-                                       , column.Attributes["parentcolumn"].Value, defaultvalue);
+                                    List<Hashtable> optionvalues = this.getOptions(
+                                       field.parenttable
+                                       , field.parentfieldname
+                                       , field.parentcolumn, defaultvalue);
+                                    field.Add("optionvalues", optionvalues);
                                 }
-                                output += "</select>";
-                                if (column.Attributes["childfieldname"].Value.Length > 0)
+                                
+                                if (field.childfieldname.Length > 0)
                                 {
-                                    output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
-                                       fieldname + "\");</script>";
+                                    //output += "<script type=\"text/javascript\">listoptflds[listoptflds.length] = document.getElementById(\"sel_" +
+                                    //   fieldname + "\");</script>";
                                 }
                                 //Add the View button for view the selected routing template on the insert or edit page
-                                if (column.Attributes["parenttable"].Value.IndexOf("rmrtemplate") >= 0)
+                                if (field.parenttable.IndexOf("rmrtemplate") >= 0)
                                 {
-                                    output += "<img src='images/bigview.gif' alt='View template' onmouseover=\"this.style.cursor='hand'\" onclick=\"viewRoutingTemplate(document.getElementById('" + fieldname + "'))\" />";
+                                    formfield.Add("onclick", "viewRoutingTemplate"); 
                                 }
                                 //If the parent item is item display and this is not a multi-row insert or edit, 
                                 //create a 'new' button to add a new record
-                                if (pknewbtn && column.OwnerDocument.DocumentElement.Attributes["multirow"] == null &&
-                                   column.Attributes["parenttable"].Value.IndexOf("_properties") > 0)
+                                if (pknewbtn && field.multirow == null &&
+                                   field.parenttable.IndexOf("_properties") > 0)
                                 {
-                                    string ptypecd = column.Attributes["parenttable"].Value;
+                                    string ptypecd = field.parenttable;
                                     ptypecd = ptypecd.Substring(0, ptypecd.IndexOf("_"));
-                                    string psubtype = column.Attributes["parentsubtype"].Value;
-                                    Hashtable tmprights = (Hashtable)Session["rightslist"];
+                                    string psubtype = field.parentsubtype;
+                                    string userid = "5327";
+                                    Hashtable tmprights = this.getUserRightsList(userid);
                                     if (tmprights.ContainsKey(ptypecd + psubtype + "_insert"))
                                     {
-                                        output += "<a href=\"JavaScript:;\" id='" + fieldname + "_link' onClick=\"createNewWindow('" + HttpContext.Current.Application["apppath"] + "/ontheflyinsert.aspx?itemtypecd=" +
-                                                  ptypecd + "&subtype=" + psubtype + "','sel_" + fieldname + "',standardpopup,self)\"><img src=\"" + HttpContext.Current.Application["apppath"] + "/images/new.gif\" alt=\"Add new record\" /></a>";
+                                        formfield.Add("onclick", "ontheflyinsert");
+
                                     }
                                 }
                             }
+                        }
+                        break;
+                    case "pickwindow":
+                        string defaultdispval = "";
+                        if (defaultvalue != null && defaultvalue.Length > 0)
+                        {
+                            string dvsql = "select " + field.parentcolumn +
+                               " from " + field.parenttable +
+                               " where " + field.parentfieldnam +
+                               " = '" + defaultvalue + "'";
+                            defaultdispval = this.getValueFromSQL(dvsql, true);
+                        }
+                        string pwwhereorder = field.customsql;
+                        formfield.Add("defaultvalue", defaultvalue);
+                        formfield.Add("pwwhereorder", pwwhereorder);
+                        formfield.Add("pwwhereorder", pwwhereorder);
+                        formfield.Add("PickWindowSearchOnly", this.getTopVueParameter("PickWindowSearchOnly"));
+                        formfield.Add("dispcol", field.parentcolum);
+                        formfield.Add("onclick", "openPopup");
+                          
+                        break;
+                    case "multiselectpickwindow":
+                        if (defaultvalue != null && defaultvalue.Length > 0)
+                        {
+                            defaultdispval = "";
+                            string[] ddvals = null;
+                            //Need to lookup display value if displayed value and stored values are not the same field
+                            bool samedasv = true;
+                            if (field.parentfieldname == field.parentcolumn)
+                            {
+                                ddvals = defaultvalue.Replace("\r\n", "\r").Split('\r');
+                            }
+                            else
+                            {
+                                ddvals = defaultvalue.Split(',');
+                                samedasv = false;
+                            }
+                            int ddvalIndex = 0;
+                            foreach (string ddval in ddvals)
+                            {
+                                Hashtable ddvalsHash = new Hashtable();
+                                if (ddval.Trim().Length == 0) { continue; }
+                                if (defaultdispval.Length > 0) { defaultdispval += "<br />"; }
+                                string ddisp = ddval;
+                                if (!samedasv)
+                                {
+                                    ddisp = this.getValueFromSQL("select " + field.parentcolumn +
+                                            " from " + field.parenttable +
+                                            " where " + field.parentfieldname + " = " + ddval);
+                                }
+                                ddvalsHash.Add("disp", ddisp);
+                                ddvalsHash.Add("ddval", ddval);
+                                ddvalsHash.Add("onclick", "removeMSPValue");
+
+                                ddvalIndex++;
+                                formfield.Add($"ddval{ddvalIndex}", ddvalsHash);
+                            }
+                           
+                        }
+                      
+                        formfield.Add("pwwhereorder", field.customsql);
+                        formfield.Add("defaultvalue", defaultvalue);
+                        formfield.Add("valfld", field.parentfieldname);
+                        formfield.Add("disfld", field.parentcolumn);
+                        formfield.Add("whereorder", field.customsql);
+                        formfield.Add("searchonly", field.parentcolumn);
+                        formfield.Add("whereorder", this.getTopVueParameter("PickWindowSearchOnly"));
+                        formfield.Add("dispcol", field.parentcolumn);
+                        formfield.Add("onclick", "openPopup");
+                     
+                        break;
+                    case "color":
+                        goto case "picklist";
+                    case "relation search":
+                        //search only, nothing to build for insert or edit
+                        break;
+                    case "numeric":
+                        formfield["onblur"] = "checkNumeric";
+                        break;
+                    case "currency":
+                        goto case "numeric";
+                    case "radio":
+                        eventname = "onchange";
+                        handler = "";
+                      
+                        if (field.itemvaluegroup.Length > 0)
+                        {
+                             formfield.Add("radiovalues", this.getGenericRadioButtons(field.fieldname
+                               , field.itemvaluegroup
+                               , field.required
+                               , field.fieldlength
+                               , defaultvalue, eventname, handler) );
+                        }
+                        else if (field.parenttable.Length > 0)
+                        {
+                            formfield.Add("radiovalues", this.getRadioButtons(field.fieldname
+                               , field.parenttable
+                               , field.parentfieldname
+                               , field.parentcolumn
+                               , field.required
+                               , field.fieldlength
+                               , defaultvalue, eventname, handler) );
                         }
                         break;
                     case "test":
@@ -1413,16 +1475,16 @@ namespace DbUitlsCoreTest.Data
 
                             //string.Format(
                             //    "<iframe src=\"tvgridview.aspx?view=readonly&itemtypecd={0}&subtype={1}&relitemtypecd={2}&relsubtype={3}&relcolumn={4}&maxlength={5}&parentfield={9}&fieldlist={6}&itemid={8}{7}\" height=\"200\" width=\"100%\"></iframe>",
-                            //    column.Attributes["itemtypecd"].Value,
-                            //    column.Attributes["subtypecd"].Value,
-                            //    column.Attributes["parenttable"].Value,
-                            //    column.Attributes["parentsubtype"].Value,
-                            //    column.Attributes["parentcolumn"].Value,
-                            //    column.Attributes["maxlength"].Value,
-                            //    column.Attributes["defaultvalue"].Value,
-                            //    column.Attributes["customsql"].Value,
+                            //    field.itemtypecd"].Value,
+                            //    field.subtypecd"].Value,
+                            //    field.parenttable"].Value,
+                            //    field.parentsubtype"].Value,
+                            //    field.parentcolumn"].Value,
+                            //    field.maxlength"].Value,
+                            //    field.defaultvalue"].Value,
+                            //    field.customsql"].Value,
                             //    itemidString,
-                            //    column.Attributes["parentfieldname"].Value
+                            //    field.parentfieldname"].Value
                             //);
                             break;
                         default:
@@ -2687,7 +2749,7 @@ namespace DbUitlsCoreTest.Data
                                 {
                                     try
                                     {
-                                        //oItemNode.InnerText = clientTimeAdjust(idbReader.GetDateTime(i).ToString("G"));
+                                        //oItemNode.InnerText = clientTimeAdjust(recReader.GetDateTime(i).ToString("G"));
                                         recordProps["fieldvalue"] = recReader.GetDateTime(i).ToString();
                                         dtProps["fieldvalue"] = formatStringDate(recReader.GetDateTime(i));
                                     }
@@ -2752,7 +2814,7 @@ namespace DbUitlsCoreTest.Data
                                     if (this._dbtype == 1)
                                     {
                                         // need to account for this if ever we switch to oracle
-                                        //OleDbDataReader oledr = (OleDbDataReader)idbReader;
+                                        //OleDbDataReader oledr = (OleDbDataReader)recReader;
                                         //isnvarcharfield = oledr.GetDataTypeName(i).ToLower() == "nvarchar";
                                     }
                                     else if (this._dbtype == 2)
@@ -3064,13 +3126,13 @@ namespace DbUitlsCoreTest.Data
             //Build delimitted list if returning multiple rows
             if (multivals)
             {
-                var idbReader = this._dapperHelper.ExecuteReaderFromQuery(sql);
+                var recReader = this._dapperHelper.ExecuteReaderFromQuery(sql);
 
                 string idlist = "";
                 try
                 {
 
-                    if (idbReader != null && idbReader.Read())
+                    if (recReader != null && recReader.Read())
                     {
                         do
                         {
@@ -3078,8 +3140,8 @@ namespace DbUitlsCoreTest.Data
                             {
                                 idlist += ",";
                             }
-                            idlist += idbReader.GetValue(0);
-                        } while (idbReader.Read());
+                            idlist += recReader.GetValue(0);
+                        } while (recReader.Read());
                     }
                 }
                 catch (Exception e)
@@ -3091,11 +3153,11 @@ namespace DbUitlsCoreTest.Data
                 }
                 finally
                 {
-                    if (idbReader != null && !idbReader.IsClosed)
+                    if (recReader != null && !recReader.IsClosed)
                     {
-                        idbReader.Close();
+                        recReader.Close();
                     }
-                    idbReader.Close();
+                    recReader.Close();
                 }
                 val = idlist;
 
@@ -3500,13 +3562,60 @@ namespace DbUitlsCoreTest.Data
             return "";
         }
 
-        public string getValidationOptions(string groupname, string defaultvalue)
+        public List<Hashtable> getValidationOptions(string groupname, string defaultvalue)
         {
             string SqlStmt = "select distinct valuetext, sortorder from itemvalidation " +
                "where groupname = '" + sqlEncode(groupname) + "' " +
                "order by sortorder, valuetext";
 
-            return this._dapperHelper.RawQuery(SqlStmt).ToString();
+            List<Hashtable> OptionsList = new List<Hashtable>();
+
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+
+                    if (islist)
+                    {
+                        Hashtable htOpts = new Hashtable();
+                        foreach (string opt in defaultvalue.Split(','))
+                        {
+                            htOpts.Add(opt, null);
+                        }
+                        if (htOpts.ContainsKey(recReader.GetValue(0).ToString()))
+                        {
+                            isSelected = true;
+                        }
+                    }
+                    //check for values that contain comas
+                    if (defaultvalue != null && defaultvalue == recReader.GetValue(0).ToString())
+                    {
+                        isSelected = true; 
+                    }
+                    oplist +=  Convert.ToString(recReader.GetValue(0)).Replace("&", "&amp;");
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    OptionsList.Add(itemoption);
+                }
+            }
+
+            return OptionsList;
 
         }
 
@@ -3516,21 +3625,73 @@ namespace DbUitlsCoreTest.Data
         /// <param name="groupname">ItemValue GroupName to be selected</param>
         /// <param name="defaultvalue">value of option to be selected initially</param>
         /// <returns>list of HTML option tags</returns>
-        public List<dynamic> getGenericOptions(string groupname, string defaultvalue)
+        public List<Hashtable> getGenericOptions(string groupname, string defaultvalue)
         {
             return getGenericOptions(groupname, defaultvalue, false);
         }
 
-        public List<dynamic> getGenericOptions(string groupname, string defaultvalue, bool useDivs)
+        public List<Hashtable> getGenericOptions(string groupname, string defaultvalue, bool useDivs)
         {
             string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
                "where groupname = '" + sqlEncode(groupname) + "' " +
                "and (active = 'Y' or valuetext = '" + sqlEncode(defaultvalue) + "') " +
                "order by valueorder, valuetext";
-            // ((HttpContext.Current == null || HttpContext.Current.Request == null || HttpContext.Current.Request.FilePath.ToLower().IndexOf("search.aspx") >= 0) ? "" :
 
-            List<dynamic> oplist = this._dapperHelper.RawQuery(SqlStmt).ToList();
-            return oplist;
+            List<Hashtable> OptionsList = new List<Hashtable>();
+            bool islist = false;
+
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+
+            if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
+            {
+                islist = true;
+            }
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+                    if (islist)
+                    {
+                        Hashtable htOpts = new Hashtable();
+                        foreach (string opt in defaultvalue.Split(','))
+                        {
+                            if (!htOpts.ContainsKey(opt.Replace("CoMmA", ",")))
+                            {
+                                htOpts.Add(opt.Replace("CoMmA", ","), null);
+                            }
+                        }
+                        if (htOpts.ContainsKey(recReader.GetValue(0).ToString()))
+                        {
+                            isSelected = true;
+                        }
+                    }
+                    //check for values that contain comas
+                    if (defaultvalue == recReader.GetValue(0).ToString())
+                    {
+                        isSelected = true;
+                    }
+                    oplist += Convert.ToString(recReader.GetValue(0)).Replace("&", "&amp;");
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    OptionsList.Add(itemoption);
+                }
+            }
+
+            return OptionsList;
         }
 
         /// <summary>
@@ -3538,14 +3699,43 @@ namespace DbUitlsCoreTest.Data
         /// </summary>
         /// <param name="groupname">ItemValue GroupName to be selected</param>
         /// <returns>list of HTML option tags</returns>
-        public List<dynamic> getGenericOptions(string groupname)
+        public List<Hashtable> getGenericOptions(string groupname)
         {
             string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
                "where groupname = '" + sqlEncode(groupname) + "' " +
                "order by valueorder, valuetext";
 
-            List<dynamic> oplist = this._dapperHelper.RawQuery(SqlStmt).ToList();
-            return oplist;
+            List<Hashtable> OptionsList = new List<Hashtable>();
+
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+                    oplist += Convert.ToString(recReader.GetValue(0)).Replace("&", "&amp;");
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    OptionsList.Add(itemoption);
+
+                }
+            }
+
+            return  OptionsList;
         }
 
 
@@ -3631,7 +3821,7 @@ namespace DbUitlsCoreTest.Data
             /// <param name="sql">SQL statement used to build recordset</param>
             /// <param name="defaultvalue">value of option to be selected initially</param>
             /// <returns>list of HTML option tags</returns>
-            public string getSQLOptions(string sql, string defaultvalue)
+        public List<Hashtable> getSQLOptions(string sql, string defaultvalue)
             {
                 return getSQLOptions(sql, defaultvalue, false);
             }
@@ -3641,20 +3831,20 @@ namespace DbUitlsCoreTest.Data
             /// <param name="sql">SQL statement used to build recordset</param>
             /// <param name="selectFirst">Select the first value</param>
             /// <returns>list of HTML option tags</returns>
-            public string getSQLOptions(string sql, bool selectFirst)
-            {
-                return getSQLOptions(sql, "", selectFirst);
-            }
+        public List<Hashtable> getSQLOptions(string sql, bool selectFirst)
+        {
+         return getSQLOptions(sql, "", selectFirst);
+        }
 
             /// <summary>
             /// Build select box options from a select statement
             /// </summary>
             /// <param name="sql">SQL statement used to build recordset</param>
             /// <returns>list of HTML option tags</returns>
-            public string getSQLOptions(string sql)
-            {
-                return getSQLOptions(sql, "", false);
-            }
+        public List<Hashtable> getSQLOptions(string sql)
+        {
+            return getSQLOptions(sql, "", false);
+        }
 
             /// <summary>
             /// Build select box options from parent table
@@ -3665,87 +3855,85 @@ namespace DbUitlsCoreTest.Data
             /// <param name="displayfields">Coma seperated list of fields to be displayed</param>
             /// <param name="defaultvalue">Value(s) to be set as selected</param>
             /// <returns>list of HTML option tags</returns>
-            public string getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields, string defaultvalue)
+       public List<Hashtable> getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields, string defaultvalue)
             {
-                IDbConnection idbConn = getDBConnection();
-                openConnection(idbConn);
-                IDbCommand idbCmd = idbConn.CreateCommand();
-                string SqlStmt = "select " + storedfield + ", " + displayfields +
-                   " from " + itemtypecd + "_properties";
-                if (subtypecd != null && subtypecd.Length > 0)
+                List<Hashtable> OptionsList = new List<Hashtable>();
+
+                using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
                 {
-                    if (subtypecd.IndexOf(",") > 0)
+                    
+                    string SqlStmt = "select " + storedfield + ", " + displayfields +
+                    " from " + itemtypecd + "_properties";
+                    if (subtypecd != null && subtypecd.Length > 0)
                     {
-                        SqlStmt += " where " + itemtypecd + "type in ('" +
-                           subtypecd.Replace(",", "','") + "')";
+                        if (subtypecd.IndexOf(",") > 0)
+                        {
+                            SqlStmt += " where " + itemtypecd + "type in ('" +
+                               subtypecd.Replace(",", "','") + "')";
+                        }
+                        else
+                        {
+                            SqlStmt += " where " + itemtypecd + "type = '" +
+                               subtypecd + "'";
+                        }
                     }
-                    else
+                    SqlStmt += " order by " + displayfields;
+                    //If using SQL Server, convert query before running it
+                    if (this._dbtype.Equals(2))
                     {
-                        SqlStmt += " where " + itemtypecd + "type = '" +
-                           subtypecd + "'";
+                        SqlStmt = DataUtils.sqlConvert(SqlStmt);
                     }
-                }
-                SqlStmt += " order by " + displayfields;
-                //If using SQL Server, convert query before running it
-                if (this.dbType.Equals(2))
-                {
-                    SqlStmt = sqlConvert(SqlStmt);
-                }
-                idbCmd.CommandText = SqlStmt;
-                openConnection(idbConn);
-                IDataReader idbReader = null;
-                string oplist = "";
-                try
-                {
-                    idbReader = idbCmd.ExecuteReader();
+
                     bool islist = false;
                     if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
                     {
                         islist = true;
                     }
-                    if (idbReader.Read())
+
+
+                    SqlCommand cmd = connection.CreateCommand();
+                    cmd.CommandText = SqlStmt;
+                    var recReader = cmd.ExecuteReader();
+
+                    while (recReader.Read())
                     {
-                        do
+                        Hashtable itemoption = new Hashtable();
+                        string optionvalue = recReader.GetValue(0).ToString();
+                        bool isSelected = false;
+                        string oplist = "";
+
+
+                    if (islist)
                         {
-                            oplist += "<option value=\"" + idbReader.GetValue(0) + "\"";
-                            if (islist)
+                            if (defaultvalue.Replace("CoMmA", ",").IndexOf(recReader.GetValue(0).ToString()) >= 0)
                             {
-                                if (defaultvalue.Replace("CoMmA", ",").IndexOf(idbReader.GetValue(0).ToString()) >= 0)
-                                {
-                                    oplist += " selected=\"true\"";
-                                }
+                                 isSelected = true;
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (defaultvalue == recReader.GetValue(0).ToString())
                             {
-                                if (defaultvalue == idbReader.GetValue(0).ToString())
-                                {
-                                    oplist += " selected=\"true\"";
-                                }
+                                  isSelected = true;
                             }
-                            oplist += ">";
-                            for (int i = 1; i < idbReader.FieldCount; i++)
-                            {
-                                oplist += Convert.ToString(idbReader.GetValue(i)).Replace("&", "&amp;") + " ";
-                            }
-                            oplist += "</option>";
-                        } while (idbReader.Read());
+                        }
+                       
+                        for (int i = 1; i < recReader.FieldCount; i++)
+                        {
+                            oplist += Convert.ToString(recReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                        }
+
+                        itemoption.Add("optionvalue", optionvalue);
+                        itemoption.Add("isSelected", isSelected);
+                        itemoption.Add("optlist", oplist);
+                        OptionsList.Add(itemoption);
                     }
+
+
                 }
-                catch (Exception e)
-                {
-                    TVUtils.LogError("Error building parent options\r" +
-                       e.ToString() +
-                       "\r" + SqlStmt);
-                }
-                finally
-                {
-                    if (idbReader != null)
-                    {
-                        idbReader.Close();
-                    }
-                    idbConn.Close();
-                }
-                return oplist;
+
+             
+                return OptionsList;
             }
 
             /// <summary>
@@ -3756,56 +3944,778 @@ namespace DbUitlsCoreTest.Data
             /// <param name="storedfield">Name of field which will be stored</param>
             /// <param name="displayfields">Coma seperated list of fields to be displayed</param>
             /// <returns>list of HTML option tags</returns>
-            public string getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields)
+       public List<Hashtable> getParentOptions(string itemtypecd, string subtypecd, string storedfield, string displayfields)
             {
-                IDbConnection idbConn = getDBConnection();
-                openConnection(idbConn);
-                IDbCommand idbCmd = idbConn.CreateCommand();
-                string SqlStmt = "select " + storedfield + ", " + displayfields +
-                   " from " + itemtypecd + "_properties";
-                if (subtypecd != null && subtypecd.Length > 0)
+                List<Hashtable> OptionsList = new List<Hashtable>();
+
+                using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
                 {
-                    if (subtypecd.IndexOf(",") > 0)
-                    {
-                        SqlStmt += " where " + itemtypecd + "type in ('" +
-                           subtypecd.Replace(",", "','") + "')";
-                    }
-                    else
-                    {
-                        SqlStmt += " where " + itemtypecd + "type = '" +
-                           subtypecd + "'";
-                    }
-                }
-                SqlStmt += " order by " + displayfields;
-                //If using SQL Server, convert query before running it
-                if (this.dbType.Equals(2))
-                {
-                    SqlStmt = sqlConvert(SqlStmt);
-                }
-                idbCmd.CommandText = SqlStmt;
-                openConnection(idbConn);
-                IDataReader idbReader = idbCmd.ExecuteReader();
-                string oplist = "";
-                if (idbReader.Read())
-                {
-                    do
-                    {
-                        oplist += "<option value=\"" + idbReader.GetValue(0) + "\">";
-                        for (int i = 1; i < idbReader.FieldCount; i++)
+                    string SqlStmt = "select " + storedfield + ", " + displayfields +
+                       " from " + itemtypecd + "_properties";
+                    SqlCommand cmd = connection.CreateCommand();
+                    cmd.CommandText = SqlStmt;
+                    var recReader = cmd.ExecuteReader();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+                    Hashtable itemoption = new Hashtable();
+
+                    if (subtypecd != null && subtypecd.Length > 0)
                         {
-                            oplist += Convert.ToString(idbReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                            if (subtypecd.IndexOf(",") > 0)
+                            {
+                                SqlStmt += " where " + itemtypecd + "type in ('" +
+                                   subtypecd.Replace(",", "','") + "')";
+                            }
+                            else
+                            {
+                                SqlStmt += " where " + itemtypecd + "type = '" +
+                                   subtypecd + "'";
+                            }
                         }
-                        oplist += "</option>";
-                    } while (idbReader.Read());
+                    SqlStmt += " order by " + displayfields;
+                    //If using SQL Server, convert query before running it
+                    if (this._dbtype.Equals(2))
+                    {
+                        SqlStmt = DataUtils.sqlConvert(SqlStmt);
+                    }
+
+                    while (recReader.Read())
+                    {
+                        for (int i = 1; i < recReader.FieldCount; i++)
+                        {
+                            oplist += Convert.ToString(recReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                        }
+                    }
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    itemoption.Add("optlist", oplist);
+                    OptionsList.Add(itemoption);
                 }
-                idbReader.Close();
-                idbConn.Close();
-                return oplist;
+
+
+                return OptionsList;
             }
 
-
+        /// <summary>
+        /// Build HTML select options based on specified list of values
+        /// </summary>
+        /// <param name="values">List of values to be displayed</param>
+        /// <param name="defaultvalue">value to select by default</param>
+        /// <returns>HTML select options</returns>
+        public List<Hashtable> getOptions(string[] values, string defaultvalue)
+        {
+            return DataUtils.getOptions(values, defaultvalue);
         }
 
-   }
+        /// <summary>
+        /// Build HTML select options based on specified list of values and corresponding display names
+        /// </summary>
+        /// <param name="values">List of values for option values</param>
+        /// <param name="displaynames">List of values to be displayed</param>
+        /// <param name="defaultvalue">value to select by default</param>
+        /// <returns>HTML select options</returns>
+        public List<Hashtable> getOptions(string[] values, string[] displaynames, string defaultvalue)
+        {
+            return DataUtils.getOptions(values, displaynames, defaultvalue);
+        }
+
+        /// <summary>
+        /// Build select box options
+        /// </summary>
+        /// <param name="tablename">Name of table to query</param>
+        /// <param name="keyfield">field to use for value of options</param>
+        /// <param name="displayfields">coma delimitted list of fields to display to the user</param>
+        /// <param name="defaultvalue">value of option to be selected initially</param>
+        /// <returns>list of HTML option tags</returns>
+        public List<Hashtable> getOptions(string tablename, string keyfield, string displayfields, string defaultvalue)
+        {
+          
+            int numcols = displayfields.Split(',').Length;
+            List<Hashtable> OptionsList = new List<Hashtable>();
+            Hashtable defaultvalues = new Hashtable();
+
+            bool islist = false;
+          
+            string orderfields = "";
+            for (int i = 2; i <= numcols; i++)
+            {
+                if (orderfields.Length > 0)
+                {
+                    orderfields += ",";
+                }
+                orderfields += i;
+            }
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + orderfields;
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+
+            if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
+            {
+                islist = true;
+                foreach (string val in defaultvalue.Split(','))
+                {
+                    if (!defaultvalues.ContainsKey(val.Replace("CoMmA", ",")))
+                    {
+                        defaultvalues.Add(val.Replace("CoMmA", ","), null);
+                    }
+                }
+            }
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+
+
+                    if (defaultvalue != null && defaultvalue.IndexOf(",") > 0)
+                    {
+                        islist = true;
+                        foreach (string val in defaultvalue.Split(','))
+                        {
+                            if (!defaultvalues.ContainsKey(val.Replace("CoMmA", ",")))
+                            {
+                                defaultvalues.Add(val.Replace("CoMmA", ","), null);
+                            }
+                        }
+
+                        if (islist)
+                        {
+                            if (defaultvalues.ContainsKey(recReader.GetValue(0).ToString()))
+                            {
+                                isSelected = true;
+                            }
+                        }
+                        else
+                        {
+                            if (defaultvalue == recReader.GetValue(0).ToString())
+                            {
+                                isSelected = true;
+                            }
+                        }
+                        
+                        for (int i = 1; i < recReader.FieldCount; i++)
+                        {
+                            string formattedvalue = Convert.ToString(recReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                            itemoption.Add($"formattedvalue{i}", formattedvalue);
+                        }
+                    }
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    OptionsList.Add(itemoption);
+                }
+            }
+           
+            
+           
+            return OptionsList;
+        }
+
+        /// <summary>
+        /// Build select box options
+        /// </summary>
+        /// <param name="tablename">Name of table to query</param>
+        /// <param name="keyfield">field to use for value of options</param>
+        /// <param name="displayfields">coma delimitted list of fields to display to the user</param>
+        /// <returns>list of HTML option tags</returns>
+        public List<Hashtable> getOptions(string tablename, string keyfield, string displayfields)
+        {
+            int numcols = displayfields.Split(',').Length;
+            List<Hashtable> OptionsList = new List<Hashtable>();
+
+            numcols++;
+            string orderfields = "";
+            for (int i = 2; i <= numcols; i++)
+            {
+                if (orderfields.Length > 0)
+                {
+                    orderfields += ",";
+                }
+                orderfields += i;
+            }
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + orderfields;
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable itemoption = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+                    string oplist = "";
+
+                    for (int i = 1; i < recReader.FieldCount; i++)
+                    {
+                        oplist += Convert.ToString(recReader.GetValue(i)).Replace("&", "&amp;") + " ";
+                    }
+
+                    itemoption.Add("optionvalue", optionvalue);
+                    itemoption.Add("isSelected", isSelected);
+                    itemoption.Add("oplist", oplist);
+                    OptionsList.Add(itemoption);
+
+                }
+            }
+
+           
+            return OptionsList;
+        }
+
+        /// <summary>
+        /// Build HTML select element(s)
+        /// Used for groups that have hierarchy (parent/child to other groups)
+        /// </summary>
+        /// <param name="groupname">ItemValue GroupName to be queried</param>
+        /// <param name="fldname">Name for the HTML select element(s)</param>
+        /// <param name="size">Number of options to display at once</param>
+        /// <param name="maxlength">Any value greater than one specifies multiple selections permitted</param>
+        /// <param name="required">Specifies if field is mandatory (Y/N)</param>
+        /// <param name="defaultvalue">Value(s) to be selected by default</param>
+        /// <param name="column">XML Node for item display column being rendered</param>
+        /// <returns>HTML select element(s)</returns>
+        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, int maxlength, string required, string defaultvalue)
+        { 
+            return getParentChildSelects(groupname, fldname, size, maxlength, required, defaultvalue,  false);
+        }
+        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, int maxlength, string required, string defaultvalue, bool useDivs)
+        {
+             List<Hashtable> OptionsList = new List<Hashtable>();
+             string SqlStmt = "SELECT distinct parentgroupname " +
+                      "  FROM itemvalues " +
+                      " WHERE groupname = '" + sqlEncode(groupname) + "' and parentgroupname is not null and length(parentgroupname) > 0 order by parentgroupname desc";
+
+            if (this._dbtype == 2)
+            {
+             SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+            string ParentGroup = this.getValueFromSQL(SqlStmt);
+
+            SqlStmt = "SELECT distinct valuetext, valueorder " +
+                         "  FROM itemvalues " +
+                         " WHERE groupname = '" + sqlEncode(groupname) + "' " +
+                         " and valuetext is not null ORDER BY valueorder, valuetext";
+            if (this._dbtype == 2)
+            {
+             SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+
+            string idcountsql = "SELECT COUNT(groupname)" +
+                    "  FROM itemvalues " +
+                    " WHERE parentgroupname = '" + groupname + "'";
+            int numchildren = Convert.ToInt16(getItemIDList(SqlStmt));
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+               while (recReader.Read())
+        {
+            Hashtable itemoption = new Hashtable();
+            string optionvalue = recReader.GetValue(0).ToString();
+            bool isSelected = false;
+
+            if (!string.IsNullOrEmpty(ParentGroup))
+            {
+                //if (lastparentval != idbReader.GetValue(2).ToString())
+                //{
+                if (String.IsNullOrEmpty(selectlist))
+                {
+                    itemoption.Add("onkeydown", "selTypeAhead");
+                    itemoption.Add("parentgroup", ParentGroup);
+                    itemoption.Add("groupname", groupname);
+                    itemoption.Add("size", size);
+                    ;
+                    if (useDivs)
+                    {
+                        selectlist += " class=\"selectdropdown\"";
+                    }
+                    if (numchildren > 0)
+                    {
+                        selectlist += " pgrp=\"" + groupname + "\"";
+                    }
+                    if (required == "Y")
+                    {
+                        selectlist += " required=\"true\"";
+                    }
+                    //Add in defined event handlers if specified
+                    //if (column != null && column.Attributes != null)
+                    //{
+                    //    if (field.onchange"] != null && field.onchange"].Value.Length > 0)
+                    //    {
+                    //        if (this.request == null || this.application == null || this.session == null)
+                    //        {
+                    //            if (numchildren > 0)
+                    //            {
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\n filterChildren(this);" + "\"";
+                    //            }
+                    //            else
+                    //            {
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\"";
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            if (numchildren > 0)
+                    //            {
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value, this.application, this.session, this.request) + "\n filterChildren(this);" + "\"";
+                    //            }
+                    //            else
+                    //            {
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value, this.application, this.session, this.request) + "\"";
+                    //            }
+                    //        }
+                    //    }
+                    else if (numchildren > 0)
+                    {
+                        selectlist += " onchange=\"filterChildren(this);\"";
+                        itemoption.Add("onchange", "filterChildren");
+
+                    }
+                    //if (field.onblur"] != null && field.onblur"].Value.Length > 0)
+                    //    {
+                    //        if (this.request == null || this.application == null || this.session == null)
+                    //        {
+                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur"].Value) + "\"";
+
+                    //        }
+                    //        else
+                    //        {
+                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur"].Value, this.application, this.session, this.request) + "\"";
+                    //        }
+                    //    }
+
+                    //    if (field.onfocus"] != null && field.onfocus"].Value.Length > 0)
+                    //    {
+                    //        if (this.request == null || this.application == null || this.session == null)
+                    //        {
+                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value) + "\"";
+                    //        }
+                    //        else
+                    //        {
+                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value, this.application, this.session, this.request) + "\"";
+                    //        }
+                    //    }
+                    //}
+                    if (maxlength > 1)
+                    {
+                        selectlist += " multiple";
+                    }
+                    selectlist += ">";
+                    if (required != "Y")
+                    {
+                        selectlist += "<option value=\"\">- None -</option>";
+                    }
+                    else if (maxlength <= 1)
+                    {
+                        selectlist += "<option value=\"\">- Select one -</option>";
+                    }
+                    //break;
+                }
+
+
+            }
+            optionvalue = optionvalue.ToString().Replace("&", "&amp;");
+            itemoption.Add("optionvalue", optionvalue);
+            itemoption.Add("isSelected", isSelected);
+            OptionsList.Add(itemoption);
+        }
+            }
+     
+            return OptionsList;
+        }
+
+        /// <summary>
+        /// Build list of HTML radio buttons based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getGenericRadioButtons(string fieldname, string groupname, string required, string numcols)
+        {
+            return getGenericRadioButtons(fieldname, groupname, required, numcols, "", "");
+        }
+
+        /// <summary>
+        /// Build list of HTML radio buttons based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="eventname">string: name of event to be handled</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getGenericRadioButtons(string fieldname, string groupname, string required, string numcols, string eventname, string handler)
+        {
+            string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "order by valueorder, valuetext";
+
+            List<Hashtable> RadioValuesList = new List<Hashtable>();
+
+            string radiolist = "";
+            bool makerequired = false;
+            if (required == "Y")
+            {
+                makerequired = true;
+            }
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable radioption = new Hashtable();
+                    string radiovalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    if (makerequired)
+                    {
+                        radioption.Add("checked", "checked");
+                        makerequired = false;
+                    }
+                    if (handler != "" && handler != null)
+                    {
+                        radioption.Add(eventname, handler );
+                    }
+
+                    radioption.Add("radiovalue", radiovalue);
+                    radioption.Add("isSelected", isSelected);
+                    RadioValuesList.Add(radioption);
+                }
+            } 
+            
+            return RadioValuesList;
+        }
+
+        /// <summary>
+        /// Build list of HTML radio buttons based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value that should be set as selected</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getGenericRadioButtons(string fieldname, string groupname, string required, string numcols, string defaultvalue)
+        {
+            return getGenericRadioButtons(fieldname, groupname, required, numcols, defaultvalue, "", "");
+        }
+
+        /// <summary>
+        /// Build list of HTML radio buttons based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value that should be set as selected</param>
+        /// <param name="eventname">string: name of event to handle</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getGenericRadioButtons(string fieldname, string groupname, string required, string numcols, string defaultvalue, string eventname, string handler)
+        {
+            return getGenericRadioButtons(fieldname, groupname, required, numcols, defaultvalue, eventname, handler, false);
+        }
+
+        public List<Hashtable> getGenericRadioButtons(string fieldname, string groupname, string required, string numcols, string defaultvalue, string eventname, string handler, bool useDivs)
+        {
+            // ((HttpContext.Current == null || HttpContext.Current.Request == null || HttpContext.Current.Request.FilePath.ToLower().IndexOf("search.aspx") >= 0) ?
+            string SqlStmt = "select distinct valuetext, valueorder from itemvalues " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "and (active = 'Y' or valuetext = '" + sqlEncode(defaultvalue) + "') " +
+               "order by valueorder, valuetext";
+          
+            string radiolist = "";
+            bool makerequired = false;
+            if (required == "Y")
+            {
+                makerequired = true;
+            }
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+            List<Hashtable> RadioValuesList = new List<Hashtable>();
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable radioption = new Hashtable();
+                    string radiovalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    if (makerequired)
+                    {
+                        radioption.Add("checked", "checked");
+                        makerequired = false;
+                    }
+                    if (handler != "" && handler != null)
+                    {
+                        radioption.Add(eventname, handler);
+                    }
+
+                    radioption.Add("radiovalue", radiovalue);
+                    radioption.Add("isSelected", isSelected);
+                    RadioValuesList.Add(radioption);
+                }
+            }
+
+            return RadioValuesList;
+        }
+
+        /// <summary>
+        /// Build HTML radio buttons based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the radio button</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getRadioButtons(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols)
+        {
+            return getRadioButtons(fieldname, tablename, keyfield, displayfields, required, numcols, "", "");
+        }
+
+        /// <summary>
+        /// Build HTML radio buttons based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the radio button</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="eventname">string: name of event to be handled</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getRadioButtons(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string eventname, string handler)
+        {
+          
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + displayfields;
+
+            List<Hashtable> RadioValuesList = new List<Hashtable>();
+
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+           
+            string radiolist = "";
+            bool makerequired = false;
+            if (required == "Y")
+            {
+                makerequired = true;
+            }
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable radioption = new Hashtable();
+                    string radiovalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    if (makerequired || recReader.GetValue(0).ToString() == defaultvalue)
+                    {
+                        radioption.Add("checked", "checked");
+                        makerequired = false;
+                    }
+                    if (handler != "" && handler != null)
+                    {
+                        radioption.Add(eventname, handler);
+                    }
+
+                    for (int i = 1; i < recReader.FieldCount; i++)
+                    {
+                        radiolist += recReader.GetValue(i) + " ";
+                    }
+
+                    radioption.Add("radiovalue", radiovalue);
+                    radioption.Add("isSelected", isSelected);
+                    radioption.Add("radiolist", radiolist);
+
+                    RadioValuesList.Add(radioption);
+
+                }
+            }
+           
+           
+            return RadioValuesList;
+        }
+
+        /// <summary>
+        /// Build HTML radio buttons based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the radio button</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value that should be set as selected</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getRadioButtons(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue)
+        {
+            return getRadioButtons(fieldname, tablename, keyfield, displayfields, required, numcols, defaultvalue, "", "");
+        }
+
+        /// <summary>
+        /// Build HTML radio buttons based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML radio element</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the radio button</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if radio element should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value that should be set as selected</param>
+        /// <param name="eventname">string: name of event to be handled</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML radio buttons</returns>
+        public List<Hashtable> getRadioButtons(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue, string eventname, string handler)
+        {
+            return getRadioButtons(fieldname, tablename, keyfield, displayfields, required, numcols, defaultvalue, eventname, handler, false);
+        }
+
+        public List<Hashtable> getRadioButtons(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue, string eventname, string handler, bool useDivs)
+        { 
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + displayfields;
+
+            List<Hashtable> RadioValuesList = new List<Hashtable>();
+            //If using SQL Server, convert query before running it
+
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+            
+            string radiolist = "";
+            bool makerequired = false;
+            if (required == "Y")
+            {
+                makerequired = true;
+            }
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable radioption = new Hashtable();
+                    string radiovalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    if (makerequired || recReader.GetValue(0).ToString() == defaultvalue)
+                    {
+                        radioption.Add("checked", "checked");
+                        makerequired = false;
+                    }
+                    if (handler != "" && handler != null)
+                    {
+                        radioption.Add(eventname, handler);
+                    }
+                   
+                    for (int i = 1; i < recReader.FieldCount; i++)
+                    {
+                        radiolist += recReader.GetValue(i) + " ";
+                    }
+
+                    radioption.Add("radiovalue", radiovalue);
+                    radioption.Add("isSelected", isSelected);
+                    radioption.Add("radiolist", radiolist);
+
+                    RadioValuesList.Add(radioption);
+                   
+                }
+            }
+          
+            
+            return RadioValuesList;
+        }
+
+
+
+
+
+
+    }
+
+}
 
 
