@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DbUitlsCoreTest.Data;
 using System.Data.SqlClient;
 using System.Web;
+using System.Text;
 
 namespace DbUitlsCoreTest.Data
 {
@@ -415,6 +416,7 @@ namespace DbUitlsCoreTest.Data
             {
                 string defaultvalue = "";
                 Hashtable formfield = new Hashtable();
+                Console.WriteLine(field);
 
                 formfield.Add("fieldtype", field.fieldtype);
                 formfield.Add("fieldname", field.fieldname);
@@ -425,7 +427,6 @@ namespace DbUitlsCoreTest.Data
                 formfield.Add("required", field.required);
                 formfield.Add("itemvaluegroup", field.itemvaluegroup);
                 formfield.Add("fieldlength", field.fieldlength);
-                formfield.Add("itemvaluegroup", field.itemvaluegroup);
                 formfield.Add("maxlength", field.maxlength);
                 formfield.Add("multirow", field.multirow);
                 formfield.Add("parentcolumn", field.parentcolumn);
@@ -438,7 +439,7 @@ namespace DbUitlsCoreTest.Data
                 formfield.Add("onkeydown", field.onkeydown);
 
 
-                if (field.defaultvalue.Length > 0 && field.fieldtype == "autonumber")
+                if ( field.defaultvalue != null && field.defaultvalue.Length > 0 && field.fieldtype == "autonumber")
                 {
                     defaultvalue = field.defaultvalue;
                     if (defaultvalue.IndexOf("SQL_value") >= 0)
@@ -523,14 +524,14 @@ namespace DbUitlsCoreTest.Data
 
                         break;
                     case "inlinequery":
-                        if (!string.IsNullOrEmpty(field.customsql && field.defaultvalue == field.customsql))
+                        if (field.customsql != null && field.defaultvalue == field.customsql)
                         {
                             formfield.Add("isDisabled", true);
                             formfield.Add("defaultvalue", defaultvalue);
                         }
                         break;
                     case "linkedfield":
-                        if (!string.IsNullOrEmpty(field.parenttable && field.defaultvalue == field.parenttable))
+                        if (field.parenttable != null && field.defaultvalue == field.parenttable)
                         {
                             formfield.Add("isDisabled", true);
                             formfield.Add("defaultvalue", defaultvalue);
@@ -628,21 +629,21 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("dispcol", field.parentcolumn);
                         formfield["onfocus"] = "resetCBField";
 
-                        if (field.itemvaluegroup.Length > 0)
+                        if (field.itemvaluegroup != null && field.itemvaluegroup.Length > 0)
                         {
                             formfield.Add("groupname", field.itemvaluegroup);
                         }
-                        else if (field.customsql.Length > 0)
+                        else if (field.customsql != null && field.customsql.Length > 0)
                         {
                             formfield.Add("tablename", field.parenttable);
                             formfield.Add("columnname", field.parentcolumn);
                             formfield.Add("idcolumn", field.parentfieldname);
                             formfield.Add("sql", DataUtils.encryptData(field.customsql));
                         }
-                        else if (field.parenttable.Length > 0)
+                        else if (field.parenttable != null && field.parenttable.Length > 0)
                         {
                             lkpnewbtn = true;
-                            if (field.parentcolum == field.parentfieldnam)
+                            if (field.parentcolum != null && field.parentcolum == field.parentfieldnam)
                             {
                                 formfield.Add("tablename", field.parenttable);
                                 formfield.Add("columnname", field.parentcolumn);
@@ -653,7 +654,7 @@ namespace DbUitlsCoreTest.Data
                                 formfield.Add("columnname", field.parentcolumn);
                                 formfield.Add("idcolumn", field.parentfieldname);
                             }
-                            if (field.parentsubtype.Length > 0)
+                            if (field.parentsubtype != null && field.parentsubtype.Length > 0)
                             {
                                 formfield.Add("parentsubtype", field.parentsubtype);
                             }
@@ -670,8 +671,8 @@ namespace DbUitlsCoreTest.Data
                             Hashtable rightslist = this.getUserRightsList(userid);
                             if (rightslist.ContainsKey(ptypecd + psubtype + "_insert"))
                             {
-                                formfield.Add("onclick", "onTheFlyInsert");
-                                formfield.Add("parentsubtype", psubtype);
+                                formfield["onclick"] = "onTheFlyInsert";
+                                formfield["parentsubtype"] = psubtype;
                             }
                         }
                         break;
@@ -698,22 +699,22 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("shouldCheckSpelling", true);
                         formfield.Add("rows", rows.ToString());
                         formfield.Add("onkeypress", "checkLen");
-                        formfield.Add("onblur", "checkLen");
+                        formfield["onblur"] =  "checkLen";
                         formfield.Add("defaultvalue", defaultvalue);
                         //if (field.onblur  != null && field.onblur.Length > 0)
                         //{
                         //    formfield.Add("onblur", "checkLen");
-                        //   // TVUtils.substituteObjectValues(field.onblur"].Value) + "\"";
+                        //   // TVUtils.substituteObjectValues(field.onblur) + "\"";
                         //}
                         //else
                         //{
-                        //    output += "onblur=\"checkLen(event,this,'" + field.maxlength"].Value + "')\"";
+                        //    output += "onblur=\"checkLen(event,this,'" + field.maxlength + "')\"";
                         //}
-                        //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\""; }
+                        //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange) + "\""; }
                         //catch { }
-                        //try { output += " onkeydown=\"checkBackspace(event,this);" + TVUtils.substituteObjectValues(field.onkeydown"].Value) + "\""; }
+                        //try { output += " onkeydown=\"checkBackspace(event,this);" + TVUtils.substituteObjectValues(field.onkeydown) + "\""; }
                         //catch { }
-                        //try { output += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value) + "\""; }
+                        //try { output += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus) + "\""; }
                         //catch { }
                         break;
                     case "date":
@@ -799,7 +800,7 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("validationoptions", this.getValidationOptions(field.itemvaluegroup, defaultvalue));
                         formfield.Add("onclick", "viewValidationOptions");
                         formfield.Add("groupname", field.itemvaluegroup);
-                        //if (int.Parse(field.maxlength"].Value) > 1)
+                        //if (int.Parse(field.maxlength) > 1)
                         //{
                         //    output += "<br /><span title=\"Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked\">" +
                         //              "Hold 'Ctrl' to select multiple items one at a time or to unselect an item, hold 'Shift' to select a range of items - Clicking without holding 'Ctrl' or 'Shift' will unselect any current items and select only the item that was clicked</span>";
@@ -816,10 +817,13 @@ namespace DbUitlsCoreTest.Data
                         defaultvalue = defaultvalue.Replace("\n", "\r");
                         defaultvalue = defaultvalue.Replace("\r\r", "\r");
                         defaultvalue = defaultvalue.Replace("\r", ",");
-                        string seloptions = "";
+                        dynamic seloptions ;
 
                         string parentNode = "";
-                        if (field.fieldname.ToUpper() == field.childfieldnam.ToUpper()) parentNode = field.childname;
+                        Console.WriteLine("---- max length -----");
+                        string ml = field.maxlength.ToString();
+                        Console.WriteLine($"{ml}");
+                        if (field.fieldname != null && field.childfieldname != null && field.fieldname.ToUpper() == field.childfieldname.ToUpper()) parentNode = field.childname;
 
                         if (!string.IsNullOrEmpty(parentNode))
                         {
@@ -848,7 +852,7 @@ namespace DbUitlsCoreTest.Data
                                 // add the existing onchange when we do not have a childfield
                                 if (field.onchange != null)
                                 {
-                                    // output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\"";
+                                    // output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange) + "\"";
                                 }
                             }
 
@@ -873,7 +877,8 @@ namespace DbUitlsCoreTest.Data
                             }
                             //If field is multi-select, it cannot be used with or as a parent group
                         }
-                        else if (int.Parse(field.maxlength > 1))
+
+                        else if ( field.maxlength != null && int.Parse(field.maxlength.ToString()) > 1)
                         {
 
 
@@ -950,10 +955,7 @@ namespace DbUitlsCoreTest.Data
                                 //the field has at least one value
                                 //the field does not have a parent
                                 //the field does not have any children
-                                if (rightslist.ContainsKey("itemvalue_insert") &&
-                                   seloptions.IndexOf(field.fieldname + "_c") < 0 &&
-                                   seloptions.IndexOf("<option") >= 0 &&
-                                   seloptions.IndexOf("execFilterChildren") < 0)
+                                if (rightslist.ContainsKey("itemvalue_insert"))
                                 {
                                    formfield.Add("onclick", "insertItemValue");
 
@@ -965,16 +967,30 @@ namespace DbUitlsCoreTest.Data
                         {
                             if (field.itemvaluegroup.Length > 0)
                             {
-                                
-                                //seloptions = dbutils.getGenericSelects(field.itemvaluegroup"].Value,
+
+                                //seloptions = dbutils.getGenericSelects(field.itemvaluegroup,
                                 //                                       fieldname,
-                                //                                       field.fieldlength"].Value,
-                                //                                       Convert.ToInt16(field.maxlength"].Value),
-                                //                                       field.required"].Value, defaultvalue, column);
-                                seloptions = this.getParentChildSelects(field.itemvaluegroup, field.fieldname,field.fieldlength,Convert.ToInt16(field.maxlength),
+                                //                                       field.fieldlength,
+                                //                                       Convert.ToInt16(field.maxlength),
+                                //                                       field.required, defaultvalue, column);
+                                Console.WriteLine(field.fieldlength.GetType());
+                                var gpslelcts = this.getParentChildSelects(field.itemvaluegroup, field.fieldname, field.fieldlength.ToString(), field.maxlength.ToString(),
                                                                         field.required, defaultvalue);
 
-                                output += seloptions;
+                                foreach (var item in gpslelcts)
+                                {
+                                  
+                                    foreach (var t in item)
+                                    {
+                                        Console.WriteLine(t.Key);
+                                       // Console.WriteLine(t.Value);
+                                    }
+
+                                }
+                                seloptions = this.getParentChildSelects(field.itemvaluegroup, field.fieldname,field.fieldlength.ToString(),field.maxlength.ToString(),
+                                                                        field.required, defaultvalue);
+                                formfield.Add("seloptions", seloptions);
+                               
                                 Hashtable rightslist = new Hashtable();
                                 string userid = "5327";
                                 try
@@ -991,11 +1007,7 @@ namespace DbUitlsCoreTest.Data
                                 //the field does not have a parent
                                 //the field does not have any children
                                 //the field is not using a custom SQL statement
-                                if (rightslist.ContainsKey("itemvalue_insert") &&
-                                   seloptions.IndexOf(field.fieldname + "_c") < 0 &&
-                                   seloptions.IndexOf("<option") >= 0 &&
-                                   seloptions.IndexOf("execFilterChildren") < 0 &&
-                                   string.IsNullOrEmpty(field.customsql))
+                                if (rightslist.ContainsKey("itemvalue_insert") && string.IsNullOrEmpty(field.customsql))
                                 {
                                     formfield.Add("onclick", "insertItemValue");
                                 }
@@ -1013,7 +1025,7 @@ namespace DbUitlsCoreTest.Data
                                 else
                                 {
                                     //output += " onchange=\"";
-                                    //try { output += TVUtils.substituteObjectValues(field.onchange"].Value); }
+                                    //try { output += TVUtils.substituteObjectValues(field.onchange); }
                                     //catch { }
                                     //output += "\"";
                                 }
@@ -1074,7 +1086,7 @@ namespace DbUitlsCoreTest.Data
                                 }
                                 else
                                 {
-                                   //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\""; }
+                                   //try { output += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange) + "\""; }
                                    //catch { }
                                 }
                                 formfield.Add("dispcol", field.parentcolumn);
@@ -1144,6 +1156,8 @@ namespace DbUitlsCoreTest.Data
                                 }
                             }
                         }
+                       
+
                         break;
                     case "pickwindow":
                         string defaultdispval = "";
@@ -1233,7 +1247,7 @@ namespace DbUitlsCoreTest.Data
                              formfield.Add("radiovalues", this.getGenericRadioButtons(field.fieldname
                                , field.itemvaluegroup
                                , field.required
-                               , field.fieldlength
+                               , field.fieldlength.ToString()
                                , defaultvalue, eventname, handler) );
                         }
                         else if (field.parenttable.Length > 0)
@@ -1243,13 +1257,135 @@ namespace DbUitlsCoreTest.Data
                                , field.parentfieldname
                                , field.parentcolumn
                                , field.required
-                               , field.fieldlength
+                               , field.fieldlength.ToString()
                                , defaultvalue, eventname, handler) );
+                        }
+                        break;
+                    case "checkbox":
+                        eventname = "onclick";
+
+
+                        if (field.itemvaluegroup.Length > 0)
+                        {
+                               formfield.Add("checkboxes", this.getGenericCheckBoxes(field.fieldname
+                               , field.itemvaluegroup
+                               , field.required
+                               , field.fieldlength
+                               , defaultvalue, field) );
+                        }
+                        else if (field.parenttable.Length > 0)
+                        {
+                            formfield.Add("checkboxes", this.getCheckBoxes(field.fieldname
+                               , field.parenttable
+                               , field.parentfieldname
+                               , field.parentcolumn
+                               , field.required
+                               , field.fieldlength
+                               , defaultvalue, field) );
+                        }
+                        break;
+                    case "optionhierarchy":
+                        //if (field.required == "Y")
+                        //{
+                        //    output += dbutils.getOptionHierarchyField(fieldname, field.customsql,
+                        //                             defaultvalue, true, false, field.onchange);
+                        //}
+                        //else
+                        //{
+                        //    output += dbutils.getOptionHierarchyField(fieldname, field.customsql,
+                        //                             defaultvalue, false, false, field.onchange);
+                        //}
+
+                        formfield.Add("optionhierarchy", "--- not yet implemented ---");
+                        formfield.Add("notyetImplmented", true);
+
+                        break;
+                    case "programfolder":
+                        //bool pfrequired = false;
+                        //if (column.Attributes["required"].Value == "Y")
+                        //{
+                        //    pfrequired = true;
+                        //}
+                        //output += dbutils.getProgramFolderField(fieldname, defaultvalue, pfrequired, false, column.Attributes["customsql"].Value);
+                        ////Add JavaScript tag for local field validation method if set on onchange event
+                        //if (!string.IsNullOrEmpty(column.Attributes["onchange"].Value) && column.Attributes["onchange"].Value.Trim().StartsWith("function"))
+                        //{
+                        //    output += "<script language=\"JavaScript\">" + column.Attributes["onchange"].Value + "</script>";
+                        //}
+                        formfield.Add("programfolder", "--- not yet implemented ---");
+                        formfield.Add("notyetImplmented", true);
+                        break;
+                    case "multioptionhierarchy":
+                        //if (column.Attributes["required"].Value == "Y")
+                        //{
+                        //    output += dbutils.getOptionHierarchyField(fieldname, column.Attributes["customsql"].Value,
+                        //       defaultvalue, true, true);
+                        //}
+                        //else
+                        //{
+                        //    output += dbutils.getOptionHierarchyField(fieldname, column.Attributes["customsql"].Value,
+                        //       defaultvalue, false, true);
+                        //}
+                        formfield.Add("multioptionhierarchy", "--- not yet implemented ---");
+                        formfield.Add("notyetImplmented", true);
+                        break;
+                    case "multiprogramfolder":
+                        //bool mpfrequired = false;
+                        //if (column.Attributes["required"].Value == "Y")
+                        //{
+                        //    mpfrequired = true;
+                        //}
+                        //output += dbutils.getProgramFolderField(fieldname, defaultvalue, mpfrequired, true, column.Attributes["customsql"].Value);
+                        formfield.Add("multiprogramfolder", "--- not yet implemented ---");
+                        formfield.Add("notyetImplmented", true);
+                        break;
+                    case "formattedtext":
+                        if (this.getTopVueParameter("formattedtextimage") == "edit")
+                        {
+                            //StringBuilder sbFormatted = new StringBuilder();
+                            //sbFormatted.Append(string.Format("<div id=\"div_{0}\" style=\"margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;\" class=\"tv-formattedtext\">", fieldname));
+                            //sbFormatted.Append(
+                            //string.Format(
+                            //     "<a id=\"lnk_{1}\" class=\"ui mini labeled icon button\" href=\"javascript:void(0)\" onclick=\"javascript:launchHtmlEditor(this, '{4}');\">\n<i class=\"{0}\" ></i>Edit</a>\n<input type=\"hidden\" id=\"{1}\" name=\"{1}\" value=\"{3}\" />\n<span id=\"spn_{1}\">{2}</span>",
+                            //     "edit icon",
+                            //     fieldname,
+                            //     defaultvalue,
+                            //     HttpContext.Current.Server.HtmlEncode(defaultvalue),
+                            //     HttpContext.Current.Server.UrlEncode(column.Attributes["customsql"].Value)
+                            //   )
+                            //);
+                            //sbFormatted.Append("</div>");
+                            //output += sbFormatted.ToString();
+                            formfield.Add("onclick", "launchHtmlEditor");
+                        }
+                        else
+                        {
+                            //StringBuilder sbFormatted = new StringBuilder();
+                            //sbFormatted.Append(string.Format("<div id=\"div_{0}\" style=\"margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;\" class=\"tv-formattedtext\">", fieldname));
+                            //sbFormatted.Append(
+                            //string.Format(
+                            //     "<a id=\"lnk_{1}\" class=\"ui mini labeled icon button\" href=\"javascript:void(0)\" onclick=\"javascript:launchHtmlEditor(this, '{4}');\">\n<i class=\"{0}\" ></i>Edit</a>\n<input type=\"hidden\" id=\"{1}\" name=\"{1}\" value=\"{3}\" />\n<span id=\"spn_{1}\">{2}</span>",
+                            //     "edit icon",
+                            //     fieldname,
+                            //     defaultvalue,
+                            //     HttpContext.Current.Server.HtmlEncode(defaultvalue),
+                            //     HttpContext.Current.Server.UrlEncode(column.Attributes["customsql"].Value)
+                            //   )
+
+                            //);
+                            //sbFormatted.Append("</div>");
+                            //output += sbFormatted.ToString();
+                            formfield.Add("onclick", "launchHtmlEditor");
+
                         }
                         break;
                     case "test":
                         break;
                     default:
+                        // output += "<span style='color:red'>No display information has been defined for fieldtype: " +
+                        //column.Attributes["fieldtype"].Value + "</span>";
+                        formfield.Add("nodisplay", "No display information has been defined for fieldtype");
+                        formfield.Add("hasnodisplay", true);
                         break;
                 }
 
@@ -1475,16 +1611,16 @@ namespace DbUitlsCoreTest.Data
 
                             //string.Format(
                             //    "<iframe src=\"tvgridview.aspx?view=readonly&itemtypecd={0}&subtype={1}&relitemtypecd={2}&relsubtype={3}&relcolumn={4}&maxlength={5}&parentfield={9}&fieldlist={6}&itemid={8}{7}\" height=\"200\" width=\"100%\"></iframe>",
-                            //    field.itemtypecd"].Value,
-                            //    field.subtypecd"].Value,
-                            //    field.parenttable"].Value,
-                            //    field.parentsubtype"].Value,
-                            //    field.parentcolumn"].Value,
-                            //    field.maxlength"].Value,
-                            //    field.defaultvalue"].Value,
-                            //    field.customsql"].Value,
+                            //    field.itemtypecd,
+                            //    field.subtypecd,
+                            //    field.parenttable,
+                            //    field.parentsubtype,
+                            //    field.parentcolumn,
+                            //    field.maxlength,
+                            //    field.defaultvalue,
+                            //    field.customsql,
                             //    itemidString,
-                            //    field.parentfieldname"].Value
+                            //    field.parentfieldname
                             //);
                             break;
                         default:
@@ -4205,11 +4341,11 @@ namespace DbUitlsCoreTest.Data
         /// <param name="defaultvalue">Value(s) to be selected by default</param>
         /// <param name="column">XML Node for item display column being rendered</param>
         /// <returns>HTML select element(s)</returns>
-        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, int maxlength, string required, string defaultvalue)
+        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, string maxlength, string required, string defaultvalue)
         { 
             return getParentChildSelects(groupname, fldname, size, maxlength, required, defaultvalue,  false);
         }
-        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, int maxlength, string required, string defaultvalue, bool useDivs)
+        public List<Hashtable> getParentChildSelects(string groupname, string fldname, string size, string maxlength, string required, string defaultvalue, bool useDivs)
         {
              List<Hashtable> OptionsList = new List<Hashtable>();
              string SqlStmt = "SELECT distinct parentgroupname " +
@@ -4234,7 +4370,9 @@ namespace DbUitlsCoreTest.Data
             string idcountsql = "SELECT COUNT(groupname)" +
                     "  FROM itemvalues " +
                     " WHERE parentgroupname = '" + groupname + "'";
-            int numchildren = Convert.ToInt16(getItemIDList(SqlStmt));
+
+           
+            int numchildren = Convert.ToInt16(getItemIDList(idcountsql).ToString());
 
             using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
             {
@@ -4250,6 +4388,7 @@ namespace DbUitlsCoreTest.Data
             Hashtable itemoption = new Hashtable();
             string optionvalue = recReader.GetValue(0).ToString();
             bool isSelected = false;
+                    string selectlist = "";
 
             if (!string.IsNullOrEmpty(ParentGroup))
             {
@@ -4277,28 +4416,28 @@ namespace DbUitlsCoreTest.Data
                     //Add in defined event handlers if specified
                     //if (column != null && column.Attributes != null)
                     //{
-                    //    if (field.onchange"] != null && field.onchange"].Value.Length > 0)
+                    //    if (field.onchange"] != null && field.onchange.Length > 0)
                     //    {
                     //        if (this.request == null || this.application == null || this.session == null)
                     //        {
                     //            if (numchildren > 0)
                     //            {
-                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\n filterChildren(this);" + "\"";
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange) + "\n filterChildren(this);" + "\"";
                     //            }
                     //            else
                     //            {
-                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value) + "\"";
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange) + "\"";
                     //            }
                     //        }
                     //        else
                     //        {
                     //            if (numchildren > 0)
                     //            {
-                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value, this.application, this.session, this.request) + "\n filterChildren(this);" + "\"";
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange, this.application, this.session, this.request) + "\n filterChildren(this);" + "\"";
                     //            }
                     //            else
                     //            {
-                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange"].Value, this.application, this.session, this.request) + "\"";
+                    //                selectlist += " onchange=\"" + TVUtils.substituteObjectValues(field.onchange, this.application, this.session, this.request) + "\"";
                     //            }
                     //        }
                     //    }
@@ -4308,32 +4447,32 @@ namespace DbUitlsCoreTest.Data
                         itemoption.Add("onchange", "filterChildren");
 
                     }
-                    //if (field.onblur"] != null && field.onblur"].Value.Length > 0)
+                    //if (field.onblur"] != null && field.onblur.Length > 0)
                     //    {
                     //        if (this.request == null || this.application == null || this.session == null)
                     //        {
-                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur"].Value) + "\"";
+                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur) + "\"";
 
                     //        }
                     //        else
                     //        {
-                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur"].Value, this.application, this.session, this.request) + "\"";
+                    //            selectlist += " onblur=\"" + TVUtils.substituteObjectValues(field.onblur, this.application, this.session, this.request) + "\"";
                     //        }
                     //    }
 
-                    //    if (field.onfocus"] != null && field.onfocus"].Value.Length > 0)
+                    //    if (field.onfocus"] != null && field.onfocus.Length > 0)
                     //    {
                     //        if (this.request == null || this.application == null || this.session == null)
                     //        {
-                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value) + "\"";
+                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus) + "\"";
                     //        }
                     //        else
                     //        {
-                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus"].Value, this.application, this.session, this.request) + "\"";
+                    //            selectlist += " onfocus=\"" + TVUtils.substituteObjectValues(field.onfocus, this.application, this.session, this.request) + "\"";
                     //        }
                     //    }
                     //}
-                    if (maxlength > 1)
+                    if (int.Parse(maxlength.ToString()) > 1)
                     {
                         selectlist += " multiple";
                     }
@@ -4342,7 +4481,7 @@ namespace DbUitlsCoreTest.Data
                     {
                         selectlist += "<option value=\"\">- None -</option>";
                     }
-                    else if (maxlength <= 1)
+                    else if (int.Parse(maxlength.ToString()) <= 1)
                     {
                         selectlist += "<option value=\"\">- Select one -</option>";
                     }
@@ -4582,7 +4721,7 @@ namespace DbUitlsCoreTest.Data
                     string radiovalue = recReader.GetValue(0).ToString();
                     bool isSelected = false;
 
-                    if (makerequired || recReader.GetValue(0).ToString() == defaultvalue)
+                    if (makerequired)
                     {
                         radioption.Add("checked", "checked");
                         makerequired = false;
@@ -4710,6 +4849,461 @@ namespace DbUitlsCoreTest.Data
         }
 
 
+        /// <summary>
+        /// Build list of HTML checkboxes based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getGenericCheckBoxes(string fieldname, string groupname, string required, string numcols)
+        {
+            return getGenericCheckBoxes(fieldname, groupname, required, numcols, "", null);
+        }
+
+        /// <summary>
+        /// Build list of HTML checkboxes based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="eventname">string: name of an event to handle</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getGenericCheckBoxes(string fieldname, string groupname, string required, string numcols, dynamic field)
+        {
+          
+            string SqlStmt = "select valuetext from itemvalues " +
+               "where groupname = '" + groupname + "' " +
+               "order by valueorder, valuetext";
+          
+            string checklist = "";
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+
+            List<Hashtable> CheckBoxList = new List<Hashtable>();
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable checkbox = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    if (field != null)
+                    {
+                        if (field.childfieldname.Length > 0)
+                        {
+                            checkbox.Add("parentfor", field.childfieldname);
+                            checkbox.Add("onclick", "updateListOptions");
+                            if (field.onchange != null)
+                            {
+                                checkbox.Add("onchange", field.onchange);
+
+                            }
+
+                        }
+                        else
+                        {
+                            checkbox.Add("onclick", field.onfocus);
+
+                        }
+                    }
+
+                    checkbox.Add("optionvalue", optionvalue);
+                    checkbox.Add("isSelected", isSelected);
+                    CheckBoxList.Add(checkbox);
+                }
+
+            }
+
+            return CheckBoxList;
+        }
+
+        /// <summary>
+        /// Build list of HTML checkboxes based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value(s) that should be set as selected</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getGenericCheckBoxes(string fieldname, string groupname, string required, string numcols, string defaultvalue)
+        {
+            return getGenericCheckBoxes(fieldname, groupname, required, numcols, defaultvalue, null);
+        }
+
+        /// <summary>
+        /// Build list of HTML checkboxes based on itemvalue group
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="groupname">Name of the itemvalue group to be queried</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value(s) that should be set as selected</param>
+        /// <param name="eventname">string: name of event to handle</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getGenericCheckBoxes(string fieldname, string groupname, string required, string numcols, string defaultvalue, dynamic field)
+        {
+            return getGenericCheckBoxes(fieldname, groupname, required, numcols, defaultvalue, field, false);
+        }
+
+        public List<Hashtable> getGenericCheckBoxes(string fieldname, string groupname, string required, string numcols, string defaultvalue, dynamic field, bool useDivs)
+        {
+            
+            string SqlStmt = "select valuetext from itemvalues " +
+               "where groupname = '" + sqlEncode(groupname) + "' " +
+               "and (active = 'Y' or valuetext = '" + sqlEncode(defaultvalue) + "')" +
+               "order by valueorder, valuetext";
+            // ((HttpContext.Current == null || HttpContext.Current.Request == null || HttpContext.Current.Request.FilePath.ToLower().IndexOf("search.aspx") >= 0) ? "" : 
+
+            string checklist = "";
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+            List<Hashtable> CheckBoxList = new List<Hashtable>();
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable checkbox = new Hashtable();
+                    string optionvalue = recReader.GetValue(0).ToString();
+                    bool isSelected = false;
+
+                    Hashtable htOpts = new Hashtable();
+                    foreach (string opt in defaultvalue.Split(','))
+                    {
+                        htOpts.Add(opt, null);
+                    }
+                    if (htOpts.ContainsKey(recReader.GetValue(0).ToString()))
+                    {
+                        checkbox.Add("checked", "checked");
+                    }
+
+                    if (field != null)
+                    {
+                        if (field.childfieldnam.Length > 0)
+                        {
+                            checkbox.Add("parentfor", field.childfieldname);
+                            checkbox.Add("onclick", "updateListOptions");
+                            checkbox.Add("onchange", field.onchange);
+                            checkbox.Add("onfocus", field.onfocus);
+                        }
+                        else
+                        {
+                            checkbox.Add("onclick", field.onfocus);
+                        }
+                    }
+
+                    checkbox.Add("optionvalue", optionvalue);
+                    checkbox.Add("isSelected", isSelected);
+                    CheckBoxList.Add(checkbox);
+                }
+            }
+        
+            
+        
+            return CheckBoxList;
+        }
+
+        /// <summary>
+        /// Build HTML checkboxes based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the checkbox(es)</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getCheckBoxes(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols)
+        {
+            return getCheckBoxes(fieldname, tablename, keyfield, displayfields, required, numcols);
+        }
+
+        /// <summary>
+        /// Build HTML checkboxes based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the checkbox(es)</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="eventname">string: name of event to be handled</param>
+        /// <param name="handler">string: name of event handler</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getCheckBoxes(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, dynamic field)
+        {
+          
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + displayfields;
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+          
+           
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+
+            List<Hashtable> CheckBoxList = new List<Hashtable>();
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable checkbox = new Hashtable();
+                    string checklist = "";
+
+                    checkbox.Add("onblur", field.onblur);
+                    checkbox.Add("onchange", field.onchange);
+                    checkbox.Add("onfocus", field.onfocus);
+                    checkbox.Add("onkeydown", field.onkeydown);
+
+                    for (int i = 1; i < recReader.FieldCount; i++)
+                    {
+                        checklist += recReader.GetValue(i) + " ";
+                    }
+
+                    checkbox.Add("checklist", checklist);
+                    CheckBoxList.Add(checkbox);
+                }
+            }
+
+
+            return CheckBoxList;
+        }
+
+        /// <summary>
+        /// Build HTML checkboxes based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the checkbox(es)</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value(s) that should be set as selected</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getCheckBoxes(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue)
+        {
+            return getCheckBoxes(fieldname, tablename, keyfield, displayfields, required, numcols, defaultvalue, null);
+        }
+
+        /// <summary>
+        /// Build HTML checkboxes based on specified table and columns
+        /// </summary>
+        /// <param name="fieldname">Defines the name of the HTML checkbox element(s)</param>
+        /// <param name="tablename">Name of the table to be queried</param>
+        /// <param name="keyfield">Name of the column to be used for the value of the checkbox(es)</param>
+        /// <param name="displayfields">coma delimitted list of columns to be display to the user</param>
+        /// <param name="required">Y or N, specifies if checkbox element(s) should be mandatory</param>
+        /// <param name="numcols">Number of columns to build before starting new row</param>
+        /// <param name="defaultvalue">value(s) that should be set as selected</param>
+        /// <returns>list of HTML checkboxes</returns>
+        public List<Hashtable> getCheckBoxes(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue, dynamic field)
+        {
+            return getCheckBoxes(fieldname, tablename, keyfield, displayfields, required, numcols, defaultvalue, field, false);
+        }
+
+        public List<Hashtable> getCheckBoxes(string fieldname, string tablename, string keyfield, string displayfields, string required, string numcols, string defaultvalue, dynamic field, bool useDivs)
+        {
+         
+            string SqlStmt = "select " + keyfield + "," + displayfields +
+               " from " + tablename +
+               " order by " + displayfields;
+            //If using SQL Server, convert query before running it
+            if (this._dbtype.Equals(2))
+            {
+                SqlStmt = DataUtils.sqlConvert(SqlStmt);
+            }
+            int ccount = 0;
+            int icols = Convert.ToInt16(numcols);
+
+            List<Hashtable> CheckBoxList = new List<Hashtable>();
+
+            using (var connection = this._dapperHelper.GetSqlServerOpenConnection())
+            {
+                bool islist = false;
+
+                SqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = SqlStmt;
+                var recReader = cmd.ExecuteReader();
+                cmd.CommandText = SqlStmt;
+
+                while (recReader.Read())
+                {
+                    Hashtable checkbox = new Hashtable();
+                    string checklist = "";
+                    if (defaultvalue.IndexOf(recReader.GetValue(0).ToString()) >= 0)
+                    {
+                        checkbox.Add("checked", "checked");
+                    }
+                    if (field != null)
+                    {
+                        if (field.childfieldname.Length > 0)
+                        {
+                            checkbox.Add("parentfor", field.childfieldname);
+                            checkbox.Add("onchange", field.onchange);
+                            checkbox.Add("onclick", "updateListOption");
+                                                       
+                        }
+                        else
+                        {
+                            if (field.onfocus != null)
+                            {
+                                checkbox.Add("onfocus", field.onfocus);
+                            }
+                        }
+                    }
+
+                    for (int i = 1; i < recReader.FieldCount; i++)
+                    {
+                        checklist += recReader.GetValue(i);
+                    }
+
+                    checkbox.Add("checklist", checklist);
+
+                    CheckBoxList.Add(checkbox);
+
+                }
+            } 
+           
+            return CheckBoxList;
+        }
+
+
+        /// <summary>
+        /// Get HTML output for an option hierarchy selection type field (This method requires the PF functions in the clienttools.js file)
+        /// </summary>
+        /// <param name="fieldname">Name of field (name for the hidden field that will store the selected value)</param>
+        /// <param name="foldergroup">Name of desired foldergroup</param>
+        /// <param name="defaultvalue">Current value (value to pre-select if specified)</param>
+        /// <param name="required">Set to true to make field mandatory/required, false to leave as optional</param>
+        /// <param name="multiple">Set to true to make field multi-select</param>
+        /// <returns>XML data island, hidden field and span used to build program folder selection picklists</returns>
+        public string getOptionHierarchyField(string fieldname, string foldergroup, string defaultvalue, bool required, bool multiple)
+        {
+            return getOptionHierarchyField(fieldname, foldergroup, defaultvalue, required, multiple, null);
+        }
+
+        /// <summary>
+        /// Get HTML output for an option hierarchy selection type field (This method requires the PF functions in the clienttools.js file)
+        /// </summary>
+        /// <param name="fieldname">Name of field (name for the hidden field that will store the selected value)</param>
+        /// <param name="foldergroup">Name of desired foldergroup</param>
+        /// <param name="defaultvalue">Current value (value to pre-select if specified)</param>
+        /// <param name="required">Set to true to make field mandatory/required, false to leave as optional</param>
+        /// <param name="multiple">Set to true to make field multi-select</param>
+        /// <param name="onchgevt">Onchange event handler for the field</param>
+        /// <returns>XML data island, hidden field and span used to build program folder selection picklists</returns>
+        public string getOptionHierarchyField(string fieldname, string foldergroup, string defaultvalue, bool required, bool multiple, string onchgevt)
+        {
+            ////Get XML structure
+            //XmlDocument pfxml = getOptionHierarchy(foldergroup);
+
+            ////Add fldname attribute to root element
+            //XmlAttribute fldname = pfxml.CreateAttribute("fldname");
+            //fldname.Value = fieldname;
+            //pfxml.SelectSingleNode("/ProgramFolders").Attributes.Append(fldname);
+
+            ////Add xnmlID attribute to root element
+            //XmlAttribute xmlid = pfxml.CreateAttribute("xmlID");
+            //xmlid.Value = fieldname;
+            //pfxml.SelectSingleNode("/ProgramFolders").Attributes.Append(xmlid);
+
+            ////Add cval attribute to root element
+            //XmlAttribute cval = pfxml.CreateAttribute("cval");
+            //cval.Value = defaultvalue;
+            //pfxml.SelectSingleNode("/ProgramFolders").Attributes.Append(cval);
+
+            ////If field is required, add req attribute to root element
+            //if (required)
+            //{
+            //    XmlAttribute req = pfxml.CreateAttribute("req");
+            //    req.Value = "Y";
+            //    pfxml.SelectSingleNode("/ProgramFolders").Attributes.Append(req);
+            //}
+
+            //string pfhtml = "<input type=\"hidden\" name=\"" + fieldname + "\" " +
+            //   "id=\"" + fieldname + "\" value=\"" + defaultvalue + "\" onchangeevt=\"" + onchgevt + "\">" +
+            //   "<span id=\"" + fieldname + "_span\"></span>" +
+            //   "<script language=\"JavaScript\">\r" +
+            //   "var " + fieldname + "_di = getXmlDocFromString('" +
+            //   pfxml.InnerXml.Replace("\\", "\\\\") + "');\r" +
+            //   "addXmlObj(" + fieldname + "_di);\r" +
+            //   "buildPFSelect(" + fieldname + "_di.getElementsByTagName('ProgramFolders')[0],0);\r" +
+            //   "</script>";
+
+            //if (multiple)
+            //{
+            //    string dispvalue = "";
+            //    if (defaultvalue.Length > 0)
+            //    {
+            //        foreach (string flpath in defaultvalue.Split('\r'))
+            //        {
+            //            if (dispvalue.Length > 0)
+            //            {
+            //                dispvalue += "<BR>";
+            //            }
+            //            dispvalue += "(<A href=\"javascript:removePFPath('" + fieldname + "','" +
+            //               flpath.Replace("\\", "\\\\") + "')\" title=\"Remove\">X</A>)" + flpath;
+            //        }
+            //    }
+            //    string addallstyle = " style=\"visibility: hidden; display: none;\"";
+            //    if (defaultvalue == null || defaultvalue.Length == 0)
+            //    {
+            //        addallstyle = "";
+            //    }
+            //    pfhtml = "<span id=\"" + fieldname + "_span\"></span>" +
+            //       "<a href=\"JavaScript:addPFPath('" + fieldname + "')\"><img src=\"images/add.gif\"></a>&nbsp;" +
+            //       "<a href=\"JavaScript:addAllPFPaths('" + fieldname + "')\">" +
+            //       "<img id=\"addall" + fieldname + "\"" + addallstyle + " src=\"images/addall.gif\" alt=\"Add all items\" tile=\"Add all items\"></a>" +
+            //       "<a href=\"JavaScript:removeAllPF('" + fieldname + "')\">" +
+            //       "<img src=\"images/removeall.gif\" alt=\"Remove all items\" tile=\"Remove all items\"></a>&nbsp;" +
+            //       "<br><span id=\"" + fieldname + "_dspan\">" + dispvalue + "</span>" +
+            //       "<textarea readonly name=\"" + fieldname + "\" " +
+            //       "id=\"" + fieldname + "\" style=\"display: none;\" cols=90 rows=10>" + defaultvalue + "</textarea>" +
+            //       "<script language=\"JavaScript\">\r" +
+            //       "var " + fieldname + "_di = getXmlDocFromString('" +
+            //       pfxml.InnerXml.Replace("\\", "\\\\") + "');\r" +
+            //       "addXmlObj(" + fieldname + "_di);\r" +
+            //       "buildPFSelect(" + fieldname + "_di.getElementsByTagName('ProgramFolders')[0],0);\r" +
+            //       "</script>";
+            //}
+
+            //return pfhtml;
+            return "";
+        }
 
 
 
