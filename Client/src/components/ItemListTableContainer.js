@@ -7,6 +7,7 @@ import {Table}        from "semantic-ui-react";
 import {getItemList} from "../actions/items";
 import {addTab} from "../actions/tabs";
 import {itemArrayListedSortedSelector, itemArrayListedSelector}  from "../selectors/itemlist";
+import ItemFormModal            from "./ItemFormModel";
 
 class ItemListTableContainer extends Component {
 
@@ -71,8 +72,10 @@ class ItemListTableContainer extends Component {
         let headerRow = hRow && hRow.map( (i, idx) => <Table.HeaderCell  key = {idx}> {i.displayname} </Table.HeaderCell>) || [];
         return (
             <div>
+               
                 I am an item table list
                 <Table  sortable celled compact striped inverted>
+                
                     <Table.Header>
                         <Table.Row>
                             {headerRow}

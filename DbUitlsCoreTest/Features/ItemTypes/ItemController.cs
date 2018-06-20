@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using MediatR;
 using DbUitlsCoreTest.Features;
 using DbUitlsCoreTest.Features.ItemTypes;
+using System.Collections;
 
 namespace DbUitlsCoreTest.Controllers
 {
@@ -96,6 +97,19 @@ namespace DbUitlsCoreTest.Controllers
             return Ok(_respository.GetItemList(itemtype, subtype));
         }
 
+        [HttpGet("list/viewmodel")]
+        public async Task<object> GetItemTypeListViewModel(string itemtype, string subtype)
+        {
+            List<dynamic> buttons =  await _mediator.Send(new ItemListButtonsQuery.Query(itemtype, subtype, "list", true, true));
+            dynamic itemlist = _respository.GetItemList(itemtype, subtype);
+            Hashtable viewmodel = new Hashtable();
+
+            viewmodel.Add("records", itemlist["records"]);
+            viewmodel.Add("display", itemlist["display"]);
+            viewmodel.Add("buttons", buttons);
+
+            return Ok(viewmodel);
+        }
 
         [HttpGet("properties/{id}")]
         public IActionResult GetItemTypeProperties(string itemtype, string subtype, string id)
@@ -104,6 +118,27 @@ namespace DbUitlsCoreTest.Controllers
             Console.WriteLine(itemtype);
 
             return Ok(_respository.GetItemProperties(itemtype, subtype, id));
+        }
+
+        [HttpGet("properties/viewmodel/{id}")]
+        public async Task<object> GetItemTypePropertiesViewModel(string itemtype, string subtype, string id)
+        {
+            Console.WriteLine("----- get item props -----");
+            Console.WriteLine(itemtype);
+
+           
+
+            List<dynamic> buttons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, "properties"));
+            dynamic itemproperties = _respository.GetItemProperties(itemtype, subtype, id);
+            dynamic itemtabs = _respository.GetItemTabs(itemtype, subtype);
+            Hashtable viewmodel = new Hashtable();
+
+            viewmodel.Add("records", itemproperties["records"]);
+            viewmodel.Add("display", itemproperties["display"]);
+            viewmodel.Add("buttons", buttons);
+            viewmodel.Add("tabs",itemtabs);
+            
+            return Ok(viewmodel);
         }
 
         [HttpGet("tabs")]
@@ -155,17 +190,9 @@ namespace DbUitlsCoreTest.Controllers
            // return Ok(_respository.GetItemCustomButtons(itemtype, subtype, pagetype));
         }
 
-        [HttpGet("buttons")]
-        public async Task<object> GetItemProeprtiesTabs(string itemtype, string subtype)
-        {
+       
 
-            //var customTabs = await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype,e));
-            //return Ok(customTabs);
-
-            return Ok(Task.Delay(10));
-        }
-
-        [HttpGet("insert")]
+        [HttpGet("formfields")]
         public async Task<object> GetItemFormFields(string itemtype, string subtype)
         {
 

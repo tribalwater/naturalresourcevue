@@ -9,6 +9,9 @@ import TopMainMenu         from "./components/TopMainMenu";
 import SidebarMenu         from "./components/SidebarMenu";
 import MainComponent       from "./components/MainComponent";
 
+import ItemFormModal            from "./components/ItemFormModel";
+
+
 import 'semantic-ui-css/semantic.min.css';
 import './index.css';
 
@@ -37,6 +40,7 @@ class App extends React.Component {
         <Provider store={store}>
         <BrowserRouter>
           <div className="full-height"  >
+          
             <TopMainMenu menuOnClick={() => this.setState({ menuVisible: !this.state.menuVisible })}></TopMainMenu>   
             <Sidebar.Pushable  as={Segment} attached="bottom" >
               <SidebarMenu menuVisible={this.state.menuVisible}></SidebarMenu>     
@@ -44,8 +48,14 @@ class App extends React.Component {
                 <MainComponent></MainComponent>
               </Sidebar.Pusher>
             </Sidebar.Pushable>
+            <div>
+          <ItemFormModal></ItemFormModal>
+            
           </div>
+          </div>
+          
         </BrowserRouter>
+        
         </Provider>
       );
     }

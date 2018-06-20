@@ -5,7 +5,7 @@ import { Table, Button, Icon, Header } from 'semantic-ui-react'
 const ItemPropertiesLabelRow=  ({isVisible, field, toggleSection}) => (
     <Table.Row  key={field.fieldname}> 
     <Table.Cell width={3} className="prop-table-label-row"  > 
-     <Button primary onClick={() => toggleSection(field.id)} key={field.fieldname} fluid size="tiny">
+     <Button primary onClick={() => toggleSection(field.id)} key={field.fieldname} size="huge">
       <Icon name= {isVisible ? 'chevron down': 'chevron right' } />
      </Button>                                     
     </Table.Cell>

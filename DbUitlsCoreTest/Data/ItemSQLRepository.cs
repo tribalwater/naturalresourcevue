@@ -656,7 +656,7 @@ namespace DbUitlsCoreTest.Data
                             }
                             if (field.parentsubtype != null && field.parentsubtype.Length > 0)
                             {
-                                formfield.Add("parentsubtype", field.parentsubtype);
+                                formfield["parentsubtype"] =  field.parentsubtype;
                             }
                         }
                         //If the parent item is item display and this is not a multi-row insert or edit, 
@@ -1172,7 +1172,6 @@ namespace DbUitlsCoreTest.Data
                         string pwwhereorder = field.customsql;
                         formfield.Add("defaultvalue", defaultvalue);
                         formfield.Add("pwwhereorder", pwwhereorder);
-                        formfield.Add("pwwhereorder", pwwhereorder);
                         formfield.Add("PickWindowSearchOnly", this.getTopVueParameter("PickWindowSearchOnly"));
                         formfield.Add("dispcol", field.parentcolum);
                         formfield.Add("onclick", "openPopup");
@@ -1270,7 +1269,7 @@ namespace DbUitlsCoreTest.Data
                                formfield.Add("checkboxes", this.getGenericCheckBoxes(field.fieldname
                                , field.itemvaluegroup
                                , field.required
-                               , field.fieldlength
+                               , field.fieldlength.ToString()
                                , defaultvalue, field) );
                         }
                         else if (field.parenttable.Length > 0)
@@ -5001,7 +5000,7 @@ namespace DbUitlsCoreTest.Data
 
                     if (field != null)
                     {
-                        if (field.childfieldnam.Length > 0)
+                        if (field.childfieldname != null &&  field.childfieldname.Length > 0)
                         {
                             checkbox.Add("parentfor", field.childfieldname);
                             checkbox.Add("onclick", "updateListOptions");

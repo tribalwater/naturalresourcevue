@@ -17,15 +17,20 @@ export const toggleSection = (sectionid) => ({
   payload : sectionid
 });
 
+export const receiveItemPropertiesButtons = (buttons) => {
+  let fixedIconsButtons = buttons.map( button => { button.icon = button.imageurl.replace("icon", ""); return button} );
+  return ({  type : actions.RECEIVE_ITEM_PROPETIES_BUTTONS, payload: buttons});
+}
+
 export const getItemProperties = (payload) =>  dispatch =>{
    dispatch({
     type: actions.API,
     payload: {
-      url: `/item/${payload.itemtype}/${payload.itemsubtype}/properties/${payload.itemid}`,
+      url: `/item/${payload.itemtype}/${payload.itemsubtype}/properties/viewmodel/${payload.itemid}`,
       //schema: [schema.books],
       success:(payload) => [
-        receiveItemProperties(payload)
-        //receiveItemPropertiesSections(payload)
+        receiveItemProperties(payload),
+        receiveItemPropertiesButtons(payload.buttons)
       ] ,
       label: 'itemproperties',
       method: "GET"

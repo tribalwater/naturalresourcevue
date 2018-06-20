@@ -10,6 +10,7 @@ import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
 import ItemDataGrid             from "./ItemDataGrid";
+import ItemFormModal            from "./ItemFormModel";
 
 
 
@@ -58,7 +59,10 @@ class MainComponent extends Component {
                         />
                     </Switch>
                 </Segment>
+                
             </div>
+           
+            
             </div>
         );
     }
