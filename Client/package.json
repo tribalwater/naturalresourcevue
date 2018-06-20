@@ -8,6 +8,7 @@
     "namor": "1.0.1",
     "normalizr": "^3.2.4",
     "react": "15.5.3",
+    "react-datepicker": "^1.5.0",
     "react-dom": "15.5.3",
     "react-media": "^1.8.0",
     "react-redux": "^5.0.7",

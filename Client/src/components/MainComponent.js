@@ -6,6 +6,14 @@ import {Segment} from "semantic-ui-react";
 import { connect } from "react-redux";
 import {addTab, updateTabUrl}        from "../actions/tabs";
 
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+
+import 'react-datepicker/dist/react-datepicker.css';
+
+
+
+
 import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
@@ -21,12 +29,15 @@ class MainComponent extends Component {
        
           menuVisible: false,
           formattedItemProps : [],
-          containerHeight: 0
+          containerHeight: 0,
+          value: new Date(),
+
         };
   
         this.updateContainerDimensions = this.updateContainerDimensions.bind(this);
     }
-
+    
+    onChange = value => this.setState({ value })
     componentDidMount(){
         window.addEventListener("resize", this.updateContainerDimensions);
         this.updateContainerDimensions();
@@ -44,6 +55,12 @@ class MainComponent extends Component {
             <div className="app-wrapper" ref="content">
                 <MainPageHeader></MainPageHeader>
                 <Segment  className="page-container" style={{height: this.state.containerHeight}}>    
+                <div>
+                    <DatePicker
+                    onChange={this.onChange}
+                    value={this.state.date}
+                    />
+                </div>
                     <Switch>
                         <Route  path='/item/properties/:itemtype/:itemsubtype/:itemid' 
                                 render = { () =>  <ItemPropertiesContainer  /> } 

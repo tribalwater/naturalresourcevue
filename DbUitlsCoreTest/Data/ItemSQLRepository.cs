@@ -416,7 +416,7 @@ namespace DbUitlsCoreTest.Data
             {
                 string defaultvalue = "";
                 Hashtable formfield = new Hashtable();
-                Console.WriteLine(field);
+               
 
                 formfield.Add("fieldtype", field.fieldtype);
                 formfield.Add("fieldname", field.fieldname);
@@ -476,7 +476,6 @@ namespace DbUitlsCoreTest.Data
                     }
                 }
 
-                Console.WriteLine(field);
                 //TODO: for each switch case need to subsititute object values for event handlers
                 // and re refrence buildIdInsertField in Tvutils
                 switch (field.fieldtype)
@@ -820,9 +819,9 @@ namespace DbUitlsCoreTest.Data
                         dynamic seloptions ;
 
                         string parentNode = "";
-                        Console.WriteLine("---- max length -----");
+                     
                         string ml = field.maxlength.ToString();
-                        Console.WriteLine($"{ml}");
+                        
                         if (field.fieldname != null && field.childfieldname != null && field.fieldname.ToUpper() == field.childfieldname.ToUpper()) parentNode = field.childname;
 
                         if (!string.IsNullOrEmpty(parentNode))
@@ -880,20 +879,22 @@ namespace DbUitlsCoreTest.Data
 
                         else if ( field.maxlength != null && int.Parse(field.maxlength.ToString()) > 1)
                         {
-
+                            Console.WriteLine("-- get pick list item value when maxlength greater than 1");
 
                             if (defaultvalue.Length > 0)
                             {
-                                field.Add("defaultvalue", defaultvalue);
+                                formfield.Add("defaultvalue", defaultvalue);
                             }
                             if (!string.IsNullOrEmpty(field.childfieldname))
                             {
-                                field.Add("parentfor", field.childfieldname);
-                                field.Add("onclick", field.updateListOptions);
+                                formfield.Add("parentfor", field.childfieldname);
+                                formfield.Add("onclick", field.updateListOptions);
                             }
                             if (!string.IsNullOrEmpty(field.itemvaluegroup))
                             {
-                                field.Add("seloptions", this.getGenericOptions(field.itemvaluegroup, defaultvalue));
+                                Console.WriteLine("-- and pick list has item value group ----");
+                                Console.WriteLine(formfield);
+                                formfield.Add("seloptions", this.getGenericOptions(field.itemvaluegroup, defaultvalue));
                             }
                             else if (!string.IsNullOrEmpty(field.customsql))
                             {
@@ -916,11 +917,12 @@ namespace DbUitlsCoreTest.Data
                                     string optitemtypecd = field.parenttable.Substring(0, field.parenttabl.ToLower().IndexOf("_"));
                                     List<Hashtable> optionvalues = this.getParentOptions(optitemtypecd,field.parentsubtype.Value,
                                                                                          storedfield, field.parentcolumn, defaultvalue);
-                                    field.Add("optionvalues", optionvalues);
+                                    formfield.Add("optionvalues", optionvalues);
                                 }
                                 else
                                 {
                                       List<Hashtable> optionvalues = this.getOptions(field.parenttable,field.parentfieldname, field.parentcolumn, defaultvalue);
+                                    formfield.Add("optionvalues", optionvalues);
                                 }
                                 //If the parent item is item display and this is not a multi-row insert or edit, 
                                 //create a 'new' button to add a new record
@@ -973,20 +975,11 @@ namespace DbUitlsCoreTest.Data
                                 //                                       field.fieldlength,
                                 //                                       Convert.ToInt16(field.maxlength),
                                 //                                       field.required, defaultvalue, column);
-                                Console.WriteLine(field.fieldlength.GetType());
+                              
                                 var gpslelcts = this.getParentChildSelects(field.itemvaluegroup, field.fieldname, field.fieldlength.ToString(), field.maxlength.ToString(),
                                                                         field.required, defaultvalue);
 
-                                foreach (var item in gpslelcts)
-                                {
-                                  
-                                    foreach (var t in item)
-                                    {
-                                        Console.WriteLine(t.Key);
-                                       // Console.WriteLine(t.Value);
-                                    }
-
-                                }
+                             
                                 seloptions = this.getParentChildSelects(field.itemvaluegroup, field.fieldname,field.fieldlength.ToString(),field.maxlength.ToString(),
                                                                         field.required, defaultvalue);
                                 formfield.Add("seloptions", seloptions);

@@ -125,9 +125,7 @@ namespace DbUitlsCoreTest.Controllers
         {
             Console.WriteLine("----- get item props -----");
             Console.WriteLine(itemtype);
-
-           
-
+            
             List<dynamic> buttons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, "properties"));
             dynamic itemproperties = _respository.GetItemProperties(itemtype, subtype, id);
             dynamic itemtabs = _respository.GetItemTabs(itemtype, subtype);
