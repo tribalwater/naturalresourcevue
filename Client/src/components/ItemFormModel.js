@@ -6,6 +6,12 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
 
+import axios from 'axios';
+
+
+import ItemLookUpThrottled from './itemformfields/ItemLookUpThrottled'
+import ItemForm from './ItemForm';
+
 let formatedGroupFeaturesSel =getFs().map(s => { return  { text: s["optionvalue"], value : s["optionvalue"] } });
 
 let forMatedAqfTypesSel = getAqfTypes().map(s => { return  { text: s["optionvalue"], value : s["optionvalue"] } });
@@ -27,12 +33,10 @@ class ExampleCustomInput extends Component {
       return (
         <div onClick = {onClick}>
            <Input placeholder='Search...'  value={value} icon="calendar alternate outline"/>
-         
-            
         </div>
       )
     }
-  }
+}
 
 class ItemFormModel extends Component {
     constructor(props){
@@ -44,7 +48,11 @@ class ItemFormModel extends Component {
     componentWillMount(){
         setTimeout(() => {
            this.setState({isOpen: true})
-        }, 10500);
+           console.log(this.state)
+        }, 3500);
+
+        axios.get("http://localhost:51086/api/item/document/gwpermit/formfields")
+        .then( res => this.setState({formfields: res.data}))
     }
 
     handleChange(date) {
@@ -57,7 +65,7 @@ class ItemFormModel extends Component {
             <Modal open={this.state.isOpen}  centered={true} size="fullscreen" style= {{ 'margin-top': '20px', 'color': "green"}} className="fuck" >
                 <Modal.Header>Delete Your Account</Modal.Header>
                 <Modal.Content>
-                <Form>
+                {/* <Form>
                     <Form.Group widths='equal'>
                     <Form.Field
                         id='form-input-control-first-name'
@@ -71,7 +79,7 @@ class ItemFormModel extends Component {
                         onChange={this.handleChange}
                         withPortal
                    />
-                   
+                   <ItemLookUpThrottled></ItemLookUpThrottled>
                      </Form.Group>
                     {/*
                     <Form.Field
@@ -80,7 +88,7 @@ class ItemFormModel extends Component {
                     label='Opinion'
                     placeholder='Opinion'
                     /> */}
-                  
+{/*                   
                      <Form.Field>
                         <label>Aquifer Types</label>
                         <Dropdown
@@ -118,7 +126,8 @@ class ItemFormModel extends Component {
                             multiple
                     />
                      </Form.Field>
-                </Form>
+                </Form>  */}
+               <ItemForm formFieldJson = {this.state.formfields}></ItemForm>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button negative>No</Button>

@@ -50,5 +50,6 @@ namespace DbUitlsCoreTest.Data
         object UpdateItem(string itemtype, string itemsubtype, string id, object updateObject);
         object UpdateItemDispaly(object item);
         object UpdateItemRelation(object item);
+        List<dynamic> SearchItemLike(string itemtype, string[] cols, string[] likevals, string subtype = "none", string itemtable = null);
     }
 }

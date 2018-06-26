@@ -216,3 +216,7 @@ background-color: #f90;
  #no-pading{
    padding-top: 0 !important;
  }
+
+ .react-datepicker-wrapper, .react-datepicker__input-container {
+   width: 100% !important;
+ }

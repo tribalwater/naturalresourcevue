@@ -62,7 +62,7 @@ namespace DbUitlsCoreTest.Controllers
 
         // PUT: api/itemtype/subtype
         [HttpPut("{id}")]
-        public IActionResult Put(string itemtype, string subtype, string id,  [FromBody]object ItemTypeObj)
+        public IActionResult Put(string itemtype, string subtype, string id, [FromBody]object ItemTypeObj)
         {
             Console.WriteLine(ItemTypeObj);
             Console.WriteLine(itemtype);
@@ -74,7 +74,7 @@ namespace DbUitlsCoreTest.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string itemtype, string subtype, string id)
         {
-            var resutlts =  _respository.DeleteItem(itemtype, subtype, id);
+            var resutlts = _respository.DeleteItem(itemtype, subtype, id);
             Console.WriteLine(resutlts);
             return NoContent();
         }
@@ -85,7 +85,7 @@ namespace DbUitlsCoreTest.Controllers
             Console.WriteLine("----- tiem type -----");
             Console.WriteLine(itemtype);
 
-            return Ok( _respository.GetItemDisplay(itemtype, subtype, ""));
+            return Ok(_respository.GetItemDisplay(itemtype, subtype, ""));
         }
 
         [HttpGet("list")]
@@ -100,7 +100,7 @@ namespace DbUitlsCoreTest.Controllers
         [HttpGet("list/viewmodel")]
         public async Task<object> GetItemTypeListViewModel(string itemtype, string subtype)
         {
-            List<dynamic> buttons =  await _mediator.Send(new ItemListButtonsQuery.Query(itemtype, subtype, "list", true, true));
+            List<dynamic> buttons = await _mediator.Send(new ItemListButtonsQuery.Query(itemtype, subtype, "list", true, true));
             dynamic itemlist = _respository.GetItemList(itemtype, subtype);
             Hashtable viewmodel = new Hashtable();
 
@@ -125,7 +125,7 @@ namespace DbUitlsCoreTest.Controllers
         {
             Console.WriteLine("----- get item props -----");
             Console.WriteLine(itemtype);
-            
+
             List<dynamic> buttons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, "properties"));
             dynamic itemproperties = _respository.GetItemProperties(itemtype, subtype, id);
             dynamic itemtabs = _respository.GetItemTabs(itemtype, subtype);
@@ -134,8 +134,8 @@ namespace DbUitlsCoreTest.Controllers
             viewmodel.Add("records", itemproperties["records"]);
             viewmodel.Add("display", itemproperties["display"]);
             viewmodel.Add("buttons", buttons);
-            viewmodel.Add("tabs",itemtabs);
-            
+            viewmodel.Add("tabs", itemtabs);
+
             return Ok(viewmodel);
         }
 
@@ -151,16 +151,18 @@ namespace DbUitlsCoreTest.Controllers
         [HttpGet("buttons/{pagetype}")]
         public async Task<object> GetItemProeprtiesCustomButtons(string itemtype, string subtype, string pagetype)
         {
-           
-            if (subtype == "null") {
-                subtype = null; 
+
+            if (subtype == "null")
+            {
+                subtype = null;
             }
 
             var customButtons = await _mediator.Send(new ItemButtonListQuery.Query(itemtype, subtype, pagetype));
             var customTabs = await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype, pagetype));
 
             var standardButtons = new List<object>();
-            if (pagetype == "properties") {
+            if (pagetype == "properties")
+            {
                 standardButtons = await _mediator.Send(new ItemPropertiesButtonsQuery.Query(itemtype, subtype, pagetype));
             }
             else if (pagetype == "list")
@@ -178,24 +180,24 @@ namespace DbUitlsCoreTest.Controllers
         }
 
         [HttpPost("buttons/{pagetype}")]
-        public async Task<object>  AddItemProeprtiesCustomButtons(string itemtype, string subtype, string pagetype)
+        public async Task<object> AddItemProeprtiesCustomButtons(string itemtype, string subtype, string pagetype)
         {
             Console.WriteLine("----- get it -----");
             Console.WriteLine(itemtype);
-           // var result = 
-            return await _mediator.Send(new ItemButtonCQ.AddButtonCommand { name = "rar", buttontype = "fuck" }); 
-           
-           // return Ok(_respository.GetItemCustomButtons(itemtype, subtype, pagetype));
+            // var result = 
+            return await _mediator.Send(new ItemButtonCQ.AddButtonCommand { name = "rar", buttontype = "fuck" });
+
+            // return Ok(_respository.GetItemCustomButtons(itemtype, subtype, pagetype));
         }
 
-       
+
 
         [HttpGet("formfields")]
         public async Task<object> GetItemFormFields(string itemtype, string subtype)
         {
 
             var customTabs = _respository.GetItemFormFields(itemtype, subtype);
-                //await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype, pagetype));
+            //await _mediator.Send(new ItemPropertiesTabsQuery.Query(itemtype, subtype, pagetype));
             return Ok(customTabs);
         }
 
@@ -223,5 +225,35 @@ namespace DbUitlsCoreTest.Controllers
         public void SearchItemType(string itemtype, string subtype)
         {
         }
+
+        [HttpPost("searchlike")]
+        public async Task<object> SearchLike(string itemtype, string subtype, [FromBody]dynamic searchobj)
+        {
+            string[] cols = searchobj.cols.ToObject<string[]>();
+            string[] likevals = searchobj.likevals.ToObject<string[]>();
+            string searchSubType = searchobj.subtype != null ? searchobj.subtype.ToString() : null;
+            string searchItemTable = searchobj.itemtable != null ? searchobj.itemtable.ToString() : null;
+          
+
+            if (searchSubType != null && searchSubType != "")
+            {
+                subtype = searchobj.subtype.ToString();
+            }
+            
+            if (searchItemTable != null && searchItemTable != "")
+            {
+                itemtype = searchItemTable.Split("_")[0];
+                var res = _respository.SearchItemLike(itemtype, cols, likevals, subtype, searchItemTable);
+                return Ok(res);
+            }
+            else
+            {
+                var res = _respository.SearchItemLike(itemtype, cols, likevals, subtype);
+                return Ok(res);
+            }
+           
+        }
+
+
     }
 }

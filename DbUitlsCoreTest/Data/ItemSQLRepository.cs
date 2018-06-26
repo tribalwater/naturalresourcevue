@@ -66,6 +66,47 @@ namespace DbUitlsCoreTest.Data
             return _dapperHelper.RawQuery(sql);
         }
 
+        
+        public List<dynamic> SearchItemLike(string itemtype, string[] cols, string [] likevals, string subtype = "none", string itemtable = "none")
+        {
+            string sql = "";
+
+            if (string.IsNullOrEmpty(itemtable) && itemtable != "none")
+            {
+                sql += $"select * from {itemtype}_PROPERTIES where ";
+            }
+            else
+            {
+                sql += $"select * from {itemtable} where ";
+            }
+
+            for (int i = 0; i < cols.Length; i++)
+            {
+                sql += $"{cols[i]} like '{likevals[i]}%' and ";
+            }
+
+            sql = sql.Remove(sql.Length - 4);
+
+            if(subtype == "none")
+            {
+                // essentially do nothing 
+                sql = sql;
+            }
+            if (subtype != null && subtype.Length > 0)
+            {
+                sql += "and  " + itemtype + "type = '" + subtype + "' ";
+            }
+            else if (subtype == null)
+            {
+                sql += "and   " + itemtype + "type is null  ";
+            }
+           
+            
+            Console.WriteLine(sql);
+            List<dynamic> returnvals = _dapperHelper.RawQuery(sql).ToList();
+
+            return returnvals;
+        }
         public object AddItem(object item, string itemtype, string subtype = null)
         {
             JObject ItemTypeJson = JObject.FromObject(item);
@@ -288,7 +329,7 @@ namespace DbUitlsCoreTest.Data
             }
 // need to update this to include actualy id 
 
-; return res.ToList();
+return res.ToList();
             //return this.GetItemProperties(res.ToList(), itemtype, subtype, "48924", "");
         }
 
@@ -576,7 +617,7 @@ namespace DbUitlsCoreTest.Data
                     case "lookup":
                         bool lkpnewbtn = false;
                         string ludval = defaultvalue.Replace("\"", "&#34;");
-                        if (field.parenttable.Length > 0)
+                        if (field.parenttable != null && field.parenttable.Length > 0)
                         {
                             if (multilookup)
                             {
@@ -605,6 +646,8 @@ namespace DbUitlsCoreTest.Data
                         formfield.Add("ludval", ludval);
                         string rsvis = " style=\"visibility: hidden;\"";
                         formfield.Add("visibililty", "hidden");
+
+                       
                         if (defaultvalue != null && defaultvalue.Length > 0)
                         {
                             formfield["visibililty"] = "visible";
