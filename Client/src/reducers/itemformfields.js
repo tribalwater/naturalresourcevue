@@ -9,10 +9,10 @@ const intitialState = {
     nextUrl: null,
 }
 
-const  itemproperties = (state = intitialState , action ) => {
+const  itemformfields = (state = intitialState , action ) => {
     switch(action.type){
 
-        case actions.RECEIVE_ITEM_PROPETIES:        
+        case actions.RECEIVE_ITEM_FORM_FIELDS:        
             return {
                 ...state,
                 fields   : action.payload.records,
@@ -20,13 +20,13 @@ const  itemproperties = (state = intitialState , action ) => {
                 sections : action.payload.sections
             };
 
-        case actions.RECEIVE_ITEM_PROPETIES_SECTIONS: 
+        case actions.RECEIVE_ITEM_FORM_FIELDS_SECTIONS: 
             return {
                 ...state,
                 sections: action.payload
             };
         
-        case actions.TOGGLE_ITEMPROPERTIES_SECTION :
+        case actions.TOGGLE_ITEM_FORM_FIELDS_SECTION :
            let newSections = Object.assign({}, state.sections);
            newSections[action.payload].isVisible = !newSections[action.payload].isVisible;
             return {
@@ -40,4 +40,4 @@ const  itemproperties = (state = intitialState , action ) => {
     }
 }
 
-export default itemproperties;
+export default itemformfields;

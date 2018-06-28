@@ -70,7 +70,7 @@ class ItemLookUpThrottled extends Component {
               value={this.state.q}
               onChange={this.changeQuery}
             />
-             <Dropdown placeholder='Select Country' fluid search selection options={this.state.options}  onSearchChange={this.handleOnChnage}/>
+             <Dropdown placeholder='Lastname First' fluid search selection options={this.state.options}  onSearchChange={this.handleOnChnage}/>
             <ol>
               {_searches.map((s, i) => {
                 return <li key={s + i}>{s}</li>;

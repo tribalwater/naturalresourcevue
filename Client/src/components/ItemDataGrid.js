@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import { withRouter } from 'react-router';
+import {Segment} from "semantic-ui-react";
+
 
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 
 import  DataGrid from "./DataGrid"
+import MainPageHeader           from "./MainPageHeader";
 
 import {getItemList} from "../actions/items";
 import {itemArrayListedSortedSelector, itemArrayListedSelector}  from "../selectors/itemlist";
@@ -52,7 +55,7 @@ class ItemDataGrid extends Component {
             history.push({ 
                 pathname: `/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
                 state : {cameFromTab: true, cameFromLocation : url, name: history.location.name} 
-            });
+        });
 
         }
 
@@ -62,9 +65,11 @@ class ItemDataGrid extends Component {
         let {listedItems, listedJsonItems, items, display,  match} = this.props;        
         let cols =  listedItems.length > 1 && getCols(listedItems[0]) || [];
         let dt;
+        let h = this.props.height + "px";
         console.log(listedItems[0])
         console.log("----- columns ------");
         console.log(cols)
+        console.log(h)
         //console.log(display)
         if(listedItems.length > 1){
            dt =  <ReactTable
@@ -74,7 +79,7 @@ class ItemDataGrid extends Component {
             className="-striped -highlight"
             minRows={0}
             style={{
-                height: "400px" // This will force the table body to overflow and scroll, since there is not enough room
+                height: h// This will force the table body to overflow and scroll, since there is not enough room
               }}
             getTdProps={(state, rowInfo, column, instance) => {
                 return {
@@ -105,10 +110,13 @@ class ItemDataGrid extends Component {
         return (
             <div>
                 
-             
-                {
+            <MainPageHeader></MainPageHeader>
+            <Segment  className="page-container" style={{height: this.props.height}}>  
+            {
                    dt
                 }
+            </Segment>
+              
                 
             </div>
         );

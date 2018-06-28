@@ -9,7 +9,7 @@ export const getItemList = (payload) =>  dispatch =>{
    dispatch({
     type: actions.API,
     payload: {
-      url: `/item/${payload.itemtype}/${payload.itemsubtype}/list`,
+      url: `/item/${payload.itemtype}/${payload.itemsubtype}/list/viewmodel`,
       //schema: [schema.books],
       success: receiveItemList,
       label: 'itemlist',

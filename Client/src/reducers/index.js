@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import * as actions from '../consts/ActionTypes';
 import itemlist from './itemlists';
 import itemproperties from './itemproperties';
+import itemformfields from "./itemformfields";
 import itempropertiesbuttons from "./itempropertiesbuttons";
 
 const tabLinks = [
@@ -39,6 +40,7 @@ const tabLinks = [
     tabs,
     itemlist,
     itemproperties,
+    itemformfields,
     itempropertiesbuttons
   })
   

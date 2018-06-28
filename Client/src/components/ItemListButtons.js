@@ -5,11 +5,11 @@ import { Button, Menu, Icon } from "semantic-ui-react";
 import ItemFormModel from './ItemFormModel';
 import EventHanlders from "../utils/EventHandlers";
 
-import ItemEditButton from "./ItemEditButton";
 import ItemInsertButton from "./ItemInsertButton";
+import ItemEditButton from "./ItemEditButton";
 
 
-class ItemPropertiesButtons extends Component {
+class ItemListButtons extends Component {
     state = {
         isFormModalOpen : false,
         itemFormAction: null,
@@ -29,11 +29,10 @@ class ItemPropertiesButtons extends Component {
     render() {
       const { activeItem } = this.state
   
-        let {buttons, itemtype, subtype, itemid} = this.props;
-     
+        let {buttons} = this.props;
         let menuItems =  buttons.map(b =>  { 
           if(b.eventhandler == "editItem"){
-              return <ItemEditButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid} />
+              return <ItemEditButton button={b}/>
           }
           return  <Menu.Item
                     name= {b.name}
@@ -57,7 +56,7 @@ class ItemPropertiesButtons extends Component {
 
 const mapStateToProps = state => {
     return {
-      buttons: state.itemproperties.buttons
+      buttons: state.itemlist.buttons
     };
 };
 
@@ -65,4 +64,4 @@ const mapStateToProps = state => {
 const dispatchObj = {}
 //getItemList
 
-export default connect(mapStateToProps, dispatchObj)(ItemPropertiesButtons);
+export default connect(mapStateToProps, dispatchObj)(ItemListButtons);

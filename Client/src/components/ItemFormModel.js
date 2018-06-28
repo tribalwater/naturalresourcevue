@@ -26,33 +26,27 @@ const TribalDate = ({value, onClick}) => (
   </div>
 );
 
-class ExampleCustomInput extends Component {
-
-    render () {
-        let {onClick, value} = this.props;
-      return (
-        <div onClick = {onClick}>
-           <Input placeholder='Search...'  value={value} icon="calendar alternate outline"/>
-        </div>
-      )
-    }
-}
 
 class ItemFormModel extends Component {
     constructor(props){
         super(props);
-        this.state = {isOpen: false,  startDate: moment()};
+        this.state = {isOpen: false,  startDate: moment(), formFields : null};
         this.handleChange = this.handleChange.bind(this);
     }
 
-    componentWillMount(){
+    componentDidMount(){
         setTimeout(() => {
            this.setState({isOpen: true})
            console.log(this.state)
         }, 3500);
-
-        axios.get("http://localhost:51086/api/item/document/gwpermit/formfields")
-        .then( res => this.setState({formfields: res.data}))
+    
+     
+        let{ itemtype, subtype, itemid} = this.props;
+        console.log("--- goo go go power ranger ----", itemtype, subtype)
+        
+        axios.get(`http://localhost:51086/api/item/${itemtype}/${subtype}/formfields`)
+        .then( res => this.setState({formFields: res.data}))
+        .then(console.log("done"))
     }
 
     handleChange(date) {
@@ -61,80 +55,34 @@ class ItemFormModel extends Component {
         });
       }
     render() {
-        return (
-            <Modal open={this.state.isOpen}  centered={true} size="fullscreen" style= {{ 'margin-top': '20px', 'color': "green"}} className="fuck" >
-                <Modal.Header>Delete Your Account</Modal.Header>
-                <Modal.Content>
-                {/* <Form>
-                    <Form.Group widths='equal'>
-                    <Form.Field
-                        id='form-input-control-first-name'
-                        control={Input}
-                        label='First name'
-                        placeholder='First name'
-                    />
-                    <DatePicker
-                        customInput={<ExampleCustomInput />}
-                        selected={this.state.startDate}
-                        onChange={this.handleChange}
-                        withPortal
-                   />
-                   <ItemLookUpThrottled></ItemLookUpThrottled>
-                     </Form.Group>
-                    {/*
-                    <Form.Field
-                    id='form-textarea-control-opinion'
-                    control={TextArea}
-                    label='Opinion'
-                    placeholder='Opinion'
-                    /> */}
-{/*                   
-                     <Form.Field>
-                        <label>Aquifer Types</label>
-                        <Dropdown
-                            value={this.state.market} 
-                            options={forMatedAqfTypesSel} 
-                            name={"Market"} 
-                            onChange={this.handleFormChange} 
-                            fluid selection 
-                    />
-                     </Form.Field>
-                     <Form.Field>
-                         <label >fhip district</label>
-                         <Input type="number"></Input>
-                     </Form.Field>
-                     <Form.Field>
-                        <label >nbr of pods inline query type is hidden on isnsert </label>
-                        <TextArea placeholder='Tell us more' />
-                     </Form.Field>
-                     <Form.Field>
-                        <label >1/4, 1/4 Description</label>
-                        <TextArea placeholder='Tell us more' />
-                     </Form.Field>
-                     <Form.Field>
-                        <label >Owner (Organization) lookup basically a type ahead fields needsto be implented</label>
-                        <TextArea placeholder='Tell us more' />
-                     </Form.Field>   
-                     <Form.Field>
-                        <label>Group Features</label>
-                        <Dropdown
-                            value={this.state.market} 
-                            options={formatedGroupFeaturesSel} 
-                            name={"Market"} 
-                            onChange={this.handleFormChange} 
-                            fluid selection 
-                            multiple
-                    />
-                     </Form.Field>
-                </Form>  */}
-               <ItemForm formFieldJson = {this.state.formfields}></ItemForm>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button negative>No</Button>
-                    <Button positive icon='checkmark' labelPosition='right' content='Yes' />
-                </Modal.Actions>
-            </Modal>
-        );
+        let formFields;
+         if(this.state.formFields != null){
+            return (
+                <Modal
+                       closeIcon centered={true} 
+                       size="fullscreen"
+                       style= {{ 'margin-top': '20px', 'color': "green"}} 
+                       className="fuck" 
+                       closeOnDimmerClick ={true}
+                       closeOnDocumentClick = {true}
+                       defaultOpen= {true}
+                       onClose={this.props.onClose}
+                 >
+                    <Modal.Header>Delete Your Account</Modal.Header>
+                    <Modal.Content>
+                 
+                   <ItemForm formFieldJson = {this.state.formFields}></ItemForm>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button negative>Cancel</Button>
+                        <Button positive icon='checkmark' labelPosition='right' content='Submit' />
+                    </Modal.Actions>
+                </Modal>
+            );
+         }else{
+             return (<div></div>);
+         }
+        
     }
 }
 

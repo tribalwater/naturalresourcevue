@@ -11,16 +11,10 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-
-
-
 import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
 import ItemDataGrid             from "./ItemDataGrid";
-import ItemFormModal            from "./ItemFormModel";
-
-
 
 class MainComponent extends Component {
     constructor() {
@@ -44,6 +38,7 @@ class MainComponent extends Component {
     }
   
     updateContainerDimensions(){
+        console.log("--- update dimensions ---")
         let {content} = this.refs;
         let cHeight = content.offsetHeight - content.children[0].offsetHeight ;
         this.setState({containerHeight: cHeight });
@@ -51,16 +46,32 @@ class MainComponent extends Component {
     
     render() {
         return (
-            <div>
             <div className="app-wrapper" ref="content">
-                <MainPageHeader></MainPageHeader>
-                <Segment  className="page-container" style={{height: this.state.containerHeight}}>    
-                <div>
-                    <DatePicker
-                    onChange={this.onChange}
-                    value={this.state.date}
-                    />
-                </div>
+              
+                    <Switch>
+                        <Route  path='/item/properties/:itemtype/:itemsubtype/:itemid' 
+                                render = { () =>  <ItemPropertiesContainer  height={this.state.containerHeight} /> } 
+                        />
+                        <Route  path='/item/list/:itemtype/:itemsubtype' 
+                                render = { () =>  <ItemListTableContainer height={this.state.containerHeight} />  }
+                        />
+                        <Route  path='/item/datagrid/:itemtype/:itemsubtype' 
+                                render = { () =>  <ItemDataGrid  height={this.state.containerHeight} /> }
+                        />
+                        <Route  path='/tabs/:tabid' 
+                                render = { () =>  <Tabs height={this.state.containerHeight}  /> }
+                        />
+                    </Switch>
+                
+            </div>     
+        );
+    }
+}
+
+export default MainComponent;
+
+{/* // <MainPageHeader></MainPageHeader>
+                <Segment  className="page-container" style={{height: this.state.containerHeight}}>   
                     <Switch>
                         <Route  path='/item/properties/:itemtype/:itemsubtype/:itemid' 
                                 render = { () =>  <ItemPropertiesContainer  /> } 
@@ -75,26 +86,13 @@ class MainComponent extends Component {
                                 render = { () =>  <Tabs  /> }
                         />
                     </Switch>
-                </Segment>
-                
-            </div>
-           
-            
-            </div>
-        );
-    }
-}
-
-export default MainComponent;
-
-
+//                 </Segment> */}
 
 
 class Tabs extends Component {
  
     componentDidMount(){
-     
-      
+    
        //addTab({ url: match.url, name: `tab${match.params.id}`})
        this.updateTabs(this.props)
         
@@ -102,12 +100,8 @@ class Tabs extends Component {
     componentWillReceiveProps(nextProps){
        
         let {match, location} = nextProps;
-      
-       
         if(this.props.location.pathname !==  location.pathname){
-           
-           this.updateTabs(nextProps)
-                
+           this.updateTabs(nextProps);   
         }
         
     }
@@ -132,11 +126,11 @@ class Tabs extends Component {
      render(){
         return ( <Switch>
                     <Route path="/tabs/:tabid/item/list/:itemtype/:itemsubtype"
-                           render = { () =>  <ItemListTableContainer />}> </Route>
+                           render = { () =>  <ItemListTableContainer  height={this.props.height} />}> </Route>
                     <Route path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" 
-                           render = { () =>  <ItemPropertiesContainer  />} />
+                           render = { () =>  <ItemPropertiesContainer   height={this.props.height} />} />
                     <Route path='/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype' 
-                           render = { () =>  <ItemDataGrid /> }
+                           render = { () =>  <ItemDataGrid   height={this.props.height} /> }
                     /> 
                 </Switch>
             )  
