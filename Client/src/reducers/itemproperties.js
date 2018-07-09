@@ -5,6 +5,7 @@ const intitialState = {
     fields: [],
     buttons: [],
     tabs: [],
+    tabsBaseUrl: "",
     display:{},
     sections: null,
     futureUrl: null,
@@ -23,7 +24,14 @@ const  itemproperties = (state = intitialState , action ) => {
                 display : action.payload.display,
                 sections : action.payload.sections
             };
+        
+        case actions.RECEIVE_ITEM_PROPETIES_TABS_BASEURL: 
+            return {
+                ...state,
+                tabsBaseUrl: action.payload
+            };
 
+            
         case actions.RECEIVE_ITEM_PROPETIES_SECTIONS: 
             return {
                 ...state,

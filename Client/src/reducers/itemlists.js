@@ -3,6 +3,7 @@ import * as actions from '../consts/ActionTypes';
 const intitialState = {
     isFetching: false,
     items: [],
+    buttons : [], 
     display: [],
     futureUrl: null,
     nextUrl: null,
@@ -15,7 +16,8 @@ const  itemlist = (state = intitialState , action ) => {
             return {
                 ...state,
                 items   : action.payload.records,
-                display : action.payload.display
+                display : action.payload.display,
+                buttons : action.payload.buttons
             };
 
         default: 

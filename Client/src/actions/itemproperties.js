@@ -7,6 +7,12 @@ export const receiveItemProperties  = (payload) => {
    })
 };
 
+export const receiveItemPropertiesTabsBaseUrl  = (baseUrl) => {
+  return ({
+   type: actions.RECEIVE_ITEM_PROPETIES_TABS_BASEURL,
+   payload : baseUrl
+  })
+};
 export const receiveItemPropertiesSections = (payload) => ({
   type: actions.RECEIVE_ITEM_PROPETIES_SECTIONS,
   payload : getFieldSections( getLabelFields(fieldObjToArr(payload.records[0], payload.display)) , fieldObjToArr(payload.records[0], payload.display))

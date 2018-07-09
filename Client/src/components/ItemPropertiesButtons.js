@@ -18,8 +18,9 @@ class ItemPropertiesButtons extends Component {
     handleItemClick = (button) => {
         //this.setState({ activeItem: name })
         if(button.eventhandler == "editItem"){
-            this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) )
-           
+            this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) );
+        }else if(button.eventhandler == "goToInsert"){
+            this.setState({itemFormAction: "insert"}, () => this.setState({ isFormModalOpen : true}) );
         }
       
     } 
@@ -34,7 +35,9 @@ class ItemPropertiesButtons extends Component {
         let menuItems =  buttons.map(b =>  { 
           if(b.eventhandler == "editItem"){
               return <ItemEditButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid} />
-          }
+          }else if(b.eventhandler == "goToInsert"){
+            return <ItemInsertButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid} />
+         }
           return  <Menu.Item
                     name= {b.name}
                     active={activeItem === `${b.name}`}
@@ -45,9 +48,11 @@ class ItemPropertiesButtons extends Component {
                   </Menu.Item>
         })
         return (
-            <div className= "h-scroll"> 
-                <Menu   tabular  secondary  fluid>
-                    {menuItems}
+            <div className= "h-scroll" style ={{border: 'none'}}> 
+                <Menu  borderless  fluid  style ={{border: 'none'}}>
+                    <Menu.Menu   position='right'>
+                        {menuItems}
+                    </Menu.Menu>     
                 </Menu>   
             </div>
         );

@@ -1,9 +1,14 @@
 import * as actions from "../consts/ActionTypes";
 
-export const receiveItemList  = (payload) => ({
-    type: actions.RECEIVE_ITEM_LIST,
-    payload
-});
+export const receiveItemList  = (payload) =>  { 
+ 
+    let formattedButtons =  payload.buttons.map( button => { button.icon = button.imageurl.replace("icon", ""); return button });
+    let formattedPayload = {...payload, buttons : formattedButtons };
+    return ({
+      type: actions.RECEIVE_ITEM_LIST,
+      payload : formattedPayload
+    });
+}
 
 export const getItemList = (payload) =>  dispatch =>{
    dispatch({

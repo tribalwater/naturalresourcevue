@@ -29,18 +29,18 @@ class ItemForm extends Component {
     }
     
     componentWillMount(){
-        let {params} = this.props.match;
+        let{ itemtype, subtype} = this.props;
         console.log("--- will mount ---");
         console.log(this.props)
-        this.props.getItemFormFields({itemtype: params.itemtype, itemsubtype: params.itemsubtype})
+        this.props.getItemFormFields({itemtype:itemtype, itemsubtype: subtype})
       }
     
     
     componentWillReceiveProps(nextProps){
-        let {params} = this.props.match;
-        let newParams = nextProps.match.params;
-        if(params.itemsubtype !== newParams.itemsubtype){
-          this.props.getItemFormFields({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype, itemid: newParams.itemid})
+        let{ itemtype, subtype} = this.props; 
+       
+        if(subtype !== nextProps.subtype){
+          this.props.getItemFormFields({itemtype:itemtype, itemsubtype: subtype})
         }
         
     }
@@ -120,7 +120,9 @@ class ItemForm extends Component {
     }
     render() {
         let {formFieldJson} = this.props || [];
-        let formfields = formFieldJson.map(this.jsonToFormFields)
+        console.log(" --- item form  render ----");
+        console.log(formFieldJson)
+        let formfields = this.props.formfields.map(this.jsonToFormFields)
         return (
             <div>
                  <Form> 
@@ -135,7 +137,7 @@ class ItemForm extends Component {
 const mapStateToProps = state => {
     return {
       tabs : state.tabs,
-      formfields: state.itemproperties.fields,
+      formfields: state.itemformfields.formfields,
       sections : state.itemformfields.sections
     };
 };

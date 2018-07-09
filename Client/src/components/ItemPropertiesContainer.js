@@ -1,24 +1,43 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { withRouter } from 'react-router'
+import { Switch, Route, withRouter } from 'react-router-dom';
 import {Segment} from "semantic-ui-react";
 
-
 import ItemPropertiesTable      from "./common/ItemPropertiesTable";
-import {getItemProperties, toggleSection} from "../actions/itemproperties";
+import {getItemProperties, toggleSection, receiveItemPropertiesTabsBaseUrl} from "../actions/itemproperties";
 import {addTab}        from "../actions/tabs";
 import { getVisibileItemFields} from "../selectors/itemproperties";
 
 import MainPageHeader           from "./MainPageHeader.1";
 import ItemPropertiesButtons from "./ItemPropertiesButtons";
+import ItemPropertiesTabs from "./ItemPropertiesTabs";
+
+ 
+const  ItemMessages = ({fields, sections, toaggleSection}) => {
+  return <div>I am the container for item message</div>
+};
+
+const  ItemNotes = ({}) => {
+  return <div>I am container for  item notes</div>
+};
+
+const  ItemFiles = ({}) => {
+  return <div>I am container for  item Files</div>
+};
+
+const  ItemRelations = ({}) => {
+  return <div>I am container for  item relations</div>
+};
 
 
 class ItemPropertiesContainer extends Component {
 
   componentWillMount(){
     let {params} = this.props.match;
-
     this.props.getItemProperties({itemtype: params.itemtype, itemsubtype: params.itemsubtype, itemid: params.itemid})
+    this.props.receiveItemPropertiesTabsBaseUrl(this.props.match.url);
+    console.log(" --- props props ----");
+    console.log(this.props)
   }
 
   componentWillReceiveProps(nextProps){
@@ -38,31 +57,37 @@ class ItemPropertiesContainer extends Component {
      let urlArr           = url.split("/");
      let name             = urlArr[urlArr.length - 2 ];
     
-    //  if(currentURLTabArr.length < 10){
-    //    this.props.addTab({ url: url, name: name + tabs.length + 1 })
-    //  }
-     
    }
-
-   
+     
    render() {
-        let table;
+        
         let {fields, sections, toggleSection} = this.props;
         let {params} = this.props.match;
-        if(fields.length > 0 && this.props.sections){
-          table = <div>"table" </div>
-           table = <ItemPropertiesTable fields= {fields} sections={sections} toggleSection = {toggleSection} />
-        }else{
-          table = <div>laoding</div>
-        }
+      
         return (
            <div>
              <MainPageHeader
-              buttonGroupTwo = {<ItemPropertiesButtons itemtype={params.itemtype} subtype={params.itemsubtype} itemid = {params.itemid} /> }
+              header = "Item Properties"
+              buttonGroupTwo = {<ItemPropertiesTabs  baseUrl={this.props.location.pathname} />}
+              buttonGroupOne = {<ItemPropertiesButtons itemtype={params.itemtype} subtype={params.itemsubtype} itemid = {params.itemid} /> }
              >
              </MainPageHeader>
-            <Segment  className="page-container" style={{height: this.props.height}}>  
-             {table}
+             <Segment  className="page-container" style={{height: this.props.height}}>  
+              <Switch>
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" 
+                           render = { () =>  <ItemPropertiesTable  fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(properties|properties/properties)" 
+                           render = { () =>  <ItemPropertiesTable  fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />                       
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(messages|properties/messages)" 
+                           render = { () => <ItemMessages />} />
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(notes|properties/notes)" 
+                           render = { () => <ItemNotes />} /> 
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(files|properties/files)" 
+                           render = { () => <ItemFiles />} />  
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(relations|properties/relations)" 
+                           render = { () => <ItemRelations />} />                            
+            
+              </Switch>
             </Segment>
           </div>  
         );
@@ -73,12 +98,11 @@ const mapStateToProps = state => {
     return {
       tabs : state.tabs,
       fields : getVisibileItemFields(state),
-      // fields: state.itemproperties.fields,
       sections : state.itemproperties.sections
     };
 };
 
-const dispatchObj = {addTab, getItemProperties, toggleSection}
+const dispatchObj = {addTab, getItemProperties, toggleSection, receiveItemPropertiesTabsBaseUrl}
 
 export default  withRouter( connect(mapStateToProps, dispatchObj)(ItemPropertiesContainer) );
   

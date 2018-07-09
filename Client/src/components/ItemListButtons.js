@@ -18,25 +18,25 @@ class ItemListButtons extends Component {
     handleItemClick = (button) => {
         //this.setState({ activeItem: name })
         if(button.eventhandler == "editItem"){
-            this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) )
-           
+            this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) );
+        }else if(button.eventhandler == "goToInsert"){
+            this.setState({itemFormAction: "insert"}, () => this.setState({ isFormModalOpen : true}) );
         }
       
-    } 
-    mapButtons(button){
-
     }
+
     render() {
-      const { activeItem } = this.state
-  
-        let {buttons} = this.props;
+      
+        let {buttons,itemtype, subtype, itemid} = this.props;   
         let menuItems =  buttons.map(b =>  { 
           if(b.eventhandler == "editItem"){
-              return <ItemEditButton button={b}/>
+              return <ItemEditButton button={b}  itemtype={itemtype} subtype={subtype} itemid = {itemid} />
+          }else if(b.eventhandler == "goToInsert"){
+               return <ItemInsertButton button={b}   itemtype={itemtype} subtype={subtype} itemid = {itemid}/>
           }
           return  <Menu.Item
                     name= {b.name}
-                    active={activeItem === `${b.name}`}
+                   
                     onClick={ () => this.handleItemClick(b)}
                     >
                     <Icon name={b.icon} />
@@ -47,6 +47,7 @@ class ItemListButtons extends Component {
             <div className= "h-scroll"> 
                 <Menu   tabular  secondary  fluid>
                     {menuItems}
+                   
                 </Menu>   
             </div>
         );
@@ -62,6 +63,6 @@ const mapStateToProps = state => {
 
 
 const dispatchObj = {}
-//getItemList
+
 
 export default connect(mapStateToProps, dispatchObj)(ItemListButtons);

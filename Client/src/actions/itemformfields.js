@@ -5,7 +5,7 @@ export const  receiveItemFormFields  = (payload) => {
   console.log(payload)
    return ({
     type: actions.RECEIVE_ITEM_FORM_FIELDS,
-    payload : {...payload, records : payload , sections: getFieldSections( getLabelFields(payload) , payload)}
+    payload
    })
 };
 

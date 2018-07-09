@@ -15,9 +15,7 @@ const  itemformfields = (state = intitialState , action ) => {
         case actions.RECEIVE_ITEM_FORM_FIELDS:        
             return {
                 ...state,
-                fields   : action.payload.records,
-                display : action.payload.display,
-                sections : action.payload.sections
+                formfields: action.payload
             };
 
         case actions.RECEIVE_ITEM_FORM_FIELDS_SECTIONS: 

@@ -9,7 +9,8 @@ import {getItemList} from "../actions/items";
 import {addTab} from "../actions/tabs";
 import {itemArrayListedSortedSelector, itemArrayListedSelector}  from "../selectors/itemlist";
 import ItemFormModal            from "./ItemFormModel";
-import MainPageHeader           from "./MainPageHeader";
+import MainPageHeader           from "./MainPageHeader.1";
+import ItemListButtons          from "./ItemListButtons";
 
 class ItemListTableContainer extends Component {
 
@@ -20,19 +21,18 @@ class ItemListTableContainer extends Component {
     componentWillMount(){
         let url      = this.props.match.url;
         let urlArr           = url.split("/");
-        let {params} = this.props.match
-        
+        let {params} = this.props.match;
         this.props.getItemList({itemtype: params.itemtype, itemsubtype: params.itemsubtype}); 
-
     }
+
     componentWillReceiveProps(nextProps){
         let {params} = this.props.match;
         let newParams = nextProps.match.params;
         if(params.itemtype !== newParams.itemtype || params.itemsubtype !== newParams.itemsubtype){
             this.props.getItemList({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype}); 
-        }
-        
+        }   
     }
+    
     handleRowClick( item){
         let {history, tabs} = this.props;
         let {params}  = this.props.match
@@ -50,13 +50,13 @@ class ItemListTableContainer extends Component {
                 state : {cameFromTab: true, cameFromLocation : url, name: history.location.name} 
             });
 
-        }
-
-      
+        } 
     }
     
     render() {
+
         let {listedItems, listedJsonItems, items,  match} = this.props;
+        let {params} = this.props.match;
         let listedRows  = listedItems.map( (i, idx) =>  <Table.Row key={idx} onClick = {() => this.handleRowClick(i[0])}> 
                                                    { i.map( (field, idx) => {                 
                                                        let cell;
@@ -75,7 +75,9 @@ class ItemListTableContainer extends Component {
         return (
             <div>
 
-               <MainPageHeader></MainPageHeader>
+             <MainPageHeader
+              buttonGroupTwo = { <ItemListButtons itemtype={params.itemtype} subtype={params.itemsubtype}  /> }
+             />
             <Segment  className="page-container" style={{height: this.props.height}}>  
             <Table  sortable celled compact striped inverted>
                 

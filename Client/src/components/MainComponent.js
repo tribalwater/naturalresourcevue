@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Switch, Route, withRouter } from 'react-router-dom'
+import { Switch, Route, withRouter } from 'react-router-dom';
 import {Segment} from "semantic-ui-react";
-
 
 import { connect } from "react-redux";
 import {addTab, updateTabUrl}        from "../actions/tabs";
@@ -11,7 +10,6 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import MainPageHeader           from "./MainPageHeader";
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
 import ItemDataGrid             from "./ItemDataGrid";

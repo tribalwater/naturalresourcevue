@@ -1,19 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-
-
-import {  Link } from 'react-router-dom'
-
-
-
-
-let linkArr = [
-    { label : "Tables", isSelected : true} ,  { label : "Chairs chairs charis", isSelected : false} ,  { label : "Beds", isSelected : false},
-    { label : "Ricks", isSelected : false} , { label : "Morty's", isSelected : false},{ label : "Sanchez", isSelected : false},
-    { label :"PinkBear", isSelected : false} ,  { label :"Raven", isSelected : false},  { label : "Penis", isSelected : false},
-    
-]
-
+import {  Link } from 'react-router-dom';
 
 class HorizontalSlideMenu extends React.Component {
 
@@ -21,7 +8,6 @@ class HorizontalSlideMenu extends React.Component {
         super(props);
         this.state = { 
             count: 6, 
-            linkArr : linkArr,
             navBarTravelling: false,
             navBarTravelDirection: "",
 	        navBarTravelDistance: 150,
