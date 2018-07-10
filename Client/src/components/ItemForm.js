@@ -56,12 +56,12 @@ class ItemForm extends Component {
     jsonToFormFields(field, idx, arr){
         switch (field.fieldtype) {
             case "date":
-                return <ItemDate onChange={this.handleFormChange} label={field.displayname} selectedDate= {moment()} />;
+                return <ItemDate onChange={this.handleFormChange} label={field.displayname} selectedDate= {moment()}   height={this.props.height} />;
                 
                 break;
 
             case "picklist":
-                return  <ItemPickList   onChange={this.handleFormChange} selectOpions = {field.seloptions}  label = {field.displayname} /> ;
+                return  <ItemPickList   onChange={this.handleFormChange} selectOpions = {field.seloptions}  label = {field.displayname}   height={this.props.height}/> ;
                 break; 
 
             case "label":
@@ -70,11 +70,11 @@ class ItemForm extends Component {
                 break;
 
             case "lookup":
-                return <ItemLookUpThrottled   onChange={this.handleFormChange} label = {field.displayname} />
+                return <ItemLookUpThrottled   onChange={this.handleFormChange} label = {field.displayname}  height={this.props.height} />
                 break;
             
             case "pickwindow":
-                return <ItemPickWindow label={field.displayname}  onChange={this.handleFormChange} />;
+                return <ItemPickWindow label={field.displayname}  onChange={this.handleFormChange}  field={field}  height={this.props.height}/>;
                 break;
             
             case "readonly":
@@ -86,7 +86,7 @@ class ItemForm extends Component {
                 break;    
 
             case "autonumber":
-                return <ItemAutoNumber label={field.displayname} />
+                return <ItemAutoNumber label={field.displayname}  height={this.props.height}/>
                 break;    
             
             case "linkedfield":
@@ -94,16 +94,16 @@ class ItemForm extends Component {
                 break;
 
             case "checkbox":
-                return <ItemCheckBox checkboxes={field.checkboxes}   label = {field.displayname} />
+                return <ItemCheckBox checkboxes={field.checkboxes}   label = {field.displayname}  height={this.props.height}  />
                 break;  
 
             case "textarea":
-                return <ItemTextArea  onChange={this.handleFormChange} rows={field.rows} label={field.displayname} />
+                return <ItemTextArea  onChange={this.handleFormChange} rows={field.rows} label={field.displayname}  height={this.props.height}  />
                 break; 
                 
             
             case "text":
-                return <ItemText   onChange={this.handleFormChange}label={field.displayname} />;
+                return <ItemText   onChange={this.handleFormChange}label={field.displayname}   height={this.props.height}  />;
                 break;
                 
             // case "date":

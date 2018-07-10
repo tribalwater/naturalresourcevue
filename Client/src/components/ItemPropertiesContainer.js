@@ -68,24 +68,24 @@ class ItemPropertiesContainer extends Component {
            <div>
              <MainPageHeader
               header = "Item Properties"
-              buttonGroupTwo = {<ItemPropertiesTabs  baseUrl={this.props.location.pathname} />}
-              buttonGroupOne = {<ItemPropertiesButtons itemtype={params.itemtype} subtype={params.itemsubtype} itemid = {params.itemid} /> }
+              buttonGroupTwo = {<ItemPropertiesTabs  height={this.props.height}  baseUrl={this.props.location.pathname} />}
+              buttonGroupOne = {<ItemPropertiesButtons  height={this.props.height} itemtype={params.itemtype} subtype={params.itemsubtype} itemid = {params.itemid} /> }
              >
              </MainPageHeader>
              <Segment  className="page-container" style={{height: this.props.height}}>  
               <Switch>
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" 
-                           render = { () =>  <ItemPropertiesTable  fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />
+                           render = { () =>  <ItemPropertiesTable    height={this.props.height} fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(properties|properties/properties)" 
-                           render = { () =>  <ItemPropertiesTable  fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />                       
+                           render = { () =>  <ItemPropertiesTable    height={this.props.height} fields= {fields} sections={sections} toggleSection = {toggleSection} />  }    />                       
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(messages|properties/messages)" 
-                           render = { () => <ItemMessages />} />
+                           render = { () => <ItemMessages  height={this.props.height}  /> }  />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(notes|properties/notes)" 
-                           render = { () => <ItemNotes />} /> 
+                           render = { () => <ItemNotes   height={this.props.height}  /> }  />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(files|properties/files)" 
-                           render = { () => <ItemFiles />} />  
+                           render = { () => <ItemFiles   height={this.props.height} />  }  />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(relations|properties/relations)" 
-                           render = { () => <ItemRelations />} />                            
+                           render = { () => <ItemRelations  height={this.props.height } />    }  />                        
             
               </Switch>
             </Segment>

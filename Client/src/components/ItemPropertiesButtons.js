@@ -16,7 +16,6 @@ class ItemPropertiesButtons extends Component {
     }
     
     handleItemClick = (button) => {
-        //this.setState({ activeItem: name })
         if(button.eventhandler == "editItem"){
             this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) );
         }else if(button.eventhandler == "goToInsert"){
@@ -31,21 +30,20 @@ class ItemPropertiesButtons extends Component {
       const { activeItem } = this.state
   
         let {buttons, itemtype, subtype, itemid} = this.props;
-     
         let menuItems =  buttons.map(b =>  { 
           if(b.eventhandler == "editItem"){
-              return <ItemEditButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid} />
-          }else if(b.eventhandler == "goToInsert"){
-            return <ItemInsertButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid} />
-         }
-          return  <Menu.Item
-                    name= {b.name}
-                    active={activeItem === `${b.name}`}
-                    onClick={ () => this.handleItemClick(b)}
-                    >
-                    <Icon name={b.icon} />
-                    {b.label}
-                  </Menu.Item>
+              return <ItemEditButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid}   />
+           }else if(b.eventhandler == "goToInsert"){
+            return <ItemInsertButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid}   />
+           }
+            return  <Menu.Item
+                        name= {b.name}
+                        active={activeItem === `${b.name}`}
+                        onClick={ () => this.handleItemClick(b)}
+                        >
+                        <Icon name={b.icon}  color="blue"  size="large" />
+                        {b.label}
+                    </Menu.Item>
         })
         return (
             <div className= "h-scroll" style ={{border: 'none'}}> 

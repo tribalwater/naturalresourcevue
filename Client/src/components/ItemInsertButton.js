@@ -25,7 +25,7 @@ class ItemInsertButton extends Component {
                         name= {button.name}
                         onClick={ () => this.toggleFormModal(button)}
                     >
-                        <Icon name={button.icon} />
+                        <Icon name={button.icon}  color="blue"  size="large" />
                         {button.labuttonel}
                     </Menu.Item>
                     <ItemFormModel  action={"edit"} 
@@ -33,6 +33,7 @@ class ItemInsertButton extends Component {
                                     subtype={subtype} 
                                     itemid = {itemid} 
                                     onClose = {this.toggleFormModal }
+                                    height={this.props.height}
                     />
                 </div>
             ); 
@@ -43,7 +44,7 @@ class ItemInsertButton extends Component {
                         name= {button.name}
                         onClick={ () => this.toggleFormModal(button)}
                     >
-                        <Icon name={button.icon} />
+                        <Icon name={button.icon} color="blue" size="large"  />
                         {button.label}
                     </Menu.Item>
                 </div>

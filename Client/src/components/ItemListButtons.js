@@ -30,16 +30,16 @@ class ItemListButtons extends Component {
         let {buttons,itemtype, subtype, itemid} = this.props;   
         let menuItems =  buttons.map(b =>  { 
           if(b.eventhandler == "editItem"){
-              return <ItemEditButton button={b}  itemtype={itemtype} subtype={subtype} itemid = {itemid} />
+              return <ItemEditButton button={b}  itemtype={itemtype} subtype={subtype} itemid = {itemid} height={this.props.height} />
           }else if(b.eventhandler == "goToInsert"){
-               return <ItemInsertButton button={b}   itemtype={itemtype} subtype={subtype} itemid = {itemid}/>
+               return <ItemInsertButton button={b}   itemtype={itemtype} subtype={subtype} itemid = {itemid} height={this.props.height}/>
           }
           return  <Menu.Item
                     name= {b.name}
                    
                     onClick={ () => this.handleItemClick(b)}
                     >
-                    <Icon name={b.icon} />
+                    <Icon name={b.icon}   size="large" />
                     {b.label}
                   </Menu.Item>
         })

@@ -30,3 +30,32 @@ export const itemArrayListedSortedSelector  = createSelector(
      }) 
 );
 
+
+export const itemListDataGridCols  =  createSelector(
+    itemArrayListedSortedSelector, 
+    (listedItems) => {
+        console.log(" --- listed items ---- ");
+        console.log(listedItems)
+        let cols = [];
+        if(listedItems && listedItems.length > 0){
+            let listedItemsFirst  = listedItems[0];
+            let filterdCols = listedItemsFirst.filter(item => item.fieldname !== "itemid");
+            cols =  filterdCols.map( (li, idx) => {
+                let colObj = {};
+                colObj.Header = li.displayname;
+                colObj.accessor = getDFunc(idx);
+                colObj.id = li.fieldname;
+                if(li.fieldname !== "itemid"){
+                    return colObj;
+                }
+            
+            });    
+        }
+        
+        return cols;
+   }
+); 
+function getDFunc(idx){
+    
+    return d => d[idx].fieldvalue
+}

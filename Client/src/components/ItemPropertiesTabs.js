@@ -34,9 +34,12 @@ class ItemPropertiesTabs extends Component {
                                                </Link>     
                               })
       return (
-        <Menu tabular>
+        <div className="h-scroll">
+          <Menu tabular>
           {menuTabs}
         </Menu>
+        </div>
+      
       )
     }
 }

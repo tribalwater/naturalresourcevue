@@ -27,10 +27,11 @@ class ItemEditButton extends Component {
             return (
                 <div>
                     <Menu.Item
+                        color="blue"
                         name= {button.name}
                         onClick={ () => this.toggleFormModal(button)}
                     >
-                        <Icon name={button.icon} />
+                        <Icon name={button.icon}  color="blue" size="large" />
                         {button.labuttonel}
                     </Menu.Item>
                     <ItemFormModel  action={"edit"} 
@@ -38,6 +39,7 @@ class ItemEditButton extends Component {
                                     subtype={subtype} 
                                     itemid = {itemid} 
                                     onClose = {this.toggleFormModal }
+                                    height={this.props.height}
                     />
                 </div>
             ); 
@@ -48,7 +50,7 @@ class ItemEditButton extends Component {
                         name= {button.name}
                         onClick={ () => this.toggleFormModal(button)}
                     >
-                        <Icon name={button.icon} />
+                        <Icon name={button.icon} color="blue" size="large"  />
                         {button.label}
                     </Menu.Item>
                 </div>

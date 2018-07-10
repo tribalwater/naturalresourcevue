@@ -12,7 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import ItemPropertiesContainer  from "./ItemPropertiesContainer";
 import ItemListTableContainer   from "./ItemListTableContainer";
-import ItemDataGrid             from "./ItemDataGrid";
+import ItemDataGridContainer             from "./ItemDataGridContainer";
 
 class MainComponent extends Component {
     constructor() {
@@ -38,14 +38,16 @@ class MainComponent extends Component {
     updateContainerDimensions(){
         console.log("--- update dimensions ---")
         let {content} = this.refs;
-        let cHeight = content.offsetHeight - content.children[0].offsetHeight ;
+        let cHeight = content.offsetHeight;
+        if (content && content.offsetHeight && content.children[0] && content.children[0].offsetHeight  ) {
+            cHeight = content.offsetHeight - content.children[0].offsetHeight ;
+        }
         this.setState({containerHeight: cHeight });
     }   
     
     render() {
         return (
             <div className="app-wrapper" ref="content">
-              
                     <Switch>
                         <Route  path='/item/properties/:itemtype/:itemsubtype/:itemid' 
                                 render = { () =>  <ItemPropertiesContainer  height={this.state.containerHeight} /> } 
@@ -54,13 +56,12 @@ class MainComponent extends Component {
                                 render = { () =>  <ItemListTableContainer height={this.state.containerHeight} />  }
                         />
                         <Route  path='/item/datagrid/:itemtype/:itemsubtype' 
-                                render = { () =>  <ItemDataGrid  height={this.state.containerHeight} /> }
+                                render = { () =>  <ItemDataGridContainer  height={this.state.containerHeight} /> }
                         />
                         <Route  path='/tabs/:tabid' 
                                 render = { () =>  <Tabs height={this.state.containerHeight}  /> }
                         />
-                    </Switch>
-                
+                    </Switch> 
             </div>     
         );
     }
@@ -128,7 +129,7 @@ class Tabs extends Component {
                     <Route path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid" 
                            render = { () =>  <ItemPropertiesContainer   height={this.props.height} />} />
                     <Route path='/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype' 
-                           render = { () =>  <ItemDataGrid   height={this.props.height} /> }
+                           render = { () =>  <ItemDataGridContainer   height={this.props.height} /> }
                     /> 
                 </Switch>
             )  

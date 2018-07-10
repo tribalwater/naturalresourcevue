@@ -1,0 +1,34 @@
+{
+    "name": "react-table-simple-table",
+    "description": null,
+    "version": "0.0.0",
+    "dependencies": {
+      "axios": "^0.18.0",
+      "cross-fetch": "^2.1.1",
+      "namor": "1.0.1",
+      "normalizr": "^3.2.4",
+      "react": "15.5.3",
+      "react-datepicker": "^1.5.0",
+      "react-dom": "15.5.3",
+      "react-media": "^1.8.0",
+      "react-redux": "^5.0.7",
+      "react-router-dom": "^4.2.2",
+      "react-table": "6.7.0-alpha-0",
+      "redux": "^4.0.0",
+      "redux-logger": "^3.0.6",
+      "redux-thunk": "^2.2.0",
+      "reselect": "^3.0.1",
+      "semantic-ui-css": "^2.3.1",
+      "semantic-ui-react": "^0.79.1",
+      "throttle-debounce": "^2.0.0"
+    },
+    "devDependencies": {
+      "react-scripts": "1.0.0"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test --env=jsdom",
+      "eject": "react-scripts eject"
+    }
+  }

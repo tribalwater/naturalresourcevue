@@ -17,8 +17,8 @@ class ItemFormModel extends Component {
                 <Modal
                        closeIcon centered={true} 
                        size="fullscreen"
-                       style= {{ 'margin-top': '20px', 'color': "green"}} 
-                       className="fuck" 
+                       style= { { 'margin-top': '20px'} }
+                       className="form-modal"
                        closeOnDimmerClick ={true}
                        closeOnDocumentClick = {true}
                        defaultOpen= {true}
@@ -27,7 +27,7 @@ class ItemFormModel extends Component {
                     <Modal.Header>Delete Your Account</Modal.Header>
                     <Modal.Content>
                  
-                   <ItemForm itemtype = {itemtype} subtype ={subtype}  ></ItemForm>
+                   <ItemForm itemtype = {itemtype} subtype ={subtype}  height={this.props.height}  ></ItemForm>
                     </Modal.Content>
                     <Modal.Actions>
                         <Button negative>Cancel</Button>
