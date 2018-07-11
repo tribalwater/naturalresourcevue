@@ -5,7 +5,7 @@ export const  receiveItemFormFields  = (payload) => {
   console.log(payload)
    return ({
     type: actions.RECEIVE_ITEM_FORM_FIELDS,
-    payload
+    payload:  payload.sort( (a,b) => a.sortorder - b.sortorder)
    })
 };
 

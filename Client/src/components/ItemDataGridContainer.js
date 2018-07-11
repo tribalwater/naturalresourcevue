@@ -35,12 +35,12 @@ class ItemDataGridContainer extends Component {
         }
 
     }
-    handleRowClick( item){
+    handleRowClick(rowInfo){
         let {history, tabs} = this.props;
         let {params}  = this.props.match
         let url      = this.props.match.url;
         let cameFromTab =  history.location.state && history.location.state.cameFromTab;
-        
+        let item = rowInfo.original.find(item => item.fieldname === "itemid");
         if(cameFromTab){             
             history.push({ 
                 pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 

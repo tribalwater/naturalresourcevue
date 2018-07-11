@@ -11,7 +11,8 @@ class ItemPickWindow extends Component {
     constructor(props){
         super(props);
         this.state = {
-            currentValue : ""
+            currentValue : "",
+            isModalOpen: false
         }
         this.getItems = this.getItems.bind(this);
         this.handleRowClick = this.handleRowClick.bind(this)
@@ -26,22 +27,32 @@ class ItemPickWindow extends Component {
         console.log("---- field ----");
         console.log(field);
         this.props.getItemList({itemtype: itemType, itemsubtype: subType}); 
+        this.setState({isModalOpen : !this.state.isModalOpen})
+        
     }
-    handleRowClick(item){
+    handleRowClick(rowInfo){
         console.log("--- pick window item ----");
         console.log(item)
+        let {field}  = this.props;
+
         //this.props.onItemSelect(item);
-        this.setState({currentValue: item.fieldvalue})
+        console.log(" ---- row info ---- ");
+        console.log(rowInfo);
+        let item = rowInfo.original.find(item => item.fieldname === field.parentcolumn);
+        console.log(" ---- item ----- ");
+        console.log(item)
+        this.setState({currentValue: item.fieldvalue, isModalOpen : false})
     }
     render() {
         let { label, onChang, field, listedItems, dataGridCols } = this.props;
         let selectedvalue = this.state.currentValue;
         let dt = <div>...loading</div>;
         let h = this.props.height + "px";
+        let {isModalOpen} = this.state;
         return (
             <Form.Field>
                  <label >{label}</label>
-                <Modal trigger={<Button fluid onClick={this.getItems}>Select {label}</Button>} centered={true} size="fullscreen" style= {{ 'margin-top': '20px'}} className="form-modal" >
+                <Modal open = {isModalOpen}  trigger={<Button fluid onClick={this.getItems}>Select {label}</Button>} centered={true} size="fullscreen" style= {{ 'margin-top': '20px'}} className="form-modal" >
                     <Modal.Header>Delete Your Account</Modal.Header>
                     <Modal.Content>
                     { listedItems  && listedItems.length > 1 && 

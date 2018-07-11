@@ -12,7 +12,7 @@ import ItemForm from './ItemForm';
 class ItemFormModel extends Component {
   
     render() {
-        let{ itemtype, subtype, itemid} = this.props;
+        let{ itemtype, subtype, itemid, action, onSumbit, onCancel} = this.props;
             return (
                 <Modal
                        closeIcon centered={true} 
@@ -24,14 +24,14 @@ class ItemFormModel extends Component {
                        defaultOpen= {true}
                        onClose={this.props.onClose}
                  >
-                    <Modal.Header>Delete Your Account</Modal.Header>
+                    <Modal.Header>{action} Item</Modal.Header>
                     <Modal.Content>
                  
                    <ItemForm itemtype = {itemtype} subtype ={subtype}  height={this.props.height}  ></ItemForm>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button negative>Cancel</Button>
-                        <Button positive icon='checkmark' labelPosition='right' content='Submit' />
+                        <Button negative onClick = {onCancel}>Cancel</Button>
+                        <Button positive icon='checkmark' labelPosition='right' content='Submit' onClick = {onSumbit} />
                     </Modal.Actions>
                 </Modal>
             );

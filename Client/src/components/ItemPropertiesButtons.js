@@ -34,7 +34,7 @@ class ItemPropertiesButtons extends Component {
           if(b.eventhandler == "editItem"){
               return <ItemEditButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid}   />
            }else if(b.eventhandler == "goToInsert"){
-            return <ItemInsertButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid}   />
+              return <ItemInsertButton button={b} itemtype={itemtype} subtype={subtype} itemid = {itemid}   />
            }
             return  <Menu.Item
                         name= {b.name}

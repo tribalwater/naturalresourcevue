@@ -13,7 +13,10 @@ class ItemInsertButton extends Component {
     handleItemClick = (e) => this.setState({showFormModal: !this.state.showFormModal})
     toggleFormModal = (e) => {
         this.setState({showFormModal: !this.state.showFormModal});
-    } 
+    }
+    onFormSubmit = (e) => this.setState({showFormModal: false}); 
+    onFormCancel = (e) => this.setState({showFormModal: false}); 
+    
          
     render() {
         let{button,  itemtype, subtype, itemid} = this.props;
@@ -28,12 +31,15 @@ class ItemInsertButton extends Component {
                         <Icon name={button.icon}  color="blue"  size="large" />
                         {button.labuttonel}
                     </Menu.Item>
-                    <ItemFormModel  action={"edit"} 
+                    <ItemFormModel  action={"Insert"} 
                                     itemtype={itemtype} 
                                     subtype={subtype} 
                                     itemid = {itemid} 
                                     onClose = {this.toggleFormModal }
                                     height={this.props.height}
+                                    onSumbit = {this.onFormSubmit}
+                                    onCancel = {this.onFormCancel}
+                                    
                     />
                 </div>
             ); 

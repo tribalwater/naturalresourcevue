@@ -22,7 +22,7 @@ const ItemDataGrid = ({gridHeight, listedItems, handleRowClick, cols}) => {
                         console.log("It was in this row:", rowInfo);
                         console.log("It was in this table instance:", instance);
                         let itemid = rowInfo.original.find(item => item.fieldname === "itemid");
-                        handleRowClick(itemid);
+                        handleRowClick(rowInfo);
                         // IMPORTANT! React-Table uses onClick internally to trigger
                         // events like expanding SubComponents and pivots.
                         // By default a custom 'onClick' handler will override this functionality.
