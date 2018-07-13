@@ -3,14 +3,25 @@ import { connect } from "react-redux";
 import { Switch, Route, withRouter } from 'react-router-dom';
 import {Segment} from "semantic-ui-react";
 
-import ItemPropertiesTable      from "./common/ItemPropertiesTable";
+import {Circle,
+  FeatureGroup,
+  LayerGroup,
+  LayersControl,
+  Map as LeafletMap,
+  Marker,
+  Popup,
+  Rectangle,
+  TileLayer } from "react-leaflet";
+
 import {getItemProperties, toggleSection, receiveItemPropertiesTabsBaseUrl} from "../actions/itemproperties";
 import {addTab}        from "../actions/tabs";
 import { getVisibileItemFields} from "../selectors/itemproperties";
 
-import MainPageHeader           from "./MainPageHeader.1";
-import ItemPropertiesButtons from "./ItemPropertiesButtons";
-import ItemPropertiesTabs from "./ItemPropertiesTabs";
+import ItemPropertiesTable     from "./common/ItemPropertiesTable";
+import MainPageHeader          from "./MainPageHeader.1";
+import ItemPropertiesButtons   from "./ItemPropertiesButtons";
+import ItemPropertiesTabs      from "./ItemPropertiesTabs";
+import {ItemMapTest} from "./maps";
 
  
 const  ItemMessages = ({fields, sections, toaggleSection}) => {
@@ -29,6 +40,9 @@ const  ItemRelations = ({}) => {
   return <div>I am container for  item relations</div>
 };
 
+const ItemMap = ({}) => {
+  return <div>I am going to be a map??</div>
+}
 
 class ItemPropertiesContainer extends Component {
 
@@ -85,7 +99,9 @@ class ItemPropertiesContainer extends Component {
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(files|properties/files)" 
                            render = { () => <ItemFiles   height={this.props.height} />  }  />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(relations|properties/relations)" 
-                           render = { () => <ItemRelations  height={this.props.height } />    }  />                        
+                           render = { () => <ItemRelations  height={this.props.height } />    }  />
+                    <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(map|properties/map)" 
+                           render = { () => <ItemMapTest  height={this.props.height } />    }  />                                    
             
               </Switch>
             </Segment>
