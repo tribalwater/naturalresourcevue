@@ -21,7 +21,7 @@ import ItemPropertiesTable     from "./common/ItemPropertiesTable";
 import MainPageHeader          from "./MainPageHeader.1";
 import ItemPropertiesButtons   from "./ItemPropertiesButtons";
 import ItemPropertiesTabs      from "./ItemPropertiesTabs";
-import {ItemMapTest} from "./maps";
+import {ItemMapTest, ItemPropertiesMap } from "./maps";
 
  
 const  ItemMessages = ({fields, sections, toaggleSection}) => {
@@ -58,7 +58,7 @@ class ItemPropertiesContainer extends Component {
     let {params} = this.props.match;
     let newParams = nextProps.match.params;
     if(params.itemid !== newParams.itemid){
-      this.props.getItemProperties({itemtype:'document', itemsubtype: 'gwpermit', itemid: '50509'})
+      this.props.getItemProperties({itemtype: nextProps.itemtype, itemsubtype: nextProps.itemsubtype, itemid: nextProps.itemid})
     }
     
   }
@@ -77,6 +77,7 @@ class ItemPropertiesContainer extends Component {
         
         let {fields, sections, toggleSection} = this.props;
         let {params} = this.props.match;
+        let {itemtype, itemsubtype} = params;
       
         return (
            <div>
@@ -101,7 +102,7 @@ class ItemPropertiesContainer extends Component {
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(relations|properties/relations)" 
                            render = { () => <ItemRelations  height={this.props.height } />    }  />
                     <Route exact path="/tabs/:tabid/item/properties/:itemtype/:itemsubtype/:itemid/(map|properties/map)" 
-                           render = { () => <ItemMapTest  height={this.props.height } />    }  />                                    
+                           render = { () => <ItemPropertiesMap itemtype = {itemtype} subtype = {itemsubtype} height={this.props.height } />    }  />                                    
             
               </Switch>
             </Segment>

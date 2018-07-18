@@ -21,9 +21,6 @@ class ItemPropertiesTabs extends Component {
       const { activeItem } = this.state
       const { tabs } = this.props;
       console.log(this.props.tabs)
-      tabs.push({
-        tabname: "map"
-      })
       let menuTabs = tabs.map( tab => { return  <Link to={`${this.props.baseUrl}/${tab.tabname.toLowerCase()}`}> 
                                                    <Menu.Item 
                                                   name={tab.tabname} 

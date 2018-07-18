@@ -19,6 +19,7 @@ class ItemPropertiesFeatureLayer extends MapLayer {
         }
         this.addPClick = this.addPClick.bind(this);
         this.setMapBounds = this.setMapBounds.bind(this);
+        this.help = this.help.bind(this)
     }
     setMapBounds(bounds){
         console.log(this.featureLayer)
@@ -28,11 +29,15 @@ class ItemPropertiesFeatureLayer extends MapLayer {
         this.setState({goingTo: true});
       
     }
+    help() {
+            alert("help!!!!!!!")
+    }
     addPClick(){
         let nav = document.getElementById("navp");
         nav.addEventListener("click", this.hello)
     }
 	createLeafletElement(props) {
+        console.log("----- create leflet element ---")
         const { fURL, tdURL, whereCond } = props;
         const pointStyle = this.props.pointStyle ||  {
             color: 'white',
@@ -53,19 +58,47 @@ class ItemPropertiesFeatureLayer extends MapLayer {
             url: `${fURL}`,
             fields: ["*"],
             where: `${whereCond}`,
-            pointToLayer: function (geojson, latlng) {
+            pointToLayer:  (geojson, latlng) => {
+                console.log("points to  layer ---")
+               
+                console.log(latlng)
+             
                 return L.circleMarker(latlng, pointStyle);
             },
+            onEachFeature: (feature, layer) => {
+                console.log("---- arguements ---")
+                console.log(arguments)
+                console.log('wtf as fuck')
+                console.log(feature.geometry)
+                console.log(layer)
+                if(feature.geometry.type == "Point"){
+                    console.log("poly ")
+                    this.context.map.flyTo(layer._latlng);
+                }else{
+                    this.context.map.flyToBounds(layer._bounds)    
+                }
+                return "";
+            },
+
             style: styleFunc || null    
         });
-
-        this.setState({featureLayer: fLayer});  
-        fLayer.on("load", (e) => {
-             this.setState({bounds: e.bounds});
-        })
        
+        
+        fLayer.on("load", (e) => {
+            console.log("---- f layer ----");
+            console.log(e)
+           this.props.onLoad(e)
+         
+        })
+        
+
+        
         return  fLayer.addTo(this.context.map)
-	}
+    }
+    
+    render(){
+        console.log("item map render")
+    }
 
     componentDidUpdate(prevProps, prevState){
 

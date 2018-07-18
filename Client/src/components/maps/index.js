@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from "react-redux";
 import { Map as LeafletMap } from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -6,6 +7,8 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import BaseMapManager from "./BaseMapManager";
 import {ItemListFeatureLayer} from "./ItemListFeatureLayer";
 import {ItemPropertiesFeatureLayer} from "./ItemPropertiesFeatureLayer";
+import ItemPropertiesMap from "./ItemPropertiesMap";
+import {getItemProperties, toggleSection, receiveItemPropertiesTabsBaseUrl} from "../../actions/itemproperties";
 
 
 const ItemMapTest = ({height}) => {
@@ -31,4 +34,4 @@ const ItemMapTest = ({height}) => {
                </LeafletMap>
 }
 
-export { ItemListFeatureLayer,  ItemPropertiesFeatureLayer, BaseMapManager, ItemMapTest };
+export { ItemListFeatureLayer,  ItemPropertiesFeatureLayer, BaseMapManager, ItemMapTest, ItemPropertiesMap };

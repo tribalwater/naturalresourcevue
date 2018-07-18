@@ -91,9 +91,6 @@ namespace DbUitlsCoreTest.Controllers
         [HttpGet("list")]
         public IActionResult GetItemTypeList(string itemtype, string subtype)
         {
-            Console.WriteLine("----- get list -----");
-            Console.WriteLine(itemtype);
-
             return Ok(_respository.GetItemList(itemtype, subtype));
         }
 
@@ -118,6 +115,39 @@ namespace DbUitlsCoreTest.Controllers
             Console.WriteLine(itemtype);
 
             return Ok(_respository.GetItemProperties(itemtype, subtype, id));
+        }
+
+        [HttpGet("mapmeta")]
+        public IActionResult GetItemMapProperties(string itemtype, string subtype, string id)
+        {
+            Console.WriteLine(" --- get map meta --- ");
+            Hashtable MapMeta = new Hashtable();
+            string HashKey = itemtype + "_" + subtype;
+            MapMeta.Add("part_pod", new
+            {
+                url = "http://waterweb.sbtribes.com/arcgis/rest/services/WellPrac/FeatureServer/0",
+                query = "1=1",
+                gisfield = "TAG_NO_",
+                tdfield = "numfield1",
+                outfields = "*"
+            });
+            MapMeta.Add("part_welltag", new
+            {
+                url = "http://waterweb.sbtribes.com/arcgis/rest/services/WellPrac/FeatureServer/0",
+                query = "1=1",
+                gisfield = "TAG_NO_",
+                tdfield = "partno",
+                outfields = "*"
+            });
+            MapMeta.Add("part_allotment", new
+            {
+                url = "http://waterweb.sbtribes.com/arcgis/rest/services/Allotments/FeatureServer/0",
+                query = "1=1",
+                gisfield = "LSTMOSS_AT",
+                tdfield = "enterprise",
+                outfields= "*"
+            });
+            return Ok(MapMeta[HashKey]);
         }
 
         [HttpGet("properties/viewmodel/{id}")]
