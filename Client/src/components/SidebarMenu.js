@@ -22,8 +22,20 @@ let links = {
         }
       },
       {
-        "-name": "ssdo",
-        "-link": "/item/list/document/ssdp",
+        "-name": "Ssdos",
+        "-link": "/item/datagrid/document/ssdp",
+        "-args": "?itemtype=document&subtype=ssdo",
+        "-fcid": "3"
+      },
+      {
+        "-name": "Allotments",
+        "-link": "/item/datagrid/part/allotment",
+        "-args": "?itemtype=document&subtype=ssdo",
+        "-fcid": "3"
+      },
+      {
+        "-name": "Well Tags",
+        "-link": "/item/datagrid/part/welltag",
         "-args": "?itemtype=document&subtype=ssdo",
         "-fcid": "3"
       }

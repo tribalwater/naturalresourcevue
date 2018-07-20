@@ -8,6 +8,7 @@ import BaseMapManager from "./BaseMapManager";
 import {ItemListFeatureLayer} from "./ItemListFeatureLayer";
 import {ItemPropertiesFeatureLayer} from "./ItemPropertiesFeatureLayer";
 import ItemPropertiesMap from "./ItemPropertiesMap";
+import ItemListMap from "./ItemListMap";
 import {getItemProperties, toggleSection, receiveItemPropertiesTabsBaseUrl} from "../../actions/itemproperties";
 
 
@@ -34,4 +35,4 @@ const ItemMapTest = ({height}) => {
                </LeafletMap>
 }
 
-export { ItemListFeatureLayer,  ItemPropertiesFeatureLayer, BaseMapManager, ItemMapTest, ItemPropertiesMap };
+export { ItemListFeatureLayer,  ItemPropertiesFeatureLayer, BaseMapManager, ItemMapTest, ItemPropertiesMap, ItemListMap };

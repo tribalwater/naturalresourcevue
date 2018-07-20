@@ -17,10 +17,14 @@ class ItemListButtons extends Component {
     
     handleItemClick = (button) => {
         //this.setState({ activeItem: name })
+        console.log(" ---- button ------", button)
+        let {itemtype, subtype, tabid} = this.props; 
         if(button.eventhandler == "editItem"){
             this.setState({itemFormAction: "edit"}, () => this.setState({ isFormModalOpen : true}) );
         }else if(button.eventhandler == "goToInsert"){
             this.setState({itemFormAction: "insert"}, () => this.setState({ isFormModalOpen : true}) );
+        }else if(button.eventhandler == "viewGis"){
+            this.props.history.push(`/tabs/${tabid}/item/datagrid/${itemtype}/${subtype}/map`)
         }
       
     }

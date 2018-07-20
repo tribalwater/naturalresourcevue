@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { withRouter } from 'react-router';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import {Segment} from "semantic-ui-react";
 
 import ItemDataGrid from "./ItemDataGrid";
-import  MainPageHeader  from "./MainPageHeader.1";
-import  ItemListButtons  from "./ItemListButtons";
+import MainPageHeader  from "./MainPageHeader.1";
+import ItemListButtons  from "./ItemListButtons";
+import {ItemListMap} from "./maps";
 
 import {getItemList} from "../actions/items";
 import {itemArrayListedSortedSelector, itemArrayListedSelector, itemListDataGridCols}  from "../selectors/itemlist";
@@ -48,7 +49,7 @@ class ItemDataGridContainer extends Component {
             });
         }else{
             history.push({ 
-                pathname: `/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
+                pathname: `/tabs/0/item/properties/${params.itemtype}/${params.itemsubtype}/${item.fieldvalue}`, 
                 state : {cameFromTab: true, cameFromLocation : url, name: history.location.name} 
         });
 
@@ -57,11 +58,12 @@ class ItemDataGridContainer extends Component {
       
     }
     render() {
-                let {listedItems, listedJsonItems, items, display,  match, dataGridCols} = this.props;        
+                let {listedItems, listedJsonItems, items, display,  match, dataGridCols} = this.props;      
+                let {params}  = this.props.match  
+                let {itemtype, itemsubtype} = params;
                 let dt = <div>...loading</div>;
                 let h = this.props.height + "px";
-                let {params} = this.props.match;
-              
+               
                 if(listedItems.length > 1){
                     dt = <ItemDataGrid 
                     gridHeight = {h}
@@ -73,17 +75,36 @@ class ItemDataGridContainer extends Component {
                 return (
                     <div>       
                         <MainPageHeader
-                            buttonGroupTwo = { <ItemListButtons itemtype={params.itemtype} subtype={params.itemsubtype} height={this.props.height}  /> }
+                         buttonGroupTwo = {<ItemListButtons  itemtype={params.itemtype}  subtype={params.itemsubtype}  height={this.props.height} tabid={params.tabid}  history={this.props.history}  />  }
                         />
-                        <Segment  className="page-container" style={{height: this.props.height}}>  
-                        {
-                            dt
-                            }
+                        <Segment  className="page-container" style={{height: this.props.height}}>             
+                            <Switch>
+                                <Route exact path="/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype" 
+                                            render = { () =>  <FunctionalDataGrid   gridHeight = {h} listedItems = {listedItems} rowClick = {this.handleRowClick} cols = {dataGridCols} />  }   
+                                />
+                                <Route exact path="/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype/map" 
+                                            render = { () =>  <ItemListMap  itemtype = {itemtype} subtype = {itemsubtype} height={this.props.height } tabid={params.tabid} />  }   
+                                />                  
+                            </Switch> 
                         </Segment>
                     </div>
                 );
         }
       
+    
+}
+
+const FunctionalDataGrid = ({listedItems, h, rowClick, cols}) => {
+    if (listedItems.length > 1) {
+        return <ItemDataGrid 
+                    gridHeight = {h}
+                    listedItems = {listedItems}
+                    handleRowClick = {rowClick}
+                    cols = {cols}
+                />
+    }else{
+      return  <div>...loading</div>
+    }
     
 }
 

@@ -102,7 +102,7 @@ namespace DbUitlsCoreTest.Data
             }
            
             
-            Console.WriteLine(sql);
+           
             List<dynamic> returnvals = _dapperHelper.RawQuery(sql).ToList();
 
             return returnvals;
@@ -156,12 +156,7 @@ namespace DbUitlsCoreTest.Data
             Dictionary<string, string> whereDict = new Dictionary<string, string>();
             whereDict.Add(itemtype + "type", itemsubtype);
             whereDict.Add("itemid", id);
-            foreach (var item in whereDict)
-            {
-                Console.WriteLine(item.Key);
-                Console.WriteLine(item.Value);
-            }
-
+            
             return _dapperHelper.Delete(itemtype + "_properties", whereDict);
 
         }
@@ -185,7 +180,7 @@ namespace DbUitlsCoreTest.Data
         {
             Dictionary<string, List<dynamic>> RelatedItemListDict = new Dictionary<string, List<dynamic>>();
             var RelatedItemTypes = this.GetItemRelatonTypeAndSubTypes(itemtype, itemsubtype, itemid).ToList();
-            Console.WriteLine("--- get related itme types -----");
+          
 
             foreach (var item in RelatedItemTypes)
             {
@@ -200,8 +195,7 @@ namespace DbUitlsCoreTest.Data
 
                 var disname = this._dapperHelper.RawQuery(RelationItemDispNameSql).FirstOrDefault();
 
-                Console.WriteLine("---- dis name -----");
-                Console.WriteLine(disname);
+               
 
                 String subSql = "select itemid2 FROM ITEMRELATIONFLAT " +
                                 $"where itemtypecd1 = '{itemtype}' " +
@@ -212,7 +206,7 @@ namespace DbUitlsCoreTest.Data
                              $" where {Reltype}type = '{RelSubType}' " +
                              $" and itemid in ({subSql}) ";
 
-                Console.WriteLine(sql);
+                
 
                 var data = this._dapperHelper.RawQuery(sql).ToList();
                 RelatedItemListDict.Add(disname.displayname, data);
@@ -299,7 +293,7 @@ namespace DbUitlsCoreTest.Data
             }
             sql += " order by sortorder, displayname";
 
-            Console.WriteLine(sql);
+          
             //If using SQL Server, convert query before running it
             if (this._dbtype.Equals(2))
             {
@@ -362,8 +356,7 @@ return res.ToList();
             }
             sql += "order by taborder";
 
-            Console.WriteLine(" ---- item tab sql -----");
-            Console.WriteLine(sql);
+           
 
             List<dynamic> res = _dapperHelper.RawQuery(sql).ToList();
 
@@ -372,19 +365,11 @@ return res.ToList();
         }
         public object GetItemList(string itemtype, string subtype, string fieldlist = "", string whereorder = "")
         {
-            Console.WriteLine("get list ------*******_--");
+           
             var itemDisp = this.GetItemDisplay(itemtype, subtype);
             var itemDict = itemDisp.ToDictionary(x => x.fieldname, x => x);
             var itemRecs = this.BuildItemList(itemDisp, itemtype, subtype, "", "");
-            foreach (var hsm in itemRecs)
-            {
-
-                foreach (var item in hsm)
-                {
-                    Console.WriteLine(item);
-                    //item.Value["displayname"] = "fuck";
-                }
-            }
+          
             Hashtable recordset = new Hashtable();
             recordset.Add("display", itemDict);
             recordset.Add("records", itemRecs);
@@ -922,7 +907,7 @@ return res.ToList();
 
                         else if ( field.maxlength != null && int.Parse(field.maxlength.ToString()) > 1)
                         {
-                            Console.WriteLine("-- get pick list item value when maxlength greater than 1");
+                         
 
                             if (defaultvalue.Length > 0)
                             {
@@ -935,8 +920,9 @@ return res.ToList();
                             }
                             if (!string.IsNullOrEmpty(field.itemvaluegroup))
                             {
-                                Console.WriteLine("-- and pick list has item value group ----");
-                                Console.WriteLine(formfield);
+                             
+
+                              
                                 formfield.Add("seloptions", this.getGenericOptions(field.itemvaluegroup, defaultvalue));
                             }
                             else if (!string.IsNullOrEmpty(field.customsql))
@@ -1431,8 +1417,7 @@ return res.ToList();
 
         public object GetItemProperties(string itemtype, string subtype, string itemid, string fieldlist = "", string whereorder = "")
         {
-            Console.WriteLine("---- itemid for props ----");
-            Console.WriteLine(itemid);
+           
             var itemDisp = this.GetItemDisplay(itemtype, subtype);
             var itemRecs = this.BuildItemProperties(itemDisp, itemtype, subtype, itemid, whereorder);
             var itemProps = this.FormatItemProperties(itemRecs, itemDisp);
@@ -1599,8 +1584,8 @@ return res.ToList();
                             }
                             else
                             {
-                                Console.WriteLine("--- default ----");
-                                Console.WriteLine(dispDict[fieldName]);
+                           
+                               
                                 Hashtable linkSimple = new Hashtable();
                                 linkSimple.Add("link", fieldValue);
                                 field["linkTo"] = linkSimple;
@@ -1726,7 +1711,7 @@ return res.ToList();
 
         private List<dynamic> BuildItemList(List<dynamic> itemDisp, string itemtype, string subtype, string fieldlist = "", string whereorder = "", Predicate<dynamic> filterfunc = null)
         {
-            Console.WriteLine("get item list -----");
+           
             string columns = "";
             string idname = "itemid";
             // TODO: need to inplment getTopVueParameter
@@ -2019,8 +2004,7 @@ return res.ToList();
             {
                 sql = DataUtils.sqlConvert(sql);
             }
-            Console.WriteLine("--- building item list  1-----");
-            Console.WriteLine(sql);
+
             var res = this._dapperHelper.RawQuery(sql);
             if (res != null)
             {
@@ -2807,8 +2791,7 @@ return res.ToList();
                 SqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
 
-                Console.WriteLine("build recs ----- sql");
-                Console.WriteLine(sql);
+              
                 var recReader = cmd.ExecuteReader();
 
                 while (recReader.Read())
@@ -3079,7 +3062,7 @@ return res.ToList();
                                 Hashtable dtProps = new Hashtable();
                                 string dtnodeval = recReader.GetValue(i).ToString();
                                 if (String.IsNullOrEmpty(dtnodeval)) dtnodeval = " ";
-                                Console.WriteLine(fieldValue);
+                           
                                 if (fieldType == "System.DateTime" || datefield || timefield)
                                 {
                                     if (recReader.GetValue(i).ToString().Length > 0)
@@ -3106,7 +3089,7 @@ return res.ToList();
                     records.Add(record);
                 }
 
-                Console.WriteLine(" ------ end records build ------");
+             
 
                 return records;
             }

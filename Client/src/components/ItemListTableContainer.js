@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { withRouter } from 'react-router';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom'
 import {Table}        from "semantic-ui-react";
 import {Segment} from "semantic-ui-react";
@@ -76,7 +76,7 @@ class ItemListTableContainer extends Component {
             <div>
 
              <MainPageHeader
-              buttonGroupTwo = { <ItemListButtons itemtype={params.itemtype} subtype={params.itemsubtype}  /> }
+              buttonGroupTwo = { <ItemListButtons itemtype={params.itemtype} subtype={params.itemsubtype}  history={this.props.history} /> }
              />
             <Segment  className="page-container" style={{height: this.props.height}}>  
             <Table  sortable celled compact striped inverted>

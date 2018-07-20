@@ -120,7 +120,7 @@ namespace DbUitlsCoreTest.Data
             {
                 var queryTemplate = builder.AddTemplate($"Select /**select**/ from {tableName} /**where**/");
                 IEnumerable<dynamic> result = connection.Query(queryTemplate.RawSql, queryTemplate.Parameters).ToList();
-                Console.WriteLine(queryTemplate.RawSql);
+                
                 return result;
             }
 

@@ -43,7 +43,18 @@ namespace DbUitlsCoreTest.Features.ItemTypes
             {
                 _repository = repository;
             }
+            //TODO: this shouled eventually come from request params bucket
+            private List<dynamic> addCusttomButtons(string itemtype, string subtype, List<dynamic> buttons)
+            {
+                Console.WriteLine(" --- get custom buttons ---");
+                List<dynamic> CustomButtons = _repository.GetItemCustomButtons(itemtype, subtype, "list");
+                foreach (var item in CustomButtons)
+                {
+                    Console.WriteLine(item);
+                }
+                return  buttons.Concat(CustomButtons).ToList();
 
+            }
             //TODO: this shouled eventually come from request params bucket
             private void addSearchButton(string itemtype, string subtype, bool shouldShowSearchButton, List<dynamic> buttons)
             {
@@ -64,7 +75,8 @@ namespace DbUitlsCoreTest.Features.ItemTypes
                 }
             }
 
-            private  void addInsertButton(string itemtype, string subtype, bool shouldsShowInsertButton,  List<dynamic> buttons)
+          
+            private void addInsertButton(string itemtype, string subtype, bool shouldsShowInsertButton,  List<dynamic> buttons)
             {
                 
                 if (shouldsShowInsertButton)
@@ -84,9 +96,10 @@ namespace DbUitlsCoreTest.Features.ItemTypes
             public async Task<List<object>> Handle(Query message, CancellationToken cancellationToken)
             {
                 // Console.WriteLine(message.buttontype);
-
+                Console.WriteLine(" --- get item button list ---");
                 await Task.Delay(10);
                 List<dynamic> itemButtons = new List<dynamic>();
+                itemButtons = this.addCusttomButtons(message.ItemType, message.ItemsSubType, itemButtons);
                 this.addSearchButton( message.ItemType, message.ItemsSubType, message.ShouldShowSearchButton, itemButtons);
                 this.addInsertButton( message.ItemType, message.ItemsSubType, message.ShouldShowInsertButton, itemButtons);
 

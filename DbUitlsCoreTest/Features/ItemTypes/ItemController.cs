@@ -129,6 +129,9 @@ namespace DbUitlsCoreTest.Controllers
                 query = "1=1",
                 gisfield = "TAG_NO_",
                 tdfield = "numfield1",
+                mainheader = "numfield1",
+                secondheader = "flexfield21",
+                thirdheader = "flexfield13",
                 outfields = "*"
             });
             MapMeta.Add("part_welltag", new
@@ -137,6 +140,9 @@ namespace DbUitlsCoreTest.Controllers
                 query = "1=1",
                 gisfield = "TAG_NO_",
                 tdfield = "partno",
+                mainheader = "partno",
+                secondheader = "flexfield21",
+                thirdheader= "cbrn",
                 outfields = "*"
             });
             MapMeta.Add("part_allotment", new
@@ -145,7 +151,10 @@ namespace DbUitlsCoreTest.Controllers
                 query = "1=1",
                 gisfield = "LSTMOSS_AT",
                 tdfield = "enterprise",
-                outfields= "*"
+                mainheader= "enterprise",
+                secondheader = "comments",
+                thirdheader = "flexfield13",
+                outfields = "*"
             });
             return Ok(MapMeta[HashKey]);
         }

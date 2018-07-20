@@ -71,12 +71,12 @@ class ItemPropertiesFeatureLayer extends MapLayer {
                 console.log('wtf as fuck')
                 console.log(feature.geometry)
                 console.log(layer)
-                if(feature.geometry.type == "Point"){
-                    console.log("poly ")
-                    this.context.map.flyTo(layer._latlng);
-                }else{
-                    this.context.map.flyToBounds(layer._bounds)    
-                }
+                // if(feature.geometry.type == "Point"){
+                //     console.log("poly ")
+                //     this.context.map.flyTo(layer._latlng);
+                // }else{
+                //     this.context.map.flyToBounds(layer._bounds)    
+                // }
                 return "";
             },
 
@@ -90,10 +90,29 @@ class ItemPropertiesFeatureLayer extends MapLayer {
            this.props.onLoad(e)
          
         })
-        
 
+        fLayer.on("zoom", () => console.log('zoom'))
+
+                // listen for when all features have been retrieved from the server
+        fLayer.once("load", (evt) =>{
+            // create a new empty Leaflet bounds object
+            var bounds = L.latLngBounds([]);
+            // loop through the features returned by the server
+            fLayer.eachFeature(function(layer) {
+            // get the bounds of an individual feature
+                console.log("--- layer ---", layer)
+                var layerBounds = layer._bounds || layer._latlng;
+                // extend the bounds of the collection to fit the bounds of the new feature
+                bounds.extend(layerBounds);
+                });
+
+            // once we've looped through all the features, zoom the map to the extent of the collection
+            this.context.map.fitBounds(bounds);
+        });
+                
+        fLayer.addTo(this.context.map);
         
-        return  fLayer.addTo(this.context.map)
+        return  fLayer;
     }
     
     render(){
