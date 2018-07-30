@@ -4,6 +4,8 @@ import { connect } from "react-redux";
 import ItemMap from "./ItemMap";
 import {ItemListFeatureLayer} from "./ItemListFeatureLayer";
 import {getItemMapMeta} from "../../actions/itemmaps";
+import {searchItemType} from "../../actions/itemsearch";
+
 
 import axios from "axios";
 class ItemListMap extends Component {
@@ -14,30 +16,84 @@ class ItemListMap extends Component {
             bounds :null 
         }
         this.onPopUp = this.onPopUp.bind(this);
+      
+        this.resolveClick = this.resolveClick.bind(this);
     }
     
-    onPopUp(){
-        return axios.get("http://localhost:51086/api/item/part/welltag/properties/243606")
-        .then( (res) => res.data.records[0])
-        .then(rec => {
-            return (
-            `<div class="ui card">
-                <div class="content">
-                <div class="header">
-                    Well Tag NO :  ${rec.partno.fieldvalue}
-                </div>
-                <div class="meta">
-                    Orginal Owner:  ${rec.cbrn.fieldvalue}
-                </div>
-                <div class="description">
-                    Well Uses :  ${rec.flexfield7.fieldvalue}
-                </div>
-                </div>
-                <div class="extra content">
-                    <div class="ui basic teal  button" id = "navp">View Properties</div>
-                </div>
-            </div>`
-            );
+    resolveClick(itemid){
+        console.log(" ---- helll you bastards ---", itemid);
+        this.props.onFeatureCLick(itemid);
+    }
+    onPopUp(e, popup){
+        let {itemtype, subtype, itemMap} = this.props;
+        let gisField = itemMap.gisfield;
+        let tdField  = itemMap.tdfield;
+        let gisVal   = e.layer.feature.properties[gisField]
+        
+       
+        let cols = [];
+        let vals = [];
+        let itemTable = `${itemtype}_properties`;
+        cols.push(tdField);
+        vals.push(gisVal);
+        console.log("---- gisVal -----", gisVal)
+        
+        let resolvePopup = () => {
+
+            return (successPromise) =>{
+                console.log(" --- popup p  ---", popup, successPromise);   
+                successPromise
+                     .then( (res) => res[0])
+                     .then(rec => {
+                         console.log(" ----- rec ------", rec);
+                         console.log(this.props)
+                         let itemId   = rec.ITEMID || "";
+                         popup.setContent(
+                            `<div class="ui card">
+                                <div class="content">
+                                <div class="header">
+                                    ${this.props.itemMap.mainheaderlabel} :  ${rec[this.props.itemMap.mainheader]}
+                                </div>
+                                <div class="meta">
+                                    ${this.props.itemMap.secondheaderlabel}:  ${rec[this.props.itemMap.secondheader]}
+                                </div>
+                                <div class="description">
+                                ${this.props.itemMap.thirdheaderlabel} :  ${rec[this.props.itemMap.thirdheader]}
+                                </div>
+                                </div>
+                                <div class="extra content">
+                                    <div class="ui basic teal  button" id = "navp">View Properties</div>
+                                </div>
+                            </div>`
+                         ) 
+                        return itemId;
+                     })
+                     .then(itemId => {
+                        setTimeout(() => {
+                       
+                            let button = document.getElementById("navp").addEventListener("click", () => this.resolveClick(itemId));
+                           
+                            console.log(button, "--- button ---")
+                         }, 10);
+                         
+                     })
+
+                    
+                    
+            }
+        }
+
+        let rP = resolvePopup();
+        this.props.searchItemType({
+            itemtype: itemtype,
+            itemsubtype: subtype,
+            data: {
+                    "cols"  : cols,
+                    "likevals" :vals,
+                    "itemtable" : itemTable ,
+                    "subtype" : subtype
+            },
+            asyncCb : rP    
         })
         
     }
@@ -87,11 +143,12 @@ class ItemListMap extends Component {
 
 const mapStateToProps = state => {
     return {
-     itemMap :  state.itemmapmeta
+     itemMap :  state.itemmapmeta,
+     searchResults: state.itemsearch
     };
 };
 
-const dispatchObj = {getItemMapMeta}
+const dispatchObj = {getItemMapMeta, searchItemType}
 
 export default  connect(mapStateToProps, dispatchObj)(ItemListMap) ;
   

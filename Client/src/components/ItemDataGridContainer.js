@@ -16,6 +16,7 @@ class ItemDataGridContainer extends Component {
     constructor(props){
         super(props);
         this.handleRowClick = this.handleRowClick.bind(this);
+        this.handleFeautureLayerClick = this.handleFeautureLayerClick.bind(this);
         this.state = {
             cols: []
         }
@@ -35,6 +36,24 @@ class ItemDataGridContainer extends Component {
             this.props.getItemList({itemtype: newParams.itemtype, itemsubtype: newParams.itemsubtype}); 
         }
 
+    }
+    handleFeautureLayerClick(itemid){
+        let {history, tabs} = this.props;
+        let {params}  = this.props.match;
+        let cameFromTab =  history.location.state && history.location.state.cameFromTab;
+        let url      = this.props.match.url;
+        if(cameFromTab){             
+            history.push({ 
+                pathname: `/tabs/${params.tabid}/item/properties/${params.itemtype}/${params.itemsubtype}/${itemid}`, 
+                state : {cameFromTab: true, cameFromLocation : url, name : history.location.state.name} 
+            });
+        }else{
+            history.push({ 
+                pathname: `/tabs/0/item/properties/${params.itemtype}/${params.itemsubtype}/${itemid}`, 
+                state : {cameFromTab: true, cameFromLocation : url, name: history.location.name} 
+        });
+
+        }
     }
     handleRowClick(rowInfo){
         let {history, tabs} = this.props;
@@ -83,7 +102,9 @@ class ItemDataGridContainer extends Component {
                                             render = { () =>  <FunctionalDataGrid   gridHeight = {h} listedItems = {listedItems} rowClick = {this.handleRowClick} cols = {dataGridCols} />  }   
                                 />
                                 <Route exact path="/tabs/:tabid/item/datagrid/:itemtype/:itemsubtype/map" 
-                                            render = { () =>  <ItemListMap  itemtype = {itemtype} subtype = {itemsubtype} height={this.props.height } tabid={params.tabid} />  }   
+                                            render = { () =>  <ItemListMap  itemtype = {itemtype} subtype = {itemsubtype} 
+                                                                            height={this.props.height } tabid={params.tabid} 
+                                                                            onFeatureCLick={this.handleFeautureLayerClick} />  }   
                                 />                  
                             </Switch> 
                         </Segment>

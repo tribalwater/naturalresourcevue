@@ -5,7 +5,7 @@ import itemproperties from './itemproperties';
 import itemformfields from "./itemformfields";
 import itempropertiesbuttons from "./itempropertiesbuttons";
 import itemmapmeta from "./itemmapmeta";
-
+import itemsearch from "./itemsearch";
 
 const tabLinks = [
     {
@@ -44,6 +44,7 @@ const tabLinks = [
     itemproperties,
     itemformfields,
     itempropertiesbuttons,
-    itemmapmeta
+    itemmapmeta,
+    itemsearch
   })
   

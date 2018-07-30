@@ -20,7 +20,14 @@ const  itemmapmeta = (state = intitialState , action ) => {
                 query : action.payload.query,
                 gisfield: action.payload.gisfield,
                 tdfield: action.payload.tdfield,
-                outfields: action.payload.outfields
+                outfields: action.payload.outfields,
+                mainheader : action.payload.mainheader,
+                mainheaderlabel : action.payload.mainheaderlabel,           
+                secondheader : action.payload.secondheader,
+                secondheaderlabel : action.payload.secondheaderlabel,                
+                thirdheader : action.payload.thirdheader,
+                thirdheaderlabel : action.payload.thirdheaderlabel
+                
             };
 
         default: 

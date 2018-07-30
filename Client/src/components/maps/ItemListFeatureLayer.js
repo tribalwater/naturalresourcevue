@@ -11,13 +11,15 @@ class ItemListFeatureLayer extends MapLayer {
         this.handleLayerClick = this.handleLayerClick.bind(this);
     }
     
-    getPopUp(){
-        let popUpPromise =  this.props.onPopUp();
-        popUpPromise.then( (popup) =>  this.state.featureLayer.getPopup().setContent(popup) ) ;
+    getPopUp(e){
+        let popUpPromise =  this.props.onPopUp(e, this.state.featureLayer.getPopup());
+        console.log(this.state.featureLayer.getPopup())
+        //popUpPromise.then( (popup) =>  this.state.featureLayer.getPopup().setContent(popup) ) ;
     }
 
-    handleLayerClick(){
-        this.getPopUp();
+
+    handleLayerClick(e){
+        this.getPopUp(e);
     }
     createLeafletElement(props) {
         const { fURL, tdURL, whereCond, styleFnc } = props;
@@ -35,7 +37,7 @@ class ItemListFeatureLayer extends MapLayer {
             style: styleFnc || null
         }); 
         fLayer.bindPopup(() => "...loading")
-        fLayer.on("click", (e) => this.handleLayerClick());
+        fLayer.on("click", (e) => this.handleLayerClick(e));
         fLayer.once("load", (evt) =>{
             // create a new empty Leaflet bounds object
             var bounds = L.latLngBounds([]);
@@ -50,8 +52,7 @@ class ItemListFeatureLayer extends MapLayer {
 
             // once we've looped through all the features, zoom the map to the extent of the collection
             this.context.map.fitBounds(bounds);
-        });
-                
+        });    
         this.setState({featureLayer : fLayer});
         return  fLayer.addTo(this.context.map)
     }
